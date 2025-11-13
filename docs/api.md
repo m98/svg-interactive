@@ -2,110 +2,245 @@
 
 Complete API documentation for `svg-interactive`.
 
-## InteractiveSVG Component
+## Table of Contents
 
-The main React component for creating interactive SVG diagrams.
+- [Quick Start](#quick-start)
+- [Parser Functions](#parser-functions)
+- [InteractiveSVG Component](#interactivesvg-component)
+- [TypeScript Types](#typescript-types)
+- [CSS Variables](#css-variables)
+- [Examples](#examples)
 
-### Basic Usage
+---
+
+## Quick Start
+
+**svg-interactive** uses a **two-step pattern**:
+
+1. **Parse** your SVG to extract field mappings
+2. **Render** with the InteractiveSVG component
 
 ```tsx
-import { InteractiveSVG } from 'svg-interactive';
+import { parseSVG, InteractiveSVG } from 'svg-interactive';
+import 'svg-interactive/styles';
 
+// Step 1: Parse SVG
+const svgContent = await fetch('/diagram.svg').then(r => r.text());
+const { mappings } = parseSVG(svgContent, {
+  patterns: [
+    { prefix: 'input-', type: 'input' },
+    { prefix: 'output-', type: 'output' }
+  ]
+});
+
+// Step 2: Render
 <InteractiveSVG
-  svgUrl="/diagram.svg"
-  config={{
-    patterns: [
-      { prefix: 'input-', type: 'input' },
-      { prefix: 'output-', type: 'output' }
-    ]
-  }}
+  mappings={mappings}
+  svgContent={svgContent}
+  onOutputCompute={(inputs) => ({
+    result: `You entered: ${inputs.temperature}`
+  })}
 />
 ```
 
 ---
 
-## Props Reference
+## Parser Functions
 
-### SVG Source
+All parser functions follow the same signature and return the same result structure.
 
-#### `svgUrl`
-- **Type**: `string`
-- **Required**: One of `svgUrl` or `svgContent` required
-- **Description**: URL to load SVG file from
+### `parseSVG(svgContent, options)`
+
+**Generic parser** - Works with any SVG. Supports matching by any attribute (id, class, data-*, custom).
 
 ```tsx
-<InteractiveSVG svgUrl="/path/to/diagram.svg" ... />
+import { parseSVG } from 'svg-interactive';
+
+const result = parseSVG(svgContent, {
+  patterns: [
+    { prefix: 'input-', type: 'input' },  // Defaults to id attribute
+    { attribute: 'class', prefix: 'field-', type: 'output' }
+  ]
+});
+```
+
+**Auto-detects draw.io SVGs** and delegates to `parseDrawIoSVG` automatically.
+
+### `parseDrawIoSVG(svgContent, options)`
+
+**Draw.io specific parser** - Extracts fields from draw.io SVG exports.
+
+```tsx
+import { parseDrawIoSVG } from 'svg-interactive';
+
+const result = parseDrawIoSVG(svgContent, {
+  patterns: [
+    { attribute: 'data-id', prefix: 'input:', type: 'input' },
+    { attribute: 'data-id', prefix: 'output:', type: 'output' }
+  ]
+});
+```
+
+### `parseFigmaSVG(svgContent, options)`
+
+**Figma specific parser** - Optimized for Figma SVG exports.
+
+```tsx
+import { parseFigmaSVG } from 'svg-interactive';
+
+const result = parseFigmaSVG(svgContent, {
+  patterns: [
+    { prefix: 'input:', type: 'input' },  // Matches Figma layer names
+    { prefix: 'output:', type: 'output' }
+  ]
+});
+```
+
+### `parseInkscapeSVG(svgContent, options)`
+
+**Inkscape specific parser** - Optimized for Inkscape SVG exports.
+
+```tsx
+import { parseInkscapeSVG } from 'svg-interactive';
+
+const result = parseInkscapeSVG(svgContent, {
+  patterns: [
+    { prefix: 'input-', type: 'input' },
+    { prefix: 'output-', type: 'output' }
+  ]
+});
+```
+
+---
+
+## ParseOptions
+
+Configuration for parser functions.
+
+```typescript
+interface ParseOptions {
+  patterns: FieldPattern[];
+  mode?: 'data-id' | 'direct-id';  // Optional: Override auto-detection
+}
+```
+
+### `patterns`
+- **Type**: `FieldPattern[]`
+- **Required**: Yes
+- **Description**: Array of field patterns to match
+
+```tsx
+patterns: [
+  // Match by prefix (default attribute: 'id')
+  { prefix: 'input-', type: 'input' },
+
+  // Match by regex
+  { regex: /^OUTPUT_(.+)$/, type: 'output' },
+
+  // Match by custom attribute
+  { attribute: 'class', prefix: 'field-', type: 'input' },
+
+  // Match by data attribute
+  { attribute: 'data-field', prefix: 'input-', type: 'input' }
+]
+```
+
+### `mode`
+- **Type**: `'data-id' | 'direct-id'`
+- **Optional**: Yes (auto-detected if not provided)
+- **Description**: Force specific parsing mode
+
+---
+
+## FieldPattern
+
+Defines how to match fields in SVG.
+
+```typescript
+interface FieldPattern {
+  attribute?: string;        // Which attribute to match (default: 'id')
+  prefix?: string;           // String prefix to match (e.g., "input-")
+  regex?: RegExp;            // Or regex pattern to match
+  type: 'input' | 'output';  // Field type
+}
+```
+
+### Examples
+
+```tsx
+// Match id="input-temperature"
+{ prefix: 'input-', type: 'input' }
+
+// Match class="field-input-name"
+{ attribute: 'class', prefix: 'field-input-', type: 'input' }
+
+// Match data-field="output-result"
+{ attribute: 'data-field', prefix: 'output-', type: 'output' }
+
+// Regex: match PARAM_TEMP, PARAM_PRESSURE
+{ regex: /^PARAM_(.+)$/, type: 'input' }
+```
+
+---
+
+## ParseResult
+
+Result returned by all parser functions.
+
+```typescript
+interface ParseResult {
+  mappings: FieldMapping[];
+  errors: string[];
+  metadata: {
+    tool: 'drawio' | 'figma' | 'inkscape' | 'generic';
+    detectedMode: 'data-id' | 'direct-id';
+    attributesUsed: string[];
+  };
+}
+```
+
+### Usage
+
+```tsx
+const { mappings, errors, metadata } = parseSVG(svgContent, options);
+
+if (errors.length > 0) {
+  console.error('Parsing errors:', errors);
+}
+
+console.log(`Found ${mappings.length} fields using ${metadata.tool} parser`);
+console.log(`Mode: ${metadata.detectedMode}`);
+console.log(`Attributes: ${metadata.attributesUsed.join(', ')}`);
+```
+
+---
+
+## InteractiveSVG Component
+
+Main React component for rendering interactive SVG diagrams.
+
+### Required Props
+
+#### `mappings`
+- **Type**: `FieldMapping[]`
+- **Required**: Yes
+- **Description**: Pre-parsed field mappings from a parser function
+
+```tsx
+const { mappings } = parseSVG(svgContent, { patterns });
+
+<InteractiveSVG mappings={mappings} svgContent={svgContent} />
 ```
 
 #### `svgContent`
 - **Type**: `string`
-- **Required**: One of `svgUrl` or `svgContent` required
+- **Required**: Yes
 - **Description**: Raw SVG content as string
 
 ```tsx
-const svgString = `<svg>...</svg>`;
-<InteractiveSVG svgContent={svgString} ... />
-```
+const svgContent = await fetch('/diagram.svg').then(r => r.text());
 
----
-
-### Configuration
-
-#### `config`
-- **Type**: `FieldConfig`
-- **Required**: Yes
-- **Description**: Field matching configuration
-
-```tsx
-<InteractiveSVG
-  config={{
-    matchingMode: 'auto',  // or 'direct-id' | 'data-id'
-    patterns: [
-      { prefix: 'input-', type: 'input' },
-      { prefix: 'output-', type: 'output' }
-    ]
-  }}
-/>
-```
-
-**FieldConfig Interface**:
-```typescript
-interface FieldConfig {
-  patterns: FieldPattern[];
-  matchingMode?: 'auto' | 'direct-id' | 'data-id';  // Default: 'auto'
-}
-```
-
-**FieldPattern Interface**:
-```typescript
-interface FieldPattern {
-  prefix?: string;        // e.g., "input-"
-  regex?: RegExp;         // e.g., /^param-(.+)/
-  type: 'input' | 'output';
-  useDataId?: boolean;    // Per-pattern override for matching mode
-}
-```
-
-**Examples**:
-
-```tsx
-// Prefix matching
-{ prefix: 'input-', type: 'input' }
-// Matches: input-temperature, input-pressure
-// Extracts: temperature, pressure
-
-// Regex matching
-{ regex: /^IN_(.+)$/, type: 'input' }
-// Matches: IN_TEMP, IN_PRESSURE
-// Extracts: TEMP, PRESSURE
-
-// Multiple patterns
-patterns: [
-  { prefix: 'input-', type: 'input' },
-  { prefix: 'param-', type: 'input' },
-  { prefix: 'output-', type: 'output' },
-  { prefix: 'result-', type: 'output' }
-]
+<InteractiveSVG mappings={mappings} svgContent={svgContent} />
 ```
 
 ---
@@ -114,6 +249,7 @@ patterns: [
 
 #### `onInputChange`
 - **Type**: `(name: string, value: string, allInputs: Record<string, string>) => void`
+- **Optional**: Yes
 - **Description**: Called when any input value changes
 
 ```tsx
@@ -127,28 +263,30 @@ patterns: [
 
 #### `onOutputCompute`
 - **Type**: `(inputs: Record<string, string>) => Record<string, string>`
+- **Optional**: Yes
 - **Description**: Computes all output values from current inputs
 
 ```tsx
 <InteractiveSVG
   onOutputCompute={(inputs) => ({
-    sum: (parseFloat(inputs.a || '0') + parseFloat(inputs.b || '0')).toString(),
-    product: (parseFloat(inputs.a || '0') * parseFloat(inputs.b || '0')).toString()
+    sum: String(parseFloat(inputs.a || '0') + parseFloat(inputs.b || '0')),
+    product: String(parseFloat(inputs.a || '0') * parseFloat(inputs.b || '0'))
   })}
 />
 ```
 
 #### `onOutputUpdate`
 - **Type**: `Record<string, (inputs: Record<string, string>) => string>`
+- **Optional**: Yes
 - **Description**: Per-field output computation functions
 
 ```tsx
 <InteractiveSVG
   onOutputUpdate={{
-    total: (inputs) => (parseFloat(inputs.a || '0') + parseFloat(inputs.b || '0')).toString(),
+    total: (inputs) => String(parseFloat(inputs.a || '0') + parseFloat(inputs.b || '0')),
     average: (inputs) => {
       const sum = parseFloat(inputs.a || '0') + parseFloat(inputs.b || '0');
-      return (sum / 2).toString();
+      return String(sum / 2);
     }
   }}
 />
@@ -156,26 +294,12 @@ patterns: [
 
 ---
 
-### Controlled Values
-
-#### `inputValues`
-- **Type**: `Record<string, string>`
-- **Description**: Controlled input values (for external state management)
-
-```tsx
-const [inputs, setInputs] = useState({ temperature: '25' });
-
-<InteractiveSVG
-  inputValues={inputs}
-  onInputChange={(name, value, allInputs) => {
-    setInputs(allInputs);
-  }}
-/>
-```
+### Controlled Output Values
 
 #### `outputValues`
 - **Type**: `Record<string, string>`
-- **Description**: Controlled output values
+- **Optional**: Yes
+- **Description**: External output values (controlled mode)
 
 ```tsx
 const [outputs, setOutputs] = useState({});
@@ -196,6 +320,7 @@ const [outputs, setOutputs] = useState({});
 
 #### `renderInput`
 - **Type**: `(props: InputFieldProps) => ReactNode`
+- **Optional**: Yes
 - **Description**: Custom input component renderer
 
 ```tsx
@@ -207,8 +332,7 @@ const [outputs, setOutputs] = useState({});
       onChange={(e) => props.onChange(e.target.value)}
       className={props.className}
       style={props.style}
-      min="0"
-      max="100"
+      placeholder={props.placeholder}
     />
   )}
 />
@@ -220,6 +344,7 @@ interface InputFieldProps {
   name: string;
   value: string;
   onChange: (value: string) => void;
+  placeholder?: string;
   className?: string;
   style?: CSSProperties;
 }
@@ -227,6 +352,7 @@ interface InputFieldProps {
 
 #### `renderOutput`
 - **Type**: `(props: OutputFieldProps) => ReactNode`
+- **Optional**: Yes
 - **Description**: Custom output component renderer
 
 ```tsx
@@ -256,40 +382,40 @@ interface OutputFieldProps {
 #### `theme`
 - **Type**: `'default' | 'minimal' | 'bordered' | 'none'`
 - **Default**: `'default'`
-- **Description**: Built-in theme to apply
+- **Optional**: Yes
+- **Description**: Built-in theme preset
 
 ```tsx
-<InteractiveSVG theme="bordered" ... />
+<InteractiveSVG theme="bordered" />
 ```
 
-**Themes**:
-- `default`: Blue inputs, green outputs, 2px borders
-- `minimal`: Simple 1px borders, no colors
-- `bordered`: Bold borders with shadows
-- `none`: No default styling (bring your own)
+**Available themes**:
+- `default`: Blue inputs, green outputs, 2px borders, uses CSS variables
+- `minimal`: Simple 1px gray borders, minimal styling
+- `bordered`: Bold 3px borders with shadows
+- `none`: No default styling (completely customizable)
 
 #### `inputClassName`
 - **Type**: `string`
+- **Optional**: Yes
 - **Description**: CSS class name(s) for input fields
 
 ```tsx
-<InteractiveSVG
-  inputClassName="px-3 py-2 border-2 border-blue-500 rounded"
-/>
+<InteractiveSVG inputClassName="px-3 py-2 border-2 border-blue-500 rounded" />
 ```
 
 #### `outputClassName`
 - **Type**: `string`
+- **Optional**: Yes
 - **Description**: CSS class name(s) for output fields
 
 ```tsx
-<InteractiveSVG
-  outputClassName="px-3 py-2 bg-green-50 border-2 border-green-500 rounded"
-/>
+<InteractiveSVG outputClassName="px-3 py-2 bg-green-50 border-2 border-green-500" />
 ```
 
 #### `inputStyle`
 - **Type**: `CSSProperties`
+- **Optional**: Yes
 - **Description**: Inline styles for input fields
 
 ```tsx
@@ -297,25 +423,42 @@ interface OutputFieldProps {
   inputStyle={{
     border: '2px solid #3B82F6',
     borderRadius: '8px',
-    padding: '8px',
-    fontSize: '14px'
+    padding: '8px'
   }}
 />
 ```
 
 #### `outputStyle`
 - **Type**: `CSSProperties`
+- **Optional**: Yes
 - **Description**: Inline styles for output fields
 
 ```tsx
 <InteractiveSVG
   outputStyle={{
     border: '2px solid #10B981',
-    borderRadius: '8px',
-    padding: '8px',
-    background: '#F0FDF4'
+    background: '#F0FDF4',
+    borderRadius: '8px'
   }}
 />
+```
+
+#### `className`
+- **Type**: `string`
+- **Optional**: Yes
+- **Description**: CSS class for root container
+
+```tsx
+<InteractiveSVG className="my-diagram-container" />
+```
+
+#### `style`
+- **Type**: `CSSProperties`
+- **Optional**: Yes
+- **Description**: Inline styles for root container
+
+```tsx
+<InteractiveSVG style={{ maxWidth: '800px', margin: '0 auto' }} />
 ```
 
 ---
@@ -325,32 +468,33 @@ interface OutputFieldProps {
 #### `debug`
 - **Type**: `boolean`
 - **Default**: `false`
+- **Optional**: Yes
 - **Description**: Show debug panel with field information
 
 ```tsx
-<InteractiveSVG debug={true} ... />
+<InteractiveSVG debug={true} />
 ```
 
-**Debug panel shows**:
-- Matching mode (direct-id or data-id)
+**Debug panel displays**:
 - Total fields found
-- Input fields list
-- Output fields list
-- Configuration errors
+- Input fields (name, type, bbox)
+- Output fields (name, type, bbox)
+- Raw mappings
 - SVG dimensions
+- Errors (if any)
 
 #### `onDebugInfo`
 - **Type**: `(info: DebugInfo) => void`
+- **Optional**: Yes
 - **Description**: Callback with debug information
 
 ```tsx
 <InteractiveSVG
   onDebugInfo={(info) => {
-    console.log('Mode:', info.matchingMode);
-    console.log('Fields:', info.totalFields);
-    console.log('Inputs:', info.inputFields);
-    console.log('Outputs:', info.outputFields);
-    console.log('Errors:', info.configErrors);
+    console.log('Total fields:', info.totalFields);
+    console.log('Input fields:', info.inputFields);
+    console.log('Output fields:', info.outputFields);
+    console.log('Errors:', info.errors);
   }}
 />
 ```
@@ -358,57 +502,14 @@ interface OutputFieldProps {
 **DebugInfo Interface**:
 ```typescript
 interface DebugInfo {
-  matchingMode: 'direct-id' | 'data-id';
   totalFields: number;
-  inputFields: number;
-  outputFields: number;
-  fields: Array<{ name: string; type: 'input' | 'output'; dataId: string }>;
-  configErrors?: string[];
-  parseErrors?: string[];
+  inputFields: FieldData[];
+  outputFields: FieldData[];
+  rawMappings: FieldMapping[];
+  matchingMode?: 'data-id' | 'direct-id';
   svgDimensions?: { width: number; height: number };
+  errors?: string[];
 }
-```
-
----
-
-## CSS Variables
-
-Customize default styling with CSS variables:
-
-```css
-:root {
-  /* Input field styling */
-  --svg-input-border: #3B82F6;
-  --svg-input-bg: #FFFFFF;
-  --svg-input-focus-ring: rgba(59, 130, 246, 0.5);
-
-  /* Output field styling */
-  --svg-output-border: #10B981;
-  --svg-output-bg: #F0FDF4;
-
-  /* General */
-  --svg-field-font-size: 12px;
-  --svg-field-border-radius: 4px;
-  --svg-field-padding: 2px 6px;
-}
-```
-
----
-
-## Importing Styles
-
-Import default styles in your app:
-
-```tsx
-// App.tsx or index.tsx
-import 'svg-interactive/styles';
-```
-
-Or import specific theme:
-
-```css
-/* In your CSS file */
-@import 'svg-interactive/styles';
 ```
 
 ---
@@ -419,83 +520,271 @@ All types are exported for use in your application:
 
 ```typescript
 import type {
-  FieldConfig,
+  // Parser types
+  ParseOptions,
+  ParseResult,
   FieldPattern,
+
+  // Component types
   InteractiveSVGProps,
   InputFieldProps,
   OutputFieldProps,
-  DebugInfo,
+
+  // Data types
+  FieldMapping,
   FieldData,
-  FieldMapping
+  BoundingBox,
+
+  // Utility types
+  DebugInfo,
+  ThemeType
 } from 'svg-interactive';
+```
+
+### Core Types
+
+```typescript
+interface FieldMapping {
+  dataId: string;           // Original matched value
+  name: string;             // Extracted field name
+  elementId: string;        // SVG element ID for lookup
+  type: 'input' | 'output';
+  matchedAttribute?: string; // Which attribute was used
+}
+
+interface FieldData extends FieldMapping {
+  bbox: BoundingBox | null;  // Bounding box coordinates
+}
+
+interface BoundingBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+type ThemeType = 'default' | 'minimal' | 'bordered' | 'none';
+```
+
+---
+
+## CSS Variables
+
+Customize default styling with CSS variables.
+
+### Available Variables
+
+```css
+:root {
+  /* Input field styling */
+  --svg-input-border: #3B82F6;
+  --svg-input-bg: #FFFFFF;
+  --svg-input-text: #000000;
+  --svg-input-focus: #2563EB;
+
+  /* Output field styling */
+  --svg-output-border: #10B981;
+  --svg-output-bg: #F0FDF4;
+  --svg-output-text: #000000;
+}
+```
+
+### Example: Dark Mode
+
+```css
+.dark-mode {
+  --svg-input-border: #60A5FA;
+  --svg-input-bg: #1F2937;
+  --svg-input-text: #F9FAFB;
+
+  --svg-output-border: #34D399;
+  --svg-output-bg: #065F46;
+  --svg-output-text: #F9FAFB;
+}
+```
+
+### Example: Custom Brand Colors
+
+```css
+:root {
+  --svg-input-border: #9333EA;   /* Purple */
+  --svg-input-bg: #FAF5FF;
+
+  --svg-output-border: #F59E0B;  /* Amber */
+  --svg-output-bg: #FFFBEB;
+}
+```
+
+---
+
+## Importing Styles
+
+Import default styles in your app:
+
+```tsx
+// In your main App.tsx or index.tsx
+import 'svg-interactive/styles';
+```
+
+Or in CSS:
+
+```css
+/* In your CSS file */
+@import 'svg-interactive/styles';
 ```
 
 ---
 
 ## Examples
 
-### Complete Example
+### Basic Calculator
 
 ```tsx
-import { InteractiveSVG } from 'svg-interactive';
+import { parseSVG, InteractiveSVG } from 'svg-interactive';
 import 'svg-interactive/styles';
-import { useState } from 'react';
 
 function Calculator() {
-  const [inputs, setInputs] = useState({ a: '0', b: '0' });
+  const svgContent = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="400" height="200">
+      <rect id="input-a" x="50" y="50" width="100" height="30" fill="#e3f2fd"/>
+      <rect id="input-b" x="50" y="100" width="100" height="30" fill="#e3f2fd"/>
+      <rect id="output-sum" x="250" y="75" width="100" height="30" fill="#e8f5e9"/>
+    </svg>
+  `;
+
+  const { mappings } = parseSVG(svgContent, {
+    patterns: [
+      { prefix: 'input-', type: 'input' },
+      { prefix: 'output-', type: 'output' }
+    ]
+  });
 
   return (
     <InteractiveSVG
-      svgUrl="/calculator.svg"
-      config={{
-        matchingMode: 'auto',
-        patterns: [
-          { prefix: 'input-', type: 'input' },
-          { prefix: 'output-', type: 'output' }
-        ]
-      }}
-      inputValues={inputs}
-      onInputChange={(name, value, allInputs) => {
-        setInputs(allInputs);
-      }}
+      mappings={mappings}
+      svgContent={svgContent}
       onOutputCompute={(inputs) => ({
-        sum: (parseFloat(inputs.a || '0') + parseFloat(inputs.b || '0')).toString(),
-        product: (parseFloat(inputs.a || '0') * parseFloat(inputs.b || '0')).toString()
+        sum: String(parseFloat(inputs.a || '0') + parseFloat(inputs.b || '0'))
       })}
       theme="bordered"
-      inputClassName="calculator-input"
-      outputClassName="calculator-output"
+    />
+  );
+}
+```
+
+### Draw.io Diagram
+
+```tsx
+import { parseDrawIoSVG, InteractiveSVG } from 'svg-interactive';
+
+async function WorkflowDiagram() {
+  const svgContent = await fetch('/workflow.drawio.svg').then(r => r.text());
+
+  const { mappings, errors } = parseDrawIoSVG(svgContent, {
+    patterns: [
+      { attribute: 'data-id', prefix: 'input:', type: 'input' },
+      { attribute: 'data-id', prefix: 'output:', type: 'output' }
+    ]
+  });
+
+  if (errors.length > 0) {
+    console.error('Parse errors:', errors);
+  }
+
+  return (
+    <InteractiveSVG
+      mappings={mappings}
+      svgContent={svgContent}
+      onOutputCompute={(inputs) => ({
+        result: processWorkflow(inputs)
+      })}
       debug={true}
-      onDebugInfo={(info) => {
-        console.log('Calculator loaded:', info.totalFields, 'fields');
+    />
+  );
+}
+```
+
+### Custom Renderers with Validation
+
+```tsx
+<InteractiveSVG
+  renderInput={(props) => (
+    <input
+      type="number"
+      min="0"
+      max="100"
+      value={props.value}
+      onChange={(e) => {
+        const val = e.target.value;
+        if (val === '' || (parseFloat(val) >= 0 && parseFloat(val) <= 100)) {
+          props.onChange(val);
+        }
+      }}
+      className={props.className}
+      style={props.style}
+      placeholder="0-100"
+    />
+  )}
+  renderOutput={(props) => (
+    <div className={props.className} style={props.style}>
+      <div style={{ fontWeight: 'bold', fontSize: '12px', marginBottom: '4px' }}>
+        {props.name}
+      </div>
+      <div style={{ fontSize: '16px', color: '#059669' }}>
+        {props.value}
+      </div>
+    </div>
+  )}
+/>
+```
+
+### Controlled Output State
+
+```tsx
+import { useState, useEffect } from 'react';
+
+function ControlledDiagram() {
+  const [outputs, setOutputs] = useState({});
+
+  return (
+    <InteractiveSVG
+      mappings={mappings}
+      svgContent={svgContent}
+      outputValues={outputs}
+      onOutputCompute={(inputs) => {
+        const computed = {
+          total: String(parseFloat(inputs.a || '0') + parseFloat(inputs.b || '0')),
+          average: String((parseFloat(inputs.a || '0') + parseFloat(inputs.b || '0')) / 2)
+        };
+
+        // Update state for external tracking
+        setOutputs(computed);
+
+        return computed;
       }}
     />
   );
 }
 ```
 
-### Custom Renderers
+### Multiple Patterns and Attributes
 
 ```tsx
-<InteractiveSVG
-  renderInput={(props) => (
-    <input
-      type="range"
-      min="0"
-      max="100"
-      value={props.value}
-      onChange={(e) => props.onChange(e.target.value)}
-      className={props.className}
-    />
-  )}
-  renderOutput={(props) => (
-    <div className="custom-output">
-      <span className="label">{props.name}:</span>
-      <span className="value">{props.value}</span>
-      <span className="unit">°C</span>
-    </div>
-  )}
-/>
+const { mappings } = parseSVG(svgContent, {
+  patterns: [
+    // Match id="input-temperature"
+    { prefix: 'input-', type: 'input' },
+
+    // Match class="param-field-pressure"
+    { attribute: 'class', prefix: 'param-field-', type: 'input' },
+
+    // Match data-field="output-result"
+    { attribute: 'data-field', prefix: 'output-', type: 'output' },
+
+    // Regex: match CALC_SUM, CALC_AVERAGE
+    { regex: /^CALC_(.+)$/, type: 'output' }
+  ]
+});
 ```
 
 ---
@@ -509,12 +798,14 @@ function Calculator() {
 
 **Required Features**:
 - SVG `foreignObject` support
-- ES2015+ JavaScript
+- ES2020+ JavaScript
+- React 18+
 
 ---
 
 ## Next Steps
 
 - **[Troubleshooting Guide](./troubleshooting.md)** - Fix common issues
-- **[Tool-Specific Guides](./README.md)** - Prepare SVGs
-- **[Examples](../examples)** - See working examples
+- **[Tool-Specific Guides](./README.md)** - Prepare SVGs for draw.io, Figma, Inkscape
+- **[Examples Directory](../examples)** - See working examples
+- **[GitHub Repository](https://github.com/m98/svg-interactive)** - Source code
