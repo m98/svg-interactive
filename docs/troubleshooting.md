@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-Common issues and solutions for `svg-interactive-diagram`.
+Common issues and solutions for `svg-interactive`.
 
 ## Quick Diagnostics
 
@@ -329,7 +329,7 @@ const [outputs, setOutputs] = useState({});
 
 1. **Import theme styles**:
    ```tsx
-   import 'svg-interactive-diagram/styles';
+   import 'svg-interactive/styles';
    ```
 
 2. **Check CSS specificity**:
@@ -396,7 +396,7 @@ Include:
 - Browser/OS information
 - Screenshots
 
-**[GitHub Issues](https://github.com/m98/svg-interactive-diagram/issues)**
+**[GitHub Issues](https://github.com/m98/svg-interactive/issues)**
 
 ---
 

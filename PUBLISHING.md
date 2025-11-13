@@ -1,6 +1,6 @@
 # Publishing Guide
 
-Complete guide for publishing `svg-interactive-diagram` to npm.
+Complete guide for publishing `svg-interactive` to npm.
 
 ## Table of Contents
 
@@ -35,7 +35,7 @@ Enter your credentials when prompted.
 
 ```bash
 # Check if name is available
-npm view svg-interactive-diagram
+npm view svg-interactive
 
 # If it shows "404", the name is available!
 # If it shows package info, the name is taken
@@ -153,7 +153,7 @@ npm publish
 npm publish --access public
 
 # Watch for success message:
-# + svg-interactive-diagram@0.2.0
+# + svg-interactive@0.2.0
 ```
 
 #### 9. Push to GitHub
@@ -169,7 +169,7 @@ git push origin main --follow-tags
 
 #### 10. Create GitHub Release (Optional)
 
-1. Go to https://github.com/m98/svg-interactive-diagram/releases
+1. Go to https://github.com/m98/svg-interactive/releases
 2. Click **"Draft a new release"**
 3. Select the tag you just created (e.g., `v0.2.0`)
 4. Title: `v0.2.0`
@@ -226,7 +226,7 @@ npm login
 
 #### 2. Add Token to GitHub Secrets
 
-1. Go to your repo: https://github.com/m98/svg-interactive-diagram
+1. Go to your repo: https://github.com/m98/svg-interactive
 2. **Settings** → **Secrets and variables** → **Actions**
 3. Click **"New repository secret"**
 4. Name: `NPM_TOKEN`
@@ -260,7 +260,7 @@ git push origin main --follow-tags
 
 ### Monitoring the Build
 
-1. Go to: https://github.com/m98/svg-interactive-diagram/actions
+1. Go to: https://github.com/m98/svg-interactive/actions
 2. Click on the running workflow
 3. Watch the steps execute
 4. If any step fails, publishing is canceled (safe!)
@@ -300,7 +300,7 @@ npm version prerelease --preid=beta
 npm publish --tag beta
 
 # Users can install with:
-# npm install svg-interactive-diagram@beta
+# npm install svg-interactive@beta
 ```
 
 ### Version 1.0.0
@@ -321,10 +321,10 @@ Don't rush to 1.0.0! Use it when:
 
 ```bash
 # Check who owns it
-npm view svg-interactive-diagram
+npm view svg-interactive
 
 # Options:
-# 1. Use scoped package: @your-username/svg-interactive-diagram
+# 1. Use scoped package: @your-username/svg-interactive
 # 2. Choose different name
 # 3. Contact owner to transfer (if abandoned)
 ```
@@ -383,7 +383,7 @@ git stash
 
 ```bash
 # Deprecate the bad version
-npm deprecate svg-interactive-diagram@0.2.0 "Accidental publish, use 0.2.1"
+npm deprecate svg-interactive@0.2.0 "Accidental publish, use 0.2.1"
 
 # Publish correct version
 npm version patch
@@ -413,7 +413,7 @@ Before running `npm publish`:
 ## After Publishing
 
 1. **Verify on npm**:
-   - Go to https://www.npmjs.com/package/svg-interactive-diagram
+   - Go to https://www.npmjs.com/package/svg-interactive
    - Check version number is correct
    - Verify README displays correctly
 
@@ -423,7 +423,7 @@ Before running `npm publish`:
    mkdir test-install
    cd test-install
    npm init -y
-   npm install svg-interactive-diagram
+   npm install svg-interactive
    ```
 
 3. **Announce**:
@@ -463,5 +463,5 @@ vim CHANGELOG.md && git add CHANGELOG.md && git commit -m "docs: Update changelo
 git push origin main --follow-tags
 
 # Check published package
-npm view svg-interactive-diagram
+npm view svg-interactive
 ```

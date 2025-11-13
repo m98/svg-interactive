@@ -1,6 +1,6 @@
 # Adobe Illustrator
 
-How to prepare Adobe Illustrator files for `svg-interactive-diagram`.
+How to prepare Adobe Illustrator files for `svg-interactive`.
 
 ## Overview
 
@@ -59,7 +59,7 @@ Use the **Layers panel** to name objects:
 ### 6. Use in Your Application
 
 ```tsx
-import { InteractiveSVG } from 'svg-interactive-diagram';
+import { InteractiveSVG } from 'svg-interactive';
 
 <InteractiveSVG
   svgUrl="/illustrator-export.svg"

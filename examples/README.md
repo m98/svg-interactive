@@ -1,6 +1,6 @@
 # Examples
 
-Progressive examples to help you get started with `svg-interactive-diagram`.
+Progressive examples to help you get started with `svg-interactive`.
 
 ## 📚 Example Categories
 
@@ -42,12 +42,12 @@ Complete real-world applications.
 
 1. **Install the library**:
    ```bash
-   npm install svg-interactive-diagram
+   npm install svg-interactive
    ```
 
 2. **Try the basic example**:
    ```tsx
-   import { InteractiveSVG } from 'svg-interactive-diagram';
+   import { InteractiveSVG } from 'svg-interactive';
 
    <InteractiveSVG
      svgUrl="/diagram.svg"

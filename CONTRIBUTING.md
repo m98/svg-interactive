@@ -90,8 +90,8 @@ Enhancement suggestions are welcome! Please:
 
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/svg-interactive-diagram
-cd svg-interactive-diagram
+git clone https://github.com/YOUR_USERNAME/svg-interactive
+cd svg-interactive
 
 # Install dependencies
 npm install
@@ -301,7 +301,7 @@ Test: Add tests for data-id matching mode
 ## Project Structure
 
 ```
-svg-interactive-diagram/
+svg-interactive/
 ├── src/
 │   ├── components/     # React components
 │   ├── hooks/          # React hooks
@@ -324,7 +324,7 @@ svg-interactive-diagram/
 ## Questions?
 
 - **Check the docs**: [docs/](./docs)
-- **Search issues**: [GitHub Issues](https://github.com/m98/svg-interactive-diagram/issues)
+- **Search issues**: [GitHub Issues](https://github.com/m98/svg-interactive/issues)
 - **Ask a question**: Open a new issue with "Question:" prefix
 
 ## Recognition

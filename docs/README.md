@@ -99,5 +99,5 @@ config: {
 ## Need Help?
 
 - **[Troubleshooting Guide](./troubleshooting.md)** - Common issues
-- **[GitHub Issues](https://github.com/m98/svg-interactive-diagram/issues)** - Report bugs
+- **[GitHub Issues](https://github.com/m98/svg-interactive/issues)** - Report bugs
 - **[Examples](../examples)** - See working examples

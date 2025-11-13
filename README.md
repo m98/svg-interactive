@@ -4,10 +4,10 @@
 
 **Transform ANY SVG diagram into an interactive form with embedded input/output fields.**
 
-[![npm version](https://img.shields.io/npm/v/svg-interactive-diagram?color=blue)](https://www.npmjs.com/package/svg-interactive-diagram)
+[![npm version](https://img.shields.io/npm/v/svg-interactive?color=blue)](https://www.npmjs.com/package/svg-interactive)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/m98/svg-interactive-diagram/ci.yml?branch=main)](https://github.com/m98/svg-interactive-diagram)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/m98/svg-interactive/ci.yml?branch=main)](https://github.com/m98/svg-interactive)
 
 Works seamlessly with **draw.io**, **Figma**, **Inkscape**, or **custom SVGs**. No vendor lock-in.
 
@@ -38,9 +38,9 @@ Ever wanted to make your SVG diagrams interactive but faced these problems?
 ### Installation
 
 ```bash
-npm install svg-interactive-diagram
+npm install svg-interactive
 # or
-yarn add svg-interactive-diagram
+yarn add svg-interactive
 ```
 
 ### Basic Usage (30 seconds)
@@ -53,7 +53,7 @@ yarn add svg-interactive-diagram
 
 2. **Use in React**:
    ```tsx
-   import { InteractiveSVG, parseSVG } from 'svg-interactive-diagram';
+   import { InteractiveSVG, parseSVG } from 'svg-interactive';
 
    // Step 1: Parse your SVG to extract field mappings
    const svgContent = await fetch('/diagram.svg').then(r => r.text());
@@ -115,7 +115,7 @@ For draw.io SVGs, use the dedicated parser which automatically looks for custom 
 3. Export as SVG
 
 ```tsx
-import { parseDrawIoSVG } from 'svg-interactive-diagram';
+import { parseDrawIoSVG } from 'svg-interactive';
 
 const { mappings } = parseDrawIoSVG(svgContent, {
   patterns: [
@@ -154,7 +154,7 @@ const { mappings } = parseSVG(svgContent, {
 ### Calculator with Custom Styling
 
 ```tsx
-import { InteractiveSVG, parseSVG } from 'svg-interactive-diagram';
+import { InteractiveSVG, parseSVG } from 'svg-interactive';
 
 const svgContent = await fetch('/calculator.svg').then(r => r.text());
 const { mappings } = parseSVG(svgContent, {
@@ -179,7 +179,7 @@ const { mappings } = parseSVG(svgContent, {
 ### Custom React Components
 
 ```tsx
-import { InteractiveSVG, parseDrawIoSVG } from 'svg-interactive-diagram';
+import { InteractiveSVG, parseDrawIoSVG } from 'svg-interactive';
 
 const svgContent = await fetch('/diagram.svg').then(r => r.text());
 const { mappings } = parseDrawIoSVG(svgContent, {
@@ -329,7 +329,7 @@ interface ParseResult {
 ### Import Styles
 
 ```tsx
-import 'svg-interactive-diagram/styles';
+import 'svg-interactive/styles';
 ```
 
 ## 🐛 Debug Mode
@@ -359,8 +359,8 @@ Contributions are welcome! Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for 
 ### Development Setup
 
 ```bash
-git clone https://github.com/m98/svg-interactive-diagram
-cd svg-interactive-diagram
+git clone https://github.com/m98/svg-interactive
+cd svg-interactive
 npm install
 npm run dev       # Watch mode
 npm test          # Run tests
@@ -373,14 +373,14 @@ MIT © [Mohammad](https://github.com/m98)
 
 ## 🔗 Links
 
-- [NPM Package](https://www.npmjs.com/package/svg-interactive-diagram)
-- [GitHub Repository](https://github.com/m98/svg-interactive-diagram)
-- [Issue Tracker](https://github.com/m98/svg-interactive-diagram/issues)
+- [NPM Package](https://www.npmjs.com/package/svg-interactive)
+- [GitHub Repository](https://github.com/m98/svg-interactive)
+- [Issue Tracker](https://github.com/m98/svg-interactive/issues)
 - [Changelog](./CHANGELOG.md)
 
 ## ⭐ Show Your Support
 
-If this library helped you, please consider giving it a ⭐ on [GitHub](https://github.com/m98/svg-interactive-diagram)!
+If this library helped you, please consider giving it a ⭐ on [GitHub](https://github.com/m98/svg-interactive)!
 
 ---
 

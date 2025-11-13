@@ -6,7 +6,7 @@
  *
  * @example
  * ```typescript
- * import { parseDrawIoSVG } from 'svg-interactive-diagram/parsers';
+ * import { parseDrawIoSVG } from 'svg-interactive/parsers';
  *
  * const result = parseDrawIoSVG(svgContent, {
  *   patterns: [

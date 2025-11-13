@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**svg-interactive-diagram** - React library that transforms ANY SVG diagram into an interactive form with embedded input/output fields.
+**svg-interactive** - React library that transforms ANY SVG diagram into an interactive form with embedded input/output fields.
 
 **Key Innovation**: Uses SVG `foreignObject` elements to overlay HTML inputs/outputs at exact positions on SVG diagrams.
 

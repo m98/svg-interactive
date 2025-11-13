@@ -1,6 +1,6 @@
 # draw.io / diagrams.net
 
-How to prepare draw.io diagrams for `svg-interactive-diagram`.
+How to prepare draw.io diagrams for `svg-interactive`.
 
 ## Overview
 
@@ -41,7 +41,7 @@ Repeat for all interactive shapes and make sure they are not duplicated.
 ### 4. Use in Your Application
 
 ```tsx
-import { InteractiveSVG } from 'svg-interactive-diagram';
+import { InteractiveSVG } from 'svg-interactive';
 
 <InteractiveSVG
   svgUrl="/my-diagram.svg"

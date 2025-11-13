@@ -1,6 +1,6 @@
 # Figma
 
-How to prepare Figma designs for `svg-interactive-diagram`.
+How to prepare Figma designs for `svg-interactive`.
 
 ## Overview
 
@@ -51,7 +51,7 @@ Always verify the export worked correctly:
 ### 5. Use in Your Application
 
 ```tsx
-import { InteractiveSVG } from 'svg-interactive-diagram';
+import { InteractiveSVG } from 'svg-interactive';
 
 <InteractiveSVG
   svgUrl="/figma-export.svg"

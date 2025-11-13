@@ -85,7 +85,7 @@ export interface InteractiveSVGProps {
    *
    * @example
    * ```tsx
-   * import { parseDrawIoSVG, InteractiveSVG } from 'svg-interactive-diagram';
+   * import { parseDrawIoSVG, InteractiveSVG } from 'svg-interactive';
    *
    * const mappings = parseDrawIoSVG(svgContent, {
    *   patterns: [{ attribute: 'data-id', prefix: 'input:', type: 'input' }]

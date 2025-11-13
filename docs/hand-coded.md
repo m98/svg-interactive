@@ -1,6 +1,6 @@
 # Hand-Coded SVG
 
-How to create SVGs by hand for `svg-interactive-diagram`.
+How to create SVGs by hand for `svg-interactive`.
 
 ## Overview
 
@@ -183,7 +183,7 @@ fill="#f5f5f5" stroke="#757575"
 ## React Usage
 
 ```tsx
-import { InteractiveSVG } from 'svg-interactive-diagram';
+import { InteractiveSVG } from 'svg-interactive';
 
 function Calculator() {
   return (

@@ -80,4 +80,4 @@ When building on these examples:
 
 - **[Troubleshooting](../../docs/troubleshooting.md)** - Common issues
 - **[API Reference](../../docs/api.md)** - Full API
-- **[GitHub Issues](https://github.com/m98/svg-interactive-diagram/issues)** - Get support
+- **[GitHub Issues](https://github.com/m98/svg-interactive/issues)** - Get support

@@ -1,5 +1,5 @@
-import { InteractiveSVG } from 'svg-interactive-diagram';
-import 'svg-interactive-diagram/styles';
+import { InteractiveSVG } from 'svg-interactive';
+import 'svg-interactive/styles';
 import { useState } from 'react';
 
 /**

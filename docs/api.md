@@ -1,6 +1,6 @@
 # API Reference
 
-Complete API documentation for `svg-interactive-diagram`.
+Complete API documentation for `svg-interactive`.
 
 ## InteractiveSVG Component
 
@@ -9,7 +9,7 @@ The main React component for creating interactive SVG diagrams.
 ### Basic Usage
 
 ```tsx
-import { InteractiveSVG } from 'svg-interactive-diagram';
+import { InteractiveSVG } from 'svg-interactive';
 
 <InteractiveSVG
   svgUrl="/diagram.svg"
@@ -401,14 +401,14 @@ Import default styles in your app:
 
 ```tsx
 // App.tsx or index.tsx
-import 'svg-interactive-diagram/styles';
+import 'svg-interactive/styles';
 ```
 
 Or import specific theme:
 
 ```css
 /* In your CSS file */
-@import 'svg-interactive-diagram/styles';
+@import 'svg-interactive/styles';
 ```
 
 ---
@@ -427,7 +427,7 @@ import type {
   DebugInfo,
   FieldData,
   FieldMapping
-} from 'svg-interactive-diagram';
+} from 'svg-interactive';
 ```
 
 ---
@@ -437,8 +437,8 @@ import type {
 ### Complete Example
 
 ```tsx
-import { InteractiveSVG } from 'svg-interactive-diagram';
-import 'svg-interactive-diagram/styles';
+import { InteractiveSVG } from 'svg-interactive';
+import 'svg-interactive/styles';
 import { useState } from 'react';
 
 function Calculator() {

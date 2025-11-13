@@ -1,6 +1,6 @@
 # Inkscape
 
-How to prepare Inkscape SVGs for `svg-interactive-diagram`.
+How to prepare Inkscape SVGs for `svg-interactive`.
 
 ## Overview
 
@@ -49,7 +49,7 @@ Inkscape gives you complete control over element IDs through Object Properties o
 ### 5. Use in Your Application
 
 ```tsx
-import { InteractiveSVG } from 'svg-interactive-diagram';
+import { InteractiveSVG } from 'svg-interactive';
 
 <InteractiveSVG
   svgUrl="/diagram.svg"

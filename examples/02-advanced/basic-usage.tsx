@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { InteractiveSVG, parseSVG } from 'svg-interactive-diagram';
-import 'svg-interactive-diagram/styles';
+import { InteractiveSVG, parseSVG } from 'svg-interactive';
+import 'svg-interactive/styles';
 
 /**
  * Basic usage example

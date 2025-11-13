@@ -1,5 +1,5 @@
-import { InteractiveSVG, parseSVG } from 'svg-interactive-diagram';
-import 'svg-interactive-diagram/styles';
+import { InteractiveSVG, parseSVG } from 'svg-interactive';
+import 'svg-interactive/styles';
 
 /**
  * Hello World - Simplest possible example

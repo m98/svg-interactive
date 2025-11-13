@@ -100,5 +100,5 @@ In case of vulnerabilities.
 
 ---
 
-[Unreleased]: https://github.com/m98/svg-interactive-diagram/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/m98/svg-interactive-diagram/releases/tag/v1.0.0
+[Unreleased]: https://github.com/m98/svg-interactive/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/m98/svg-interactive/releases/tag/v1.0.0

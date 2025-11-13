@@ -1,6 +1,6 @@
 # Integration Tests
 
-This directory contains integration tests that verify the complete functionality of the svg-interactive-diagram library using real SVG files.
+This directory contains integration tests that verify the complete functionality of the svg-interactive library using real SVG files.
 
 ## Test Status
 

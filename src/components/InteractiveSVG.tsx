@@ -8,7 +8,7 @@ import { DebugPanel } from './DebugPanel';
  *
  * @example
  * ```tsx
- * import { parseDrawIoSVG, InteractiveSVG } from 'svg-interactive-diagram';
+ * import { parseDrawIoSVG, InteractiveSVG } from 'svg-interactive';
  *
  * const mappings = parseDrawIoSVG(svgContent, {
  *   patterns: [
