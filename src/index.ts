@@ -1,3 +1,6 @@
+// Import styles for bundling
+import './styles/themes.css';
+
 // Main component
 export { InteractiveSVG } from './components/InteractiveSVG';
 

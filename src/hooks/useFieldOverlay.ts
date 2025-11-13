@@ -50,6 +50,7 @@ export function useFieldOverlay({
       const nextField = next[i];
       if (
         !prevField ||
+        !nextField ||
         prevField.name !== nextField.name ||
         prevField.dataId !== nextField.dataId ||
         prevField.elementId !== nextField.elementId ||
@@ -176,13 +177,13 @@ export function useFieldOverlay({
                 style="
                   width: 100%;
                   height: 100%;
-                  border: 2px solid #3B82F6;
-                  border-radius: 4px;
-                  padding: 2px 6px;
-                  font-size: 12px;
+                  border: var(--svg-field-border-width, 2px) solid var(--svg-input-border, #3B82F6);
+                  border-radius: var(--svg-field-border-radius, 4px);
+                  padding: var(--svg-field-padding, 2px 6px);
+                  font-size: var(--svg-field-font-size, 12px);
                   box-sizing: border-box;
-                  background: white;
-                  color: #000000;
+                  background: var(--svg-input-bg, white);
+                  color: var(--svg-input-text, #000000);
                   ${style}
                 "
                 value="${inputValues[field.name] ?? ''}"
@@ -209,13 +210,13 @@ export function useFieldOverlay({
               style="
                 width: 100%;
                 height: 100%;
-                border: 2px solid #3B82F6;
-                border-radius: 4px;
-                padding: 2px 6px;
-                font-size: 12px;
+                border: var(--svg-field-border-width, 2px) solid var(--svg-input-border, #3B82F6);
+                border-radius: var(--svg-field-border-radius, 4px);
+                padding: var(--svg-field-padding, 2px 6px);
+                font-size: var(--svg-field-font-size, 12px);
                 box-sizing: border-box;
-                background: white;
-                color: #000000;
+                background: var(--svg-input-bg, white);
+                color: var(--svg-input-text, #000000);
                 ${style}
               "
               value="${inputValues[field.name] ?? ''}"
@@ -279,13 +280,13 @@ export function useFieldOverlay({
                 style="
                   width: 100%;
                   height: 100%;
-                  border: 2px solid #10B981;
-                  border-radius: 4px;
-                  padding: 2px 6px;
-                  font-size: 12px;
+                  border: var(--svg-field-border-width, 2px) solid var(--svg-output-border, #10B981);
+                  border-radius: var(--svg-field-border-radius, 4px);
+                  padding: var(--svg-field-padding, 2px 6px);
+                  font-size: var(--svg-field-font-size, 12px);
                   box-sizing: border-box;
-                  background: #F0FDF4;
-                  color: #000000;
+                  background: var(--svg-output-bg, #F0FDF4);
+                  color: var(--svg-output-text, #000000);
                   display: flex;
                   align-items: center;
                   overflow: hidden;
@@ -306,13 +307,13 @@ export function useFieldOverlay({
               style="
                 width: 100%;
                 height: 100%;
-                border: 2px solid #10B981;
-                border-radius: 4px;
-                padding: 2px 6px;
-                font-size: 12px;
+                border: var(--svg-field-border-width, 2px) solid var(--svg-output-border, #10B981);
+                border-radius: var(--svg-field-border-radius, 4px);
+                padding: var(--svg-field-padding, 2px 6px);
+                font-size: var(--svg-field-font-size, 12px);
                 box-sizing: border-box;
-                background: #F0FDF4;
-                color: #000000;
+                background: var(--svg-output-bg, #F0FDF4);
+                color: var(--svg-output-text, #000000);
                 display: flex;
                 align-items: center;
                 overflow: hidden;
@@ -344,6 +345,10 @@ export function useFieldOverlay({
       foreignObjectsRef.current.forEach((fo) => fo.remove());
       foreignObjectsRef.current = [];
     };
+    // inputValues and outputValues are intentionally excluded from deps to avoid
+    // recreating all foreignObjects on every value change. Separate useEffects below
+    // handle efficient value updates without DOM reconstruction.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     svgContainerRef,
     mappings,

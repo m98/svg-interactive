@@ -225,37 +225,48 @@ export const InteractiveSVG: React.FC<InteractiveSVGProps> = ({
           color: initial !important;
         }
         .svg-container svg text {
-          fill: #000000 !important;
+          fill: var(--svg-output-text, #000000) !important;
         }
 
-        /* Theme: default */
+        /* Theme: default - uses CSS variables */
         .svg-field-default.svg-field-input input {
-          border-color: #3B82F6 !important;
-          background: white !important;
+          border-color: var(--svg-input-border, #3B82F6);
+          background: var(--svg-input-bg, #FFFFFF);
+          color: var(--svg-input-text, #000000);
         }
         .svg-field-default.svg-field-output div {
-          border-color: #10B981 !important;
-          background: #F0FDF4 !important;
+          border-color: var(--svg-output-border, #10B981);
+          background: var(--svg-output-bg, #F0FDF4);
+          color: var(--svg-output-text, #000000);
         }
 
-        /* Theme: minimal */
+        /* Theme: minimal - can be customized via CSS variables */
         .svg-field-minimal input,
         .svg-field-minimal div {
-          border: 1px solid #D1D5DB !important;
-          border-radius: 2px !important;
-          background: white !important;
+          border: 1px solid #D1D5DB;
+          border-radius: 2px;
+          background: var(--svg-input-bg, white);
+          color: var(--svg-input-text, #000000);
         }
 
-        /* Theme: bordered */
+        /* Theme: bordered - uses CSS variables */
         .svg-field-bordered input {
-          border: 3px solid #3B82F6 !important;
-          border-radius: 8px !important;
-          box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2) !important;
+          border: 3px solid var(--svg-input-border, #3B82F6);
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+          background: var(--svg-input-bg, white);
+          color: var(--svg-input-text, #000000);
+        }
+        .svg-field-bordered input:focus {
+          border-color: var(--svg-input-focus, #2563EB);
+          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
         }
         .svg-field-bordered div {
-          border: 3px solid #10B981 !important;
-          border-radius: 8px !important;
-          box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2) !important;
+          border: 3px solid var(--svg-output-border, #10B981);
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+          background: var(--svg-output-bg, #F0FDF4);
+          color: var(--svg-output-text, #000000);
         }
       `}</style>
 

@@ -29,8 +29,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Examples directory structure for better learning progression
 
 ### Fixed
+- **Theming System** - Complete overhaul of CSS variable support
+  - Replaced hardcoded colors with CSS variables throughout codebase
+  - `InteractiveSVG` component now uses `var(--svg-*-*)` syntax with fallbacks
+  - `useFieldOverlay` hook now uses CSS variables for inline styles
+  - Removed most `!important` flags to allow proper user customization
+  - `themes.css` is now properly imported and bundled as `dist/styles.css`
+  - Users can now successfully override theme colors via CSS variables
+- TypeScript strict mode error in `useFieldOverlay.ts` (array index null check)
 - All ESLint errors and warnings
-- TypeScript strict mode violations
 - React hooks dependency issues
 - Nullish coalescing violations
 
