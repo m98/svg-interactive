@@ -1,6 +1,6 @@
 {
   "name": "svg-interactive",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Transform any SVG into an interactive form with embedded input/output fields. Works with draw.io, Figma, Inkscape, and custom SVGs.",
   "main": "./dist/index.js",
   "module": "./dist/index.esm.js",
