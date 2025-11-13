@@ -1,0 +1,113 @@
+/* SVG Interactive Diagram - Theme Styles */
+
+:root {
+  /* Color variables */
+  --svg-input-border: #3B82F6;
+  --svg-input-bg: #FFFFFF;
+  --svg-input-text: #000000;
+  --svg-input-focus: #2563EB;
+
+  --svg-output-border: #10B981;
+  --svg-output-bg: #F0FDF4;
+  --svg-output-text: #000000;
+
+  /* Size variables */
+  --svg-field-border-width: 2px;
+  --svg-field-border-radius: 4px;
+  --svg-field-padding: 2px 6px;
+  --svg-field-font-size: 12px;
+}
+
+/* Base field styles */
+.svg-field {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.svg-field input,
+.svg-field div {
+  box-sizing: border-box;
+}
+
+/* Default theme */
+.svg-field-default.svg-field-input input {
+  border: var(--svg-field-border-width) solid var(--svg-input-border);
+  border-radius: var(--svg-field-border-radius);
+  padding: var(--svg-field-padding);
+  font-size: var(--svg-field-font-size);
+  background: var(--svg-input-bg);
+  color: var(--svg-input-text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.svg-field-default.svg-field-input input:focus {
+  border-color: var(--svg-input-focus);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.svg-field-default.svg-field-output div {
+  border: var(--svg-field-border-width) solid var(--svg-output-border);
+  border-radius: var(--svg-field-border-radius);
+  padding: var(--svg-field-padding);
+  font-size: var(--svg-field-font-size);
+  background: var(--svg-output-bg);
+  color: var(--svg-output-text);
+}
+
+/* Minimal theme */
+.svg-field-minimal input,
+.svg-field-minimal div {
+  border: 1px solid #D1D5DB;
+  border-radius: 2px;
+  padding: var(--svg-field-padding);
+  font-size: var(--svg-field-font-size);
+  background: white;
+  color: #000000;
+}
+
+.svg-field-minimal input:focus {
+  border-color: #9CA3AF;
+  outline: none;
+}
+
+/* Bordered theme */
+.svg-field-bordered input {
+  border: 3px solid var(--svg-input-border);
+  border-radius: 8px;
+  padding: var(--svg-field-padding);
+  font-size: var(--svg-field-font-size);
+  background: white;
+  color: #000000;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.svg-field-bordered input:focus {
+  border-color: var(--svg-input-focus);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  outline: none;
+}
+
+.svg-field-bordered div {
+  border: 3px solid var(--svg-output-border);
+  border-radius: 8px;
+  padding: var(--svg-field-padding);
+  font-size: var(--svg-field-font-size);
+  background: var(--svg-output-bg);
+  color: #000000;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+/* Container styles */
+.svg-container {
+  position: relative;
+  display: inline-block;
+}
+
+.svg-container * {
+  color: initial !important;
+}
+
+.svg-container svg text {
+  fill: #000000 !important;
+}
