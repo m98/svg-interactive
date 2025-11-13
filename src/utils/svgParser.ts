@@ -179,7 +179,7 @@ function parseSVGUnified(svgText: string, config: FieldConfig): SVGParserResult 
           if (dataId) {
             const match = matchFieldPattern(dataId, [pattern]);
             if (match) {
-              const cellId = obj.parentElement?.getAttribute('id');
+              const cellId = obj.getAttribute('id');
               if (cellId) {
                 mappings.push({
                   dataId,
@@ -223,7 +223,7 @@ function parseSVGUnified(svgText: string, config: FieldConfig): SVGParserResult 
             if (dataId) {
               const match = matchFieldPattern(dataId, [pattern]);
               if (match) {
-                const cellId = obj.parentElement?.getAttribute('id');
+                const cellId = obj.getAttribute('id');
                 if (cellId) {
                   mappings.push({
                     dataId,

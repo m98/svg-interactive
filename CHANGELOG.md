@@ -36,6 +36,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed most `!important` flags to allow proper user customization
   - `themes.css` is now properly imported and bundled as `dist/styles.css`
   - Users can now successfully override theme colors via CSS variables
+- **draw.io SVG Parsing** - Fixed unreliable elementId extraction in `parseSVGUnified`
+  - Changed from `obj.parentElement?.getAttribute('id')` to `obj.getAttribute('id')`
+  - Now correctly matches the `data-cell-id` in rendered SVG
+  - Aligns with the working implementation in `parseSVGWithDataId`
 - TypeScript strict mode error in `useFieldOverlay.ts` (array index null check)
 - All ESLint errors and warnings
 - React hooks dependency issues
