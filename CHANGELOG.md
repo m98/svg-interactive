@@ -7,74 +7,84 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2024-11-13
+
+**Initial npm release** of `svg-interactive` - Transform any SVG into an interactive form with embedded input/output fields.
+
 ### Added
-- Comprehensive documentation reorganization
-  - Split SVG preparation guide into tool-specific docs
-  - Created API reference documentation
-  - Added troubleshooting guide
-- Examples reorganization
-  - Progressive learning structure (01-basic to 05-real-world)
-  - Tool-specific examples
-  - Integration examples
+- Core `InteractiveSVG` component for rendering interactive SVG diagrams
+- Parser functions: `parseSVG`, `parseDrawIoSVG`, `parseFigmaSVG`, `parseInkscapeSVG`
+- Support for attribute-based field matching (id, class, data-*, custom attributes)
+- Flexible pattern matching (prefix or regex)
+- Three-strategy element lookup system:
+  1. Direct id attribute query
+  2. data-cell-id fallback (draw.io compatibility)
+  3. Custom attribute matching (class, data-field, etc.)
+- Custom input/output renderers via `renderInput` and `renderOutput` props
+- Built-in themes: `default`, `minimal`, `bordered`
+- CSS variable theming system with full customization support
+- Debug mode with comprehensive field detection info
+- Output computation patterns:
+  - Global `onOutputCompute` callback
+  - Per-field `onOutputUpdate` callbacks
+  - Controlled mode with external `outputValues` prop
+- Comprehensive documentation
+  - Tool-specific SVG preparation guides (draw.io, Figma, Inkscape, Illustrator)
+  - API reference documentation
+  - Troubleshooting guide
+  - Progressive examples (basic → advanced → real-world)
 - Contributor guidelines (CONTRIBUTING.md)
 - Code of Conduct (CODE_OF_CONDUCT.md)
-- Maximum TypeScript strictness
+- Publishing guide (PUBLISHING.md)
+- Maximum TypeScript strictness (all strict flags enabled)
 - ESLint v9 with zero-warnings policy
 - Prettier code formatting
-- Comprehensive quality checks
-- Mixed-mode integration tests for `parseSVGUnified` (data-id + direct-id patterns)
-
-### Changed
-- README.md completely rewritten with open-source best practices
-- Documentation structure for better navigation
-- Examples directory structure for better learning progression
+- Comprehensive test suite (202 tests, 13 test suites)
+  - Unit tests for all utilities and hooks
+  - Integration tests with real SVG files
+  - Custom attribute matching tests
+  - draw.io mixed-mode tests
 
 ### Fixed
+- **Custom Attribute Matching** - Fixed completely broken custom attribute matching
+  - Added `matchedAttribute` field to `FieldMapping` type
+  - Updated all parsers to set `matchedAttribute`
+  - Enhanced `getFieldBoundingBoxes` with 3-strategy fallback system
+  - Fixed JSDOM compatibility (getBBox method check vs instanceof)
+  - Added comprehensive integration tests for class and data-* attributes
+- **Input State Management** - Fixed input state not clearing when switching diagrams
+  - Removed early return in `useEffect` when `inputFieldNames.length === 0`
+  - Input state now correctly clears to `{}` when switching to diagrams without inputs
+  - Prevents stale input values from leaking into `onOutputCompute` callbacks
+- **Rendering Optimization** - Optimized `InteractiveSVG` component
+  - Replaced `JSON.stringify` comparison with `useMemo` for inputFieldNames
+  - More efficient dependency tracking in useEffect
 - **Theming System** - Complete overhaul of CSS variable support
   - Replaced hardcoded colors with CSS variables throughout codebase
-  - `InteractiveSVG` component now uses `var(--svg-*-*)` syntax with fallbacks
-  - `useFieldOverlay` hook now uses CSS variables for inline styles
+  - Component now uses `var(--svg-*-*)` syntax with fallbacks
   - Removed most `!important` flags to allow proper user customization
-  - `themes.css` is now properly imported and bundled as `dist/styles.css`
   - Users can now successfully override theme colors via CSS variables
-- **draw.io SVG Parsing** - Fixed unreliable elementId extraction in `parseSVGUnified`
+- **draw.io SVG Parsing** - Fixed unreliable elementId extraction
   - Changed from `obj.parentElement?.getAttribute('id')` to `obj.getAttribute('id')`
   - Now correctly matches the `data-cell-id` in rendered SVG
-  - Aligns with the working implementation in `parseSVGWithDataId`
-- TypeScript strict mode error in `useFieldOverlay.ts` (array index null check)
-- All ESLint errors and warnings
+- TypeScript strict mode compliance (all strict flags pass)
+- ESLint compliance (zero warnings)
 - React hooks dependency issues
 - Nullish coalescing violations
 
-## [1.0.0] - 2024-11-12
-
-### Added
-- Initial release
-- Core InteractiveSVG component
-- Support for direct-id and data-id matching modes
-- Auto-detection of matching mode
-- Prefix and regex pattern matching
-- Custom input/output renderers
-- Built-in themes (default, minimal, bordered, none)
-- Debug mode with comprehensive info
-- TypeScript support
-- React 18+ compatibility
-
-### Features
-- Transform any SVG into interactive form
-- Works with draw.io, Figma, Inkscape, Illustrator, hand-coded SVGs
-- Flexible pattern matching (prefix or regex)
-- Full customization (themes, CSS, custom components)
-- Controlled and uncontrolled modes
-- Input change callbacks
-- Output computation functions
-- Per-field output callbacks
-
 ### Documentation
-- README with quick start guide
-- Basic usage examples
-- SVG preparation guide
-- TypeScript type definitions
+- README with quick start guide and examples
+- Tool-specific SVG preparation guides
+- API reference with all props documented
+- Troubleshooting guide for common issues
+- TypeScript type definitions with full JSDoc comments
+
+### Technical Details
+- React 18+ compatibility (uses `createRoot` API)
+- TypeScript 5.0+ with maximum strictness
+- Rollup bundler outputting CJS, ESM, and type definitions
+- SVG `foreignObject` technique for HTML embedding
+- Automatic cleanup of React roots to prevent memory leaks
 
 ---
 
@@ -100,5 +110,5 @@ In case of vulnerabilities.
 
 ---
 
-[Unreleased]: https://github.com/m98/svg-interactive/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/m98/svg-interactive/releases/tag/v1.0.0
+[Unreleased]: https://github.com/m98/svg-interactive/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/m98/svg-interactive/releases/tag/v0.1.0
