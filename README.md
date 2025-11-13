@@ -11,7 +11,7 @@
 
 Works seamlessly with **draw.io**, **Figma**, **Inkscape**, or **custom SVGs**. No vendor lock-in.
 
-[Quick Start](#quick-start) • [Examples](./examples) • [API Docs](#api-reference) • [Contributing](./CONTRIBUTING.md)
+[Quick Start](#-quick-start) • [Examples](#-examples) • [API Docs](#-api-reference) • [Contributing](./CONTRIBUTING.md)
 
 </div>
 

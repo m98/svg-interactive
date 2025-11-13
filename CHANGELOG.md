@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2025-11-13
+
+### Fixed
+- **README.md** - Fixed broken anchor links in navigation (Quick Start, Examples, API Docs)
+  - Updated links to include emoji in anchors to match GitHub's auto-generation
+
+### Documentation
+- **docs/api.md** - Complete rewrite to accurately reflect actual implementation
+  - Removed outdated `svgUrl` and `config` props that don't exist
+  - Added comprehensive parser functions documentation (`parseSVG`, `parseDrawIoSVG`, etc.)
+  - Documented two-step pattern: parse SVG → render with mappings
+  - Fixed `DebugInfo` interface (inputFields/outputFields are FieldData arrays)
+  - Added `ParseOptions` and `ParseResult` type documentation
+  - Documented attribute-based matching system (id, class, data-*, custom)
+  - Added all CSS variables that actually exist
+  - Updated all examples to use correct two-step API
+  - Added parser-specific documentation for each tool
+  - Documented three-strategy element lookup system
+
+- **docs/draw-io.md** - Enhanced with technical details and updated API
+  - Added note that draw.io and diagrams.net are the same tool
+  - Updated all code examples to use new two-step API (`parseDrawIoSVG` + `InteractiveSVG`)
+  - Added comprehensive "How It Works" technical section explaining:
+    - draw.io export structure (embedded mxfile XML)
+    - Data-ID to element lookup process
+    - Step-by-step parsing process
+    - Three-strategy element lookup fallback
+    - Why data-id attributes are needed (random ID problem)
+    - Metadata returned by parser
+  - Updated troubleshooting section to use new error handling patterns
+
 ## [0.1.0] - 2025-11-13
 
 **Initial npm release** of `svg-interactive` - Transform any SVG into an interactive form with embedded input/output fields.
@@ -110,5 +141,6 @@ In case of vulnerabilities.
 
 ---
 
-[Unreleased]: https://github.com/m98/svg-interactive/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/m98/svg-interactive/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/m98/svg-interactive/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/m98/svg-interactive/releases/tag/v0.1.0
