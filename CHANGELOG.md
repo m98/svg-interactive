@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.0] - 2024-11-13
+## [0.1.0] - 2025-11-13
 
 **Initial npm release** of `svg-interactive` - Transform any SVG into an interactive form with embedded input/output fields.
 
