@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Redirecting...</title>
+    <script>
+      // GitHub Pages SPA redirect hack
+      // This script takes the current URL path and converts it to a query string
+      // so the main index.html can handle the routing
+      const path = window.location.pathname.replace(/\/$/, '');
+      const base = '/';
+
+      if (path && path !== base) {
+        window.location.replace(
+          base + '?redirect=' + encodeURIComponent(path + window.location.search + window.location.hash)
+        );
+      } else {
+        window.location.replace(base);
+      }
+    </script>
+  </head>
+  <body></body>
+</html>

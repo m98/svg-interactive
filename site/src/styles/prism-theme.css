@@ -1,0 +1,146 @@
+/* Minimal Prism Theme - Light */
+
+code[class*='language-'],
+pre[class*='language-'] {
+  color: hsl(0 0% 9%);
+  background: none;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.6;
+  tab-size: 2;
+  hyphens: none;
+}
+
+pre[class*='language-'] {
+  padding: var(--space-4);
+  margin: 0;
+  overflow: auto;
+  background: hsl(var(--code-bg));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-md);
+}
+
+:not(pre) > code[class*='language-'] {
+  padding: 0.125rem 0.25rem;
+  border-radius: var(--radius-sm);
+  background: hsl(var(--code-bg));
+}
+
+/* Tokens */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: hsl(0 0% 60%);
+  font-style: italic;
+}
+
+.token.namespace {
+  opacity: 0.7;
+}
+
+.token.string,
+.token.attr-value {
+  color: hsl(142 71% 35%);
+}
+
+.token.punctuation,
+.token.operator {
+  color: hsl(0 0% 40%);
+}
+
+.token.entity,
+.token.url,
+.token.symbol,
+.token.number,
+.token.boolean,
+.token.variable,
+.token.constant,
+.token.property,
+.token.regex,
+.token.inserted {
+  color: hsl(221 87% 50%);
+}
+
+.token.atrule,
+.token.keyword,
+.token.attr-name,
+.language-autohotkey .token.selector {
+  color: hsl(271 76% 53%);
+}
+
+.token.function,
+.token.deleted,
+.language-autohotkey .token.tag {
+  color: hsl(5 74% 59%);
+}
+
+.token.tag,
+.token.selector,
+.language-autohotkey .token.keyword {
+  color: hsl(355 65% 45%);
+}
+
+.token.important,
+.token.function,
+.token.bold {
+  font-weight: 600;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+/* Line highlighting */
+pre[class*='language-'] > code {
+  display: block;
+}
+
+.line-highlight {
+  background: hsla(0 0% 0% / 0.05);
+  border-left: 3px solid hsl(var(--accent));
+  padding-left: calc(var(--space-2) - 3px);
+  margin-left: calc(var(--space-2) * -1);
+}
+
+/* Line numbers */
+pre.line-numbers {
+  position: relative;
+  padding-left: 3.8em;
+  counter-reset: linenumber;
+}
+
+pre.line-numbers > code {
+  position: relative;
+  white-space: inherit;
+}
+
+.line-numbers .line-numbers-rows {
+  position: absolute;
+  pointer-events: none;
+  top: 0;
+  font-size: 100%;
+  left: -3.8em;
+  width: 3em;
+  letter-spacing: -1px;
+  border-right: 1px solid hsl(var(--border));
+  user-select: none;
+}
+
+.line-numbers-rows > span {
+  display: block;
+  counter-increment: linenumber;
+}
+
+.line-numbers-rows > span:before {
+  content: counter(linenumber);
+  color: hsl(var(--muted-foreground));
+  display: block;
+  padding-right: 0.8em;
+  text-align: right;
+}

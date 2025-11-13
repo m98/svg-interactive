@@ -21,17 +21,17 @@ Works seamlessly with **draw.io**, **Figma**, **Inkscape**, or **custom SVGs**. 
 
 Ever wanted to make your SVG diagrams interactive but faced these problems?
 
-❌ Locked into one tool's proprietary format
-❌ Can't embed HTML inputs directly in SVG
-❌ Complex setup just to add a few interactive fields
-❌ Have to rebuild your diagram from scratch
+- ❌ Locked into one tool's proprietary format
+- ❌ Can't embed HTML inputs directly in SVG
+- ❌ Complex setup just to add a few interactive fields
+- ❌ Have to rebuild your diagram from scratch
 
 **This library solves all of that:**
 
-✅ Works with **ANY SVG tool** - no vendor lock-in
-✅ Uses SVG `foreignObject` to embed real HTML inputs
-✅ Dead simple setup - just add IDs or data attributes
-✅ Keep using your favorite design tool
+- ✅ Works with **ANY SVG tool** - no vendor lock-in
+- ✅ Uses SVG `foreignObject` to embed real HTML inputs
+- ✅ Dead simple setup - just add IDs or data attributes
+- ✅ Keep using your favorite design tool
 
 ## 🚀 Quick Start
 
@@ -148,6 +148,16 @@ const { mappings } = parseSVG(svgContent, {
 - 📊 **Debug Mode** - Built-in debugging panel
 - 💪 **TypeScript** - Complete type definitions with strict mode
 - 🚀 **Next.js Ready** - Works out of the box
+
+## 🌐 Interactive Landing Page & Playground
+
+This repository now ships with a polished React + Vite site (see [`/site`](./site)) that showcases every example and includes a fully interactive playground:
+
+- `npm run site:dev` — run the landing page locally with hot reload
+- `npm run site:build` — produce the static assets under `site/dist`
+- `npm run site:preview` — preview the production build
+
+The site imports the real components and presets from [`/examples`](./examples) so content always stays in sync with the package. A dedicated workflow ([`.github/workflows/site.yml`](./.github/workflows/site.yml)) builds the site on every push to `main` and deploys it to GitHub Pages—just enable “GitHub Actions” under **Settings → Pages** and you’ll have a live playground/landing page with zero manual steps.
 
 ## 📖 Examples
 

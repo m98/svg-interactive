@@ -33,7 +33,10 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,json,md}\"",
     "typecheck": "tsc --noEmit",
     "quality": "npm run typecheck && npm run lint && npm run format:check && npm test",
-    "prepublishOnly": "npm run quality && npm run build"
+    "prepublishOnly": "npm run quality && npm run build",
+    "site:dev": "npm run dev --prefix site",
+    "site:build": "npm run build --prefix site",
+    "site:preview": "npm run preview --prefix site"
   },
   "keywords": [
     "svg",
