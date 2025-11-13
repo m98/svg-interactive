@@ -17,7 +17,6 @@ export { parseSVG } from './parsers/generic';
 
 // Hooks
 export { useFieldOverlay } from './hooks/useFieldOverlay';
-export { useSVGParser } from './hooks/useSVGParser';
 
 // Utilities
 export { getFieldBoundingBoxes } from './utils/svgParser';

@@ -32,19 +32,25 @@ npm run quality        # Run all: typecheck + lint + format + test
 ### Core Concept
 Load SVG → Parse (extract field mappings) → Render SVG → Get BoundingBoxes → Create foreignObjects → Embed HTML → Wire Events
 
-### Two Matching Modes
+### Flexible Attribute-Based Matching
 
-**1. Direct ID Mode** (custom SVGs - Inkscape, Figma)
-- Match SVG element IDs directly: `<rect id="input:username" />`
-- Pattern: `input:*` and `output:*`
-- Custom prefixes supported via config
+The library uses a flexible attribute-based matching system that can match on **any SVG attribute**:
 
-**2. Data-ID Mode** (draw.io)
-- draw.io auto-generates IDs, can't control them
-- Uses custom metadata in mxfile XML: `<object data-id="input:username">`
-- Auto-detects by checking for `content` attribute in SVG and the prefix user provided
+**Match by ID** (default - Inkscape, Figma, custom SVGs):
+- Match SVG element `id` attributes: `<rect id="input:username" />`
+- Pattern: `{ prefix: 'input:', type: 'input' }`
 
-**Per-Pattern Override**: Set `useDataId` flag on individual patterns to mix modes.
+**Match by Data Attribute** (draw.io):
+- draw.io auto-generates IDs, so use custom metadata instead
+- Users add metadata in draw.io: `<object data-id="input:username">`
+- Use dedicated parser: `parseDrawIoSVG(svgContent, { patterns: [...] })`
+
+**Match by Custom Attribute** (advanced):
+- Match any attribute: `class`, `data-field`, `data-*`, etc.
+- Pattern: `{ attribute: 'class', prefix: 'field-', type: 'input' }`
+- Per-pattern attribute specification enables mixing strategies
+
+**Auto-Detection**: `parseSVG()` automatically detects draw.io SVGs (checks for `content` attribute) and delegates to appropriate parser.
 
 ### Three-Layer Architecture
 
@@ -54,7 +60,6 @@ Load SVG → Parse (extract field mappings) → Render SVG → Get BoundingBoxes
 - `decodeHTML.ts` - HTML entity decoding for draw.io content
 
 **Hooks Layer** (`src/hooks/`) - React integration:
-- `useSVGParser.ts` - Loads SVG (URL/string), parses, returns mappings
 - `useFieldOverlay.ts` - Creates foreignObjects, embeds HTML, manages lifecycle
 
 **Components Layer** (`src/components/`):
@@ -67,7 +72,8 @@ Load SVG → Parse (extract field mappings) → Render SVG → Get BoundingBoxes
 **Entry**: `src/index.ts` exports all public APIs
 
 **Main Component**: `InteractiveSVG` at `src/components/InteractiveSVG.tsx:11`
-- Orchestrates: useSVGParser → useFieldOverlay → render SVG + fields
+- Accepts pre-parsed `mappings` (from parseSVG/parseDrawIoSVG/etc.) and `svgContent` props
+- Orchestrates: useFieldOverlay → render SVG + foreignObject overlays + fields
 - Manages state: inputValues, outputValues (internal or controlled)
 - Three output patterns: computed (onOutputCompute), controlled (outputValues prop), individual (onOutputUpdate)
 

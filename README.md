@@ -53,16 +53,21 @@ yarn add svg-interactive-diagram
 
 2. **Use in React**:
    ```tsx
-   import { InteractiveSVG } from 'svg-interactive-diagram';
+   import { InteractiveSVG, parseSVG } from 'svg-interactive-diagram';
 
+   // Step 1: Parse your SVG to extract field mappings
+   const svgContent = await fetch('/diagram.svg').then(r => r.text());
+   const { mappings } = parseSVG(svgContent, {
+     patterns: [
+       { prefix: 'input-', type: 'input' },
+       { prefix: 'output-', type: 'output' }
+     ]
+   });
+
+   // Step 2: Render the interactive SVG
    <InteractiveSVG
-     svgUrl="/diagram.svg"
-     config={{
-       patterns: [
-         { prefix: 'input-', type: 'input' },
-         { prefix: 'output-', type: 'output' }
-       ]
-     }}
+     mappings={mappings}
+     svgContent={svgContent}
      onOutputCompute={(inputs) => ({
        result: `You entered: ${inputs.temperature}`
      })}
@@ -81,31 +86,28 @@ The library uses SVG's `<foreignObject>` element to overlay HTML inputs at exact
 4. Create `<foreignObject>` overlays
 5. Render HTML inputs/outputs inside
 
-## 🎯 Two Matching Modes
+## 🎯 Flexible Field Matching
 
-### Mode 1: Direct ID (Custom SVGs)
+The library matches SVG elements using **attribute-based patterns** - you can match on any SVG attribute (`id`, `class`, `data-*`, etc.):
 
-**When:** You control element IDs (Inkscape, Figma, hand-coded)
+### Match by ID (Default - Inkscape, Figma, Custom SVGs)
 
 ```svg
 <rect id="input-temp" x="10" y="10" width="100" height="30"/>
 ```
 
 ```tsx
-<InteractiveSVG
-  svgUrl="/custom.svg"
-  config={{
-    patterns: [
-      { prefix: 'input-', type: 'input' },
-      { prefix: 'output-', type: 'output' }
-    ]
-  }}
-/>
+const { mappings } = parseSVG(svgContent, {
+  patterns: [
+    { prefix: 'input-', type: 'input' },  // Matches id="input-*"
+    { prefix: 'output-', type: 'output' }
+  ]
+});
 ```
 
-### Mode 2: Data-ID (draw.io)
+### Match by Data Attribute (draw.io)
 
-**When:** Auto-generated IDs (draw.io)
+For draw.io SVGs, use the dedicated parser which automatically looks for custom metadata:
 
 **In draw.io:**
 1. Right-click shape → Edit Data
@@ -113,28 +115,38 @@ The library uses SVG's `<foreignObject>` element to overlay HTML inputs at exact
 3. Export as SVG
 
 ```tsx
-<InteractiveSVG
-  svgUrl="/flowchart.svg"
-  config={{
-    patterns: [
-      { prefix: 'input-field-', type: 'input' },
-      { prefix: 'output-field-', type: 'output' }
-    ]
-  }}
-/>
+import { parseDrawIoSVG } from 'svg-interactive-diagram';
+
+const { mappings } = parseDrawIoSVG(svgContent, {
+  patterns: [
+    { prefix: 'input-field-', type: 'input' },
+    { prefix: 'output-field-', type: 'output' }
+  ]
+});
 ```
 
-💡 **Auto-detection**: The library automatically chooses the right mode!
+### Match by Custom Attribute
+
+```tsx
+const { mappings } = parseSVG(svgContent, {
+  patterns: [
+    { attribute: 'class', prefix: 'field-input-', type: 'input' },
+    { attribute: 'data-field', regex: /^output-(.+)$/, type: 'output' }
+  ]
+});
+```
+
+💡 **Auto-detection**: Use `parseSVG()` for automatic draw.io detection, or use specific parsers (`parseDrawIoSVG`, `parseFigmaSVG`, `parseInkscapeSVG`) for tool-optimized parsing.
 
 ## 💡 Features
 
 - 🎨 **Universal SVG Support** - draw.io, Figma, Inkscape, Adobe Illustrator, hand-coded
-- 🔄 **Auto-Detection** - Automatically picks direct-id or data-id mode
-- 🎯 **Flexible Patterns** - Prefix or regex matching
-- ⚛️ **React 18+** - Built with modern React
+- 🔄 **Flexible Matching** - Match any SVG attribute (id, class, data-*, etc.)
+- 🎯 **Pattern-Based** - Prefix or regex matching with per-pattern configuration
+- ⚛️ **React 18+** - Built with modern React and createRoot API
 - 🎨 **Fully Customizable** - Themes, CSS variables, custom components
 - 📊 **Debug Mode** - Built-in debugging panel
-- 💪 **TypeScript** - Complete type definitions
+- 💪 **TypeScript** - Complete type definitions with strict mode
 - 🚀 **Next.js Ready** - Works out of the box
 
 ## 📖 Examples
@@ -142,14 +154,19 @@ The library uses SVG's `<foreignObject>` element to overlay HTML inputs at exact
 ### Calculator with Custom Styling
 
 ```tsx
+import { InteractiveSVG, parseSVG } from 'svg-interactive-diagram';
+
+const svgContent = await fetch('/calculator.svg').then(r => r.text());
+const { mappings } = parseSVG(svgContent, {
+  patterns: [
+    { prefix: 'input-', type: 'input' },
+    { prefix: 'output-', type: 'output' }
+  ]
+});
+
 <InteractiveSVG
-  svgUrl="/calculator.svg"
-  config={{
-    patterns: [
-      { prefix: 'input-', type: 'input' },
-      { prefix: 'output-', type: 'output' }
-    ]
-  }}
+  mappings={mappings}
+  svgContent={svgContent}
   onOutputCompute={(inputs) => ({
     sum: (parseFloat(inputs.a || '0') + parseFloat(inputs.b || '0')).toString()
   })}
@@ -162,9 +179,19 @@ The library uses SVG's `<foreignObject>` element to overlay HTML inputs at exact
 ### Custom React Components
 
 ```tsx
+import { InteractiveSVG, parseDrawIoSVG } from 'svg-interactive-diagram';
+
+const svgContent = await fetch('/diagram.svg').then(r => r.text());
+const { mappings } = parseDrawIoSVG(svgContent, {
+  patterns: [
+    { prefix: 'input-', type: 'input' },
+    { prefix: 'output-', type: 'output' }
+  ]
+});
+
 <InteractiveSVG
-  svgUrl="/diagram.svg"
-  config={{ patterns: [...] }}
+  mappings={mappings}
+  svgContent={svgContent}
   renderInput={(props) => (
     <input
       type="number"
@@ -187,10 +214,11 @@ The library uses SVG's `<foreignObject>` element to overlay HTML inputs at exact
 
 ```tsx
 <InteractiveSVG
+  mappings={mappings}
+  svgContent={svgContent}
   theme="none"
   inputClassName="w-full h-full px-3 py-2 border-2 border-blue-500 rounded-lg focus:ring-2"
   outputClassName="w-full h-full px-3 py-2 bg-green-50 border-2 border-green-500 rounded-lg"
-  {...otherProps}
 />
 ```
 
@@ -210,42 +238,68 @@ Quick guides for each tool:
 
 ## 🔧 API Reference
 
-### `<InteractiveSVG>` Props
+### Parser Functions
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `svgUrl` | `string` | URL to SVG file |
-| `svgContent` | `string` | Raw SVG string (alternative to URL) |
-| `config` | `FieldConfig` | **Required.** Field matching configuration |
-| `onInputChange` | `(name, value, all) => void` | Fired when any input changes |
-| `onOutputCompute` | `(inputs) => outputs` | Compute all outputs from inputs |
-| `outputValues` | `Record<string, string>` | Controlled output values |
-| `onOutputUpdate` | `Record<string, fn>` | Per-field output callbacks |
-| `renderInput` | `(props) => ReactNode` | Custom input renderer |
-| `renderOutput` | `(props) => ReactNode` | Custom output renderer |
-| `theme` | `'default' \| 'minimal' \| 'bordered' \| 'none'` | Built-in theme |
-| `inputClassName` | `string` | CSS class for inputs |
-| `outputClassName` | `string` | CSS class for outputs |
-| `inputStyle` | `CSSProperties` | Inline styles for inputs |
-| `outputStyle` | `CSSProperties` | Inline styles for outputs |
-| `debug` | `boolean` | Show debug panel |
-| `onDebugInfo` | `(info) => void` | Debug callback |
-
-### `FieldConfig`
+First, parse your SVG to extract field mappings:
 
 ```typescript
-interface FieldConfig {
-  patterns: FieldPattern[];
-  matchingMode?: 'data-id' | 'direct-id' | 'auto'; // Default: 'auto'
+// Auto-detecting parser (recommended)
+parseSVG(svgContent: string, options: ParseOptions): ParseResult
+
+// Tool-specific parsers (optimized for each tool)
+parseDrawIoSVG(svgContent: string, options: ParseOptions): ParseResult
+parseFigmaSVG(svgContent: string, options: ParseOptions): ParseResult
+parseInkscapeSVG(svgContent: string, options: ParseOptions): ParseResult
+```
+
+> **Note:** Tool-specific parsers (`parseDrawIoSVG`, `parseFigmaSVG`, `parseInkscapeSVG`) are convenience wrappers around `parseSVG()` that set appropriate defaults and metadata for each tool. You can use `parseSVG()` for all cases, but the tool-specific parsers provide better ergonomics and clearer intent.
+
+**ParseOptions:**
+```typescript
+interface ParseOptions {
+  patterns: FieldPattern[];        // Field matching patterns
+  mode?: 'data-id' | 'direct-id';  // Optional: force specific mode
 }
 
 interface FieldPattern {
-  prefix?: string;        // e.g., "input-"
-  regex?: RegExp;         // e.g., /^param-(.*)/
+  prefix?: string;                 // e.g., "input-"
+  regex?: RegExp;                  // e.g., /^param-(.*)/
   type: 'input' | 'output';
-  useDataId?: boolean;    // Per-pattern override
+  attribute?: string;              // Optional: 'id', 'class', 'data-field', etc. (default: 'id')
 }
 ```
+
+**ParseResult:**
+```typescript
+interface ParseResult {
+  mappings: FieldMapping[];        // Use this for InteractiveSVG
+  metadata: {
+    tool: 'drawio' | 'figma' | 'inkscape' | 'generic';
+    mode: 'data-id' | 'direct-id';
+    totalFields: number;
+  };
+}
+```
+
+### `<InteractiveSVG>` Props
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `mappings` | `FieldMapping[]` | **Yes** | Field mappings from parser |
+| `svgContent` | `string` | **Yes** | Raw SVG string |
+| `onInputChange` | `(name, value, all) => void` | No | Fired when any input changes |
+| `onOutputCompute` | `(inputs) => outputs` | No | Compute all outputs from inputs |
+| `outputValues` | `Record<string, string>` | No | Controlled output values |
+| `onOutputUpdate` | `Record<string, fn>` | No | Per-field output callbacks |
+| `renderInput` | `(props) => ReactNode` | No | Custom input renderer |
+| `renderOutput` | `(props) => ReactNode` | No | Custom output renderer |
+| `theme` | `'default' \| 'minimal' \| 'bordered' \| 'none'` | No | Built-in theme |
+| `inputClassName` | `string` | No | CSS class for inputs |
+| `outputClassName` | `string` | No | CSS class for outputs |
+| `inputStyle` | `CSSProperties` | No | Inline styles for inputs |
+| `outputStyle` | `CSSProperties` | No | Inline styles for outputs |
+| `debug` | `boolean` | No | Show debug panel |
+| `onDebugInfo` | `(info) => void` | No | Debug callback |
 
 **[Full API Documentation →](./docs/api.md)**
 

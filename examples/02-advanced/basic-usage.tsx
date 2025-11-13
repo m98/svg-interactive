@@ -1,17 +1,33 @@
-import React from 'react';
-import { InteractiveSVG, FieldConfig } from 'svg-interactive-diagram';
+import React, { useState, useEffect } from 'react';
+import { InteractiveSVG, parseSVG } from 'svg-interactive-diagram';
 import 'svg-interactive-diagram/styles';
 
 /**
  * Basic usage example
  */
 export function BasicExample() {
-  const config: FieldConfig = {
+  const [svgContent, setSvgContent] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/diagram.svg')
+      .then((r) => r.text())
+      .then((content) => {
+        setSvgContent(content);
+        setIsLoading(false);
+      });
+  }, []);
+
+  if (isLoading) {
+    return <div>Loading SVG...</div>;
+  }
+
+  const { mappings } = parseSVG(svgContent, {
     patterns: [
       { prefix: 'input-field-', type: 'input' },
       { prefix: 'output-field-', type: 'output' }
     ]
-  };
+  });
 
   const handleOutputCompute = (inputs: Record<string, string>) => {
     // Concatenate all input values
@@ -23,8 +39,8 @@ export function BasicExample() {
 
   return (
     <InteractiveSVG
-      svgUrl="/diagram.svg"
-      config={config}
+      mappings={mappings}
+      svgContent={svgContent}
       onOutputCompute={handleOutputCompute}
       theme="default"
       debug={true}
@@ -36,14 +52,30 @@ export function BasicExample() {
  * Advanced usage with custom patterns and callbacks
  */
 export function AdvancedExample() {
-  const config: FieldConfig = {
+  const [svgContent, setSvgContent] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/diagram.svg')
+      .then((r) => r.text())
+      .then((content) => {
+        setSvgContent(content);
+        setIsLoading(false);
+      });
+  }, []);
+
+  if (isLoading) {
+    return <div>Loading SVG...</div>;
+  }
+
+  const { mappings } = parseSVG(svgContent, {
     patterns: [
       { prefix: 'input-field-', type: 'input' },
       { prefix: 'output-field-', type: 'output' },
       { regex: /^custom-input-(.*)/, type: 'input' },
       { regex: /^result-(.*)/, type: 'output' }
     ]
-  };
+  });
 
   const handleInputChange = (name: string, value: string, allValues: Record<string, string>) => {
     console.log(`Input "${name}" changed to:`, value);
@@ -65,8 +97,8 @@ export function AdvancedExample() {
 
   return (
     <InteractiveSVG
-      svgUrl="/diagram.svg"
-      config={config}
+      mappings={mappings}
+      svgContent={svgContent}
       onInputChange={handleInputChange}
       onOutputCompute={handleOutputCompute}
       theme="bordered"
@@ -84,17 +116,33 @@ export function AdvancedExample() {
  * Custom render functions example
  */
 export function CustomRenderExample() {
-  const config: FieldConfig = {
+  const [svgContent, setSvgContent] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/diagram.svg')
+      .then((r) => r.text())
+      .then((content) => {
+        setSvgContent(content);
+        setIsLoading(false);
+      });
+  }, []);
+
+  if (isLoading) {
+    return <div>Loading SVG...</div>;
+  }
+
+  const { mappings } = parseSVG(svgContent, {
     patterns: [
       { prefix: 'input-field-', type: 'input' },
       { prefix: 'output-field-', type: 'output' }
     ]
-  };
+  });
 
   return (
     <InteractiveSVG
-      svgUrl="/diagram.svg"
-      config={config}
+      mappings={mappings}
+      svgContent={svgContent}
       onOutputCompute={(inputs) => ({ gas: inputs.gas || '' })}
       renderInput={(props) => (
         <input
