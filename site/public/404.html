@@ -8,11 +8,11 @@
       // This script takes the current URL path and converts it to a query string
       // so the main index.html can handle the routing
       const path = window.location.pathname.replace(/\/$/, '');
-      const base = '/';
+      const base = '/svg-interactive/';
 
       if (path && path !== base) {
         window.location.replace(
-          base + '?redirect=' + encodeURIComponent(path + window.location.search + window.location.hash)
+          base + '?redirect=' + encodeURIComponent(path.replace(base, '/') + window.location.search + window.location.hash)
         );
       } else {
         window.location.replace(base);
