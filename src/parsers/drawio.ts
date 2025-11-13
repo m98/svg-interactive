@@ -147,6 +147,7 @@ export function parseDrawIoSVG(svgContent: string, options: ParseOptions): Parse
                 name: match.name,
                 elementId,
                 type: match.type,
+                matchedAttribute: attribute,
               });
             }
           }
@@ -170,6 +171,7 @@ export function parseDrawIoSVG(svgContent: string, options: ParseOptions): Parse
                 name: match.name,
                 elementId,
                 type: match.type,
+                matchedAttribute: attribute,
               });
             }
           }

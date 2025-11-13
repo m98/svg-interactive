@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { InteractiveSVGProps, DebugInfo } from '../types';
 import { useFieldOverlay, UseFieldOverlayOptions } from '../hooks/useFieldOverlay';
 import { DebugPanel } from './DebugPanel';
@@ -49,11 +49,18 @@ export const InteractiveSVG: React.FC<InteractiveSVGProps> = ({
   const [inputValues, setInputValues] = useState<Record<string, string>>({});
   const [internalOutputValues, setInternalOutputValues] = useState<Record<string, string>>({});
   const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
-  const prevMappingsRef = useRef<string>('');
   const prevFieldsRef = useRef<number>(0);
 
   // Use external output values if provided, otherwise use internal state
   const outputValues = externalOutputValues ?? internalOutputValues;
+
+  // Memoize input field names to avoid recomputing on every render
+  const inputFieldNames = useMemo(() => {
+    if (!mappings || !Array.isArray(mappings)) {
+      return [];
+    }
+    return mappings.filter((m) => m.type === 'input').map((m) => m.name);
+  }, [mappings]);
 
   // Insert SVG into DOM
   useEffect(() => {
@@ -62,29 +69,17 @@ export const InteractiveSVG: React.FC<InteractiveSVGProps> = ({
     }
   }, [svgContent]);
 
-  // Initialize input values from mappings
+  // Initialize input values from mappings when field names change
   useEffect(() => {
-    // Guard against undefined or invalid mappings
-    if (!mappings || !Array.isArray(mappings) || mappings.length === 0) {
-      return;
-    }
-
-    const mappingsKey = JSON.stringify(mappings.map((m) => m.name));
-    if (prevMappingsRef.current !== mappingsKey) {
-      prevMappingsRef.current = mappingsKey;
-
-      setInputValues((prevValues) => {
-        const initialValues: Record<string, string> = {};
-        mappings
-          .filter((m) => m.type === 'input')
-          .forEach((m) => {
-            // Preserve existing values if they exist
-            initialValues[m.name] = prevValues[m.name] ?? '';
-          });
-        return initialValues;
+    setInputValues((prevValues) => {
+      const initialValues: Record<string, string> = {};
+      inputFieldNames.forEach((name) => {
+        // Preserve existing values if they exist
+        initialValues[name] = prevValues[name] ?? '';
       });
-    }
-  }, [mappings]);
+      return initialValues;
+    });
+  }, [inputFieldNames]);
 
   // Handle input changes
   const handleInputChange = useCallback(

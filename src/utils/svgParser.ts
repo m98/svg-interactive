@@ -1,16 +1,20 @@
 import { FieldMapping } from '../types';
 
 /**
- * @deprecated Legacy parser functions have been moved to src/parsers/
- * Use parseDrawIoSVG, parseFigmaSVG, parseInkscapeSVG, or parseSVG instead
- */
-
-/**
- * Finds rendered SVG elements and gets their bounding boxes
- * Supports both id attributes and data-cell-id attributes (for draw.io)
+ * Utility for getting bounding boxes of SVG elements from field mappings.
+ *
+ * This function takes field mappings produced by parsers (parseDrawIoSVG, parseSVG, etc.)
+ * and locates the corresponding elements in the rendered SVG DOM to extract their
+ * bounding box coordinates. This is essential for positioning foreignObject overlays.
+ *
+ * Supports multiple query strategies:
+ * - Direct id attributes (Figma, Inkscape, custom SVGs)
+ * - data-cell-id attributes (draw.io compatibility)
+ * - Custom attribute matching (class, data-*, etc.)
+ *
  * @param svgElement - The rendered SVG DOM element
- * @param mappings - Field mappings to locate
- * @returns Array of field data with bounding boxes
+ * @param mappings - Field mappings to locate (from parser output)
+ * @returns Array of field data with bounding boxes (bbox may be null if element not found)
  */
 export function getFieldBoundingBoxes(
   svgElement: SVGSVGElement,
@@ -18,16 +22,31 @@ export function getFieldBoundingBoxes(
 ): Array<FieldMapping & { bbox: { x: number; y: number; width: number; height: number } | null }> {
   return mappings.map((mapping) => {
     try {
-      // Try direct id attribute first (Figma, Inkscape, custom SVGs)
-      let targetElement = svgElement.querySelector(`#${CSS.escape(mapping.elementId)}`);
+      let targetElement: Element | null = null;
 
-      // Fallback to data-cell-id (draw.io SVGs don't add id attributes to rendered elements)
-      if (!targetElement) {
-        targetElement = svgElement.querySelector(`g[data-cell-id="${mapping.elementId}"]`);
+      // Strategy 1: If element has an id attribute, try querying by id
+      // (This works when the matched element has an id, regardless of which attribute was used to match)
+      targetElement = svgElement.querySelector(`#${CSS.escape(mapping.elementId)}`);
+
+      // Strategy 2: Try data-cell-id (draw.io SVGs don't add id attributes to rendered elements)
+      targetElement ??= svgElement.querySelector(`g[data-cell-id="${mapping.elementId}"]`);
+
+      // Strategy 3: If we matched by a custom attribute and element has no id,
+      // query by that attribute with the original matched value
+      if (!targetElement && mapping.matchedAttribute) {
+        // Escape special characters in attribute value for CSS selector
+        const escapedValue = mapping.dataId.replace(/"/g, '\\"');
+        const attrSelector = `[${mapping.matchedAttribute}="${escapedValue}"]`;
+        targetElement = svgElement.querySelector(attrSelector);
       }
 
-      if (targetElement && targetElement instanceof SVGGraphicsElement) {
-        const bbox = targetElement.getBBox();
+      // Check if element has getBBox method (more reliable than instanceof in test environments)
+      if (
+        targetElement &&
+        'getBBox' in targetElement &&
+        typeof targetElement.getBBox === 'function'
+      ) {
+        const bbox = (targetElement as SVGGraphicsElement).getBBox();
         return {
           ...mapping,
           bbox: {

@@ -32,6 +32,8 @@ export interface FieldMapping {
   name: string;
   elementId: string;
   type: 'input' | 'output';
+  /** The attribute used to match this field (e.g., 'id', 'class', 'data-field') */
+  matchedAttribute?: string;
 }
 
 export interface BoundingBox {

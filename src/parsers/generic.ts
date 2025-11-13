@@ -143,6 +143,7 @@ export function parseSVG(svgContent: string, options: ParseOptions): ParseResult
               name: match.name,
               elementId,
               type: match.type,
+              matchedAttribute: attribute,
             });
           }
         }

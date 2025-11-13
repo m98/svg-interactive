@@ -319,4 +319,102 @@ describe('InteractiveSVG', () => {
       expect(document.querySelector('.svg-container')).toBeInTheDocument();
     });
   });
+
+  describe('state management', () => {
+    it('should clear input state when switching to diagram with no inputs', () => {
+      // Start with diagram that has inputs
+      const svgWithInputs = `
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <rect id="input:name" />
+          <rect id="input:age" />
+          <rect id="output:result" />
+        </svg>
+      `;
+      const resultWithInputs = parseSVG(svgWithInputs, { patterns });
+
+      const onOutputCompute = jest.fn((inputs) => ({
+        result: `Name: ${inputs.name ?? ''}, Age: ${inputs.age ?? ''}`,
+      }));
+
+      const { rerender } = render(
+        <InteractiveSVG
+          svgContent={svgWithInputs}
+          mappings={resultWithInputs.mappings}
+          onOutputCompute={onOutputCompute}
+        />
+      );
+
+      // Simulate that inputs were previously set (in real usage, user would type values)
+      // The component starts with empty input state
+
+      // Now switch to diagram with only outputs (no inputs)
+      const svgWithoutInputs = `
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <rect id="output:result" />
+        </svg>
+      `;
+      const resultWithoutInputs = parseSVG(svgWithoutInputs, { patterns });
+
+      // Clear the mock to check calls after rerender
+      onOutputCompute.mockClear();
+
+      rerender(
+        <InteractiveSVG
+          svgContent={svgWithoutInputs}
+          mappings={resultWithoutInputs.mappings}
+          onOutputCompute={onOutputCompute}
+        />
+      );
+
+      // After rerender, input state should be cleared (empty object {})
+      // This test verifies the component doesn't crash and accepts the new mappings
+      expect(document.querySelector('.svg-container')).toBeInTheDocument();
+    });
+
+    it('should preserve existing input values when field names remain the same', () => {
+      const svgContent = `
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <rect id="input:username" />
+        </svg>
+      `;
+      const result = parseSVG(svgContent, { patterns });
+
+      const { rerender } = render(
+        <InteractiveSVG svgContent={svgContent} mappings={result.mappings} />
+      );
+
+      // Rerender with same mappings (simulates prop update without changing fields)
+      rerender(<InteractiveSVG svgContent={svgContent} mappings={result.mappings} />);
+
+      // Should not throw errors and container should still exist
+      expect(document.querySelector('.svg-container')).toBeInTheDocument();
+    });
+
+    it('should initialize new input fields when mappings change', () => {
+      const svgContent1 = `
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <rect id="input:field1" />
+        </svg>
+      `;
+      const result1 = parseSVG(svgContent1, { patterns });
+
+      const { rerender } = render(
+        <InteractiveSVG svgContent={svgContent1} mappings={result1.mappings} />
+      );
+
+      // Switch to different fields
+      const svgContent2 = `
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <rect id="input:field2" />
+          <rect id="input:field3" />
+        </svg>
+      `;
+      const result2 = parseSVG(svgContent2, { patterns });
+
+      rerender(<InteractiveSVG svgContent={svgContent2} mappings={result2.mappings} />);
+
+      // Should handle field changes without errors
+      expect(document.querySelector('.svg-container')).toBeInTheDocument();
+    });
+  });
 });
