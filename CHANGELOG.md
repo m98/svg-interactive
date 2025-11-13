@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ESLint v9 with zero-warnings policy
 - Prettier code formatting
 - Comprehensive quality checks
+- Mixed-mode integration tests for `parseSVGUnified` (data-id + direct-id patterns)
 
 ### Changed
 - README.md completely rewritten with open-source best practices

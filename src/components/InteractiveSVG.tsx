@@ -1,17 +1,34 @@
-import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { InteractiveSVGProps, DebugInfo } from '../types';
-import { useSVGParser, UseSVGParserOptions } from '../hooks/useSVGParser';
 import { useFieldOverlay, UseFieldOverlayOptions } from '../hooks/useFieldOverlay';
 import { DebugPanel } from './DebugPanel';
-import { validateFieldConfig } from '../utils/fieldMatcher';
 
 /**
  * Main component for rendering interactive SVG diagrams
+ *
+ * @example
+ * ```tsx
+ * import { parseDrawIoSVG, InteractiveSVG } from 'svg-interactive-diagram';
+ *
+ * const mappings = parseDrawIoSVG(svgContent, {
+ *   patterns: [
+ *     { attribute: 'data-id', prefix: 'input:', type: 'input' },
+ *     { attribute: 'data-id', prefix: 'output:', type: 'output' }
+ *   ]
+ * });
+ *
+ * <InteractiveSVG
+ *   mappings={mappings}
+ *   svgContent={svgContent}
+ *   onOutputCompute={(inputs) => ({
+ *     result: String(parseFloat(inputs.a || '0') + parseFloat(inputs.b || '0'))
+ *   })}
+ * />
+ * ```
  */
 export const InteractiveSVG: React.FC<InteractiveSVGProps> = ({
-  svgUrl,
+  mappings,
   svgContent,
-  config,
   onInputChange,
   onOutputCompute,
   outputValues: externalOutputValues,
@@ -38,41 +55,20 @@ export const InteractiveSVG: React.FC<InteractiveSVGProps> = ({
   // Use external output values if provided, otherwise use internal state
   const outputValues = externalOutputValues ?? internalOutputValues;
 
-  // Validate configuration
-  const configErrors = validateFieldConfig(config.patterns);
-  if (configErrors.length > 0) {
-    console.error('Invalid field configuration:', configErrors);
-  }
-
-  // Parse SVG and extract field mappings
-  const svgParserOptions = useMemo(() => {
-    const options: UseSVGParserOptions = { config };
-    if (svgUrl) {
-      options.svgUrl = svgUrl;
-    }
-    if (svgContent) {
-      options.svgContent = svgContent;
-    }
-    return options;
-  }, [svgUrl, svgContent, config]);
-
-  const {
-    mappings,
-    svgText,
-    isLoading,
-    errors: parseErrors,
-    detectedMode,
-  } = useSVGParser(svgParserOptions);
-
   // Insert SVG into DOM
   useEffect(() => {
-    if (svgText && svgContainerRef.current) {
-      svgContainerRef.current.innerHTML = svgText;
+    if (svgContent && svgContainerRef.current) {
+      svgContainerRef.current.innerHTML = svgContent;
     }
-  }, [svgText]);
+  }, [svgContent]);
 
   // Initialize input values from mappings
   useEffect(() => {
+    // Guard against undefined or invalid mappings
+    if (!mappings || !Array.isArray(mappings) || mappings.length === 0) {
+      return;
+    }
+
     const mappingsKey = JSON.stringify(mappings.map((m) => m.name));
     if (prevMappingsRef.current !== mappingsKey) {
       prevMappingsRef.current = mappingsKey;
@@ -171,17 +167,12 @@ export const InteractiveSVG: React.FC<InteractiveSVGProps> = ({
     if (fields.length > 0 && prevFieldsRef.current !== fields.length) {
       prevFieldsRef.current = fields.length;
       const svgElement = svgContainerRef.current?.querySelector('svg');
-      const allErrors = [...configErrors, ...parseErrors];
       const newDebugInfo: DebugInfo = {
         totalFields: fields.length,
         inputFields: fields.filter((f) => f.type === 'input'),
         outputFields: fields.filter((f) => f.type === 'output'),
         rawMappings: mappings,
       };
-
-      if (detectedMode) {
-        newDebugInfo.matchingMode = detectedMode;
-      }
 
       if (svgElement) {
         newDebugInfo.svgDimensions = {
@@ -190,8 +181,8 @@ export const InteractiveSVG: React.FC<InteractiveSVGProps> = ({
         };
       }
 
-      if (allErrors.length > 0) {
-        newDebugInfo.errors = allErrors;
+      if (mappings.length === 0) {
+        newDebugInfo.errors = ['No field mappings provided'];
       }
 
       setDebugInfo(newDebugInfo);
@@ -199,20 +190,19 @@ export const InteractiveSVG: React.FC<InteractiveSVGProps> = ({
         onDebugInfo(newDebugInfo);
       }
     }
-  }, [fields, mappings, detectedMode, configErrors, parseErrors, onDebugInfo]);
+  }, [fields, mappings, onDebugInfo]);
 
-  if (isLoading) {
-    return <div style={{ padding: '20px', textAlign: 'center' }}>Loading SVG...</div>;
-  }
-
-  if (configErrors.length > 0 || parseErrors.length > 0) {
+  // Show error if no mappings provided
+  if (!mappings || mappings.length === 0) {
     return (
       <div style={{ padding: '20px', color: '#DC2626' }}>
         <strong>Error loading interactive SVG:</strong>
         <ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
-          {[...configErrors, ...parseErrors].map((error, idx) => (
-            <li key={idx}>{error}</li>
-          ))}
+          <li>
+            No field mappings provided. Make sure to parse your SVG using one of the parser
+            functions (parseDrawIoSVG, parseFigmaSVG, parseInkscapeSVG, or parseSVG) before passing
+            to this component.
+          </li>
         </ul>
       </div>
     );

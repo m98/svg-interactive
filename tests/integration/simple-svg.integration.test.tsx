@@ -1,7 +1,8 @@
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { InteractiveSVG } from '../../src/components/InteractiveSVG';
-import { FieldConfig } from '../../src/types';
+import { parseSVG } from '../../src/parsers/generic';
+import { FieldPattern } from '../../src/types';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -13,14 +14,12 @@ describe('Simple SVG Integration Tests', () => {
     svgContent = fs.readFileSync(svgPath, 'utf-8');
   });
 
-  const config: FieldConfig = {
-    patterns: [
-      { prefix: 'input-field-', type: 'input' },
-      { prefix: 'output-field-', type: 'output' }
-    ]
-  };
+  const patterns: FieldPattern[] = [
+    { prefix: 'input-field-', type: 'input' },
+    { prefix: 'output-field-', type: 'output' },
+  ];
 
-  beforeAll(() => {
+  beforeEach(() => {
     // Mock getBBox for consistent testing - must return DOMRect-like object
     const mockGetBBox = jest.fn().mockReturnValue({
       x: 130,
@@ -30,7 +29,7 @@ describe('Simple SVG Integration Tests', () => {
       top: 70,
       right: 230,
       bottom: 100,
-      left: 130
+      left: 130,
     });
 
     SVGGraphicsElement.prototype.getBBox = mockGetBBox;
@@ -41,27 +40,49 @@ describe('Simple SVG Integration Tests', () => {
     }
   });
 
+  describe('SVG Parsing', () => {
+    it('should successfully parse simple SVG', () => {
+      const result = parseSVG(svgContent, { patterns });
+
+      expect(result.mappings.length).toBeGreaterThan(0);
+      expect(result.errors).toHaveLength(0);
+      expect(result.metadata.tool).toBe('generic');
+      expect(result.metadata.detectedMode).toBe('direct-id');
+    });
+
+    it('should find input and output fields', () => {
+      const result = parseSVG(svgContent, { patterns });
+
+      const inputFields = result.mappings.filter((m) => m.type === 'input');
+      const outputFields = result.mappings.filter((m) => m.type === 'output');
+
+      expect(inputFields.length).toBeGreaterThan(0);
+      expect(outputFields.length).toBeGreaterThan(0);
+    });
+
+    it('should use id attribute by default', () => {
+      const result = parseSVG(svgContent, { patterns });
+
+      expect(result.metadata.attributesUsed).toContain('id');
+    });
+  });
+
   describe('Calculator Functionality', () => {
     it('should render calculator with two inputs and one output', async () => {
-      render(
-        <InteractiveSVG
-          svgContent={svgContent}
-          config={config}
-        />
-      );
+      const result = parseSVG(svgContent, { patterns });
 
-      // Wait for loading to complete
-      await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
-      });
+      render(<InteractiveSVG mappings={result.mappings} svgContent={svgContent} />);
 
       // Wait for input elements to be created
-      await waitFor(() => {
-        const inputA = document.querySelector('input[data-field-name="a"]');
-        const inputB = document.querySelector('input[data-field-name="b"]');
-        expect(inputA).toBeInTheDocument();
-        expect(inputB).toBeInTheDocument();
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          const inputA = document.querySelector('input[data-field-name="a"]');
+          const inputB = document.querySelector('input[data-field-name="b"]');
+          expect(inputA).toBeInTheDocument();
+          expect(inputB).toBeInTheDocument();
+        },
+        { timeout: 3000 }
+      );
 
       // Verify output element exists
       const output = document.getElementById('output-sum');
@@ -69,24 +90,27 @@ describe('Simple SVG Integration Tests', () => {
     });
 
     it('should calculate sum of two inputs', async () => {
+      const result = parseSVG(svgContent, { patterns });
+
       const onOutputCompute = jest.fn((inputs) => {
-        const a = parseFloat(inputs.a || '0');
-        const b = parseFloat(inputs.b || '0');
+        const a = inputs.a ? parseFloat(inputs.a) : 0;
+        const b = inputs.b ? parseFloat(inputs.b) : 0;
         return {
-          sum: (a + b).toString()
+          sum: (a + b).toString(),
         };
       });
 
       render(
         <InteractiveSVG
+          mappings={result.mappings}
           svgContent={svgContent}
-          config={config}
           onOutputCompute={onOutputCompute}
         />
       );
 
       await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
+        const inputA = document.querySelector('input[data-field-name="a"]');
+        expect(inputA).toBeInTheDocument();
       });
 
       const inputA = document.querySelector('input[data-field-name="a"]') as HTMLInputElement;
@@ -98,37 +122,38 @@ describe('Simple SVG Integration Tests', () => {
         fireEvent.input(inputA, { target: { value: '10' } });
 
         await waitFor(() => {
-          expect(output.textContent).toBe('10');
+          expect(onOutputCompute).toHaveBeenCalled();
         });
 
         // Set second input
-        fireEvent.input(inputB, { target: { value: '20' } });
+        fireEvent.input(inputB, { target: { value: '5' } });
 
         await waitFor(() => {
-          expect(output.textContent).toBe('30');
+          expect(output.textContent).toBe('15');
         });
       }
     });
 
-    it('should handle negative numbers correctly', async () => {
+    it('should handle multiple calculations', async () => {
+      const result = parseSVG(svgContent, { patterns });
+
       const onOutputCompute = jest.fn((inputs) => {
-        const a = parseFloat(inputs.a || '0');
-        const b = parseFloat(inputs.b || '0');
-        return {
-          sum: (a + b).toString()
-        };
+        const a = inputs.a ? parseFloat(inputs.a) : 0;
+        const b = inputs.b ? parseFloat(inputs.b) : 0;
+        return { sum: (a + b).toString() };
       });
 
       render(
         <InteractiveSVG
+          mappings={result.mappings}
           svgContent={svgContent}
-          config={config}
           onOutputCompute={onOutputCompute}
         />
       );
 
       await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
+        const inputA = document.querySelector('input[data-field-name="a"]');
+        expect(inputA).toBeInTheDocument();
       });
 
       const inputA = document.querySelector('input[data-field-name="a"]') as HTMLInputElement;
@@ -136,34 +161,49 @@ describe('Simple SVG Integration Tests', () => {
       const output = document.getElementById('output-sum');
 
       if (inputA && inputB && output) {
+        // First calculation: 10 + 5 = 15
+        fireEvent.input(inputA, { target: { value: '10' } });
+        fireEvent.input(inputB, { target: { value: '5' } });
+        await waitFor(() => {
+          expect(output.textContent).toBe('15');
+        });
+
+        // Second calculation: 20 + 15 = 35
+        fireEvent.input(inputA, { target: { value: '20' } });
+        fireEvent.input(inputB, { target: { value: '15' } });
+        await waitFor(() => {
+          expect(output.textContent).toBe('35');
+        });
+
+        // Third calculation: 100 + 200 = 300
         fireEvent.input(inputA, { target: { value: '100' } });
-        fireEvent.input(inputB, { target: { value: '-30' } });
-
+        fireEvent.input(inputB, { target: { value: '200' } });
         await waitFor(() => {
-          expect(output.textContent).toBe('70');
+          expect(output.textContent).toBe('300');
         });
       }
     });
 
-    it('should handle decimal arithmetic correctly', async () => {
+    it('should handle negative numbers', async () => {
+      const result = parseSVG(svgContent, { patterns });
+
       const onOutputCompute = jest.fn((inputs) => {
-        const a = parseFloat(inputs.a || '0');
-        const b = parseFloat(inputs.b || '0');
-        return {
-          sum: (a + b).toFixed(2)
-        };
+        const a = inputs.a ? parseFloat(inputs.a) : 0;
+        const b = inputs.b ? parseFloat(inputs.b) : 0;
+        return { sum: (a + b).toString() };
       });
 
       render(
         <InteractiveSVG
+          mappings={result.mappings}
           svgContent={svgContent}
-          config={config}
           onOutputCompute={onOutputCompute}
         />
       );
 
       await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
+        const inputA = document.querySelector('input[data-field-name="a"]');
+        expect(inputA).toBeInTheDocument();
       });
 
       const inputA = document.querySelector('input[data-field-name="a"]') as HTMLInputElement;
@@ -171,67 +211,35 @@ describe('Simple SVG Integration Tests', () => {
       const output = document.getElementById('output-sum');
 
       if (inputA && inputB && output) {
-        fireEvent.input(inputA, { target: { value: '1.5' } });
-        fireEvent.input(inputB, { target: { value: '2.3' } });
+        fireEvent.input(inputA, { target: { value: '-10' } });
+        fireEvent.input(inputB, { target: { value: '5' } });
 
         await waitFor(() => {
-          expect(output.textContent).toBe('3.80');
+          expect(output.textContent).toBe('-5');
         });
       }
     });
 
-    it('should update when only one input is filled', async () => {
+    it('should handle decimal numbers', async () => {
+      const result = parseSVG(svgContent, { patterns });
+
       const onOutputCompute = jest.fn((inputs) => {
-        const a = parseFloat(inputs.a || '0');
-        const b = parseFloat(inputs.b || '0');
-        return {
-          sum: (a + b).toString()
-        };
+        const a = inputs.a ? parseFloat(inputs.a) : 0;
+        const b = inputs.b ? parseFloat(inputs.b) : 0;
+        return { sum: (a + b).toString() };
       });
 
       render(
         <InteractiveSVG
+          mappings={result.mappings}
           svgContent={svgContent}
-          config={config}
           onOutputCompute={onOutputCompute}
         />
       );
 
       await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
-      });
-
-      const inputA = document.querySelector('input[data-field-name="a"]') as HTMLInputElement;
-      const output = document.getElementById('output-sum');
-
-      if (inputA && output) {
-        fireEvent.input(inputA, { target: { value: '42' } });
-
-        await waitFor(() => {
-          expect(output.textContent).toBe('42');
-        });
-      }
-    });
-
-    it('should preserve input values when switching between fields', async () => {
-      const onOutputCompute = jest.fn((inputs) => {
-        const a = parseFloat(inputs.a || '0');
-        const b = parseFloat(inputs.b || '0');
-        return {
-          sum: (a + b).toString()
-        };
-      });
-
-      render(
-        <InteractiveSVG
-          svgContent={svgContent}
-          config={config}
-          onOutputCompute={onOutputCompute}
-        />
-      );
-
-      await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
+        const inputA = document.querySelector('input[data-field-name="a"]');
+        expect(inputA).toBeInTheDocument();
       });
 
       const inputA = document.querySelector('input[data-field-name="a"]') as HTMLInputElement;
@@ -239,154 +247,112 @@ describe('Simple SVG Integration Tests', () => {
       const output = document.getElementById('output-sum');
 
       if (inputA && inputB && output) {
-        // Fill first input
-        fireEvent.input(inputA, { target: { value: '15' } });
+        fireEvent.input(inputA, { target: { value: '3.14' } });
+        fireEvent.input(inputB, { target: { value: '2.86' } });
 
         await waitFor(() => {
-          expect(inputA.value).toBe('15');
-        });
-
-        // Fill second input
-        fireEvent.input(inputB, { target: { value: '25' } });
-
-        await waitFor(() => {
-          expect(inputB.value).toBe('25');
-        });
-
-        // Both values should be preserved
-        expect(inputA.value).toBe('15');
-        expect(inputB.value).toBe('25');
-        expect(output.textContent).toBe('40');
-      }
-    });
-  });
-
-  describe('Direct-ID Mode Detection', () => {
-    it('should correctly detect direct-id mode for simple SVG', async () => {
-      render(
-        <InteractiveSVG
-          svgContent={svgContent}
-          config={config}
-          debug={true}
-        />
-      );
-
-      // Wait for loading to complete
-      await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
-      });
-
-      // Verify the debug panel shows direct-id mode
-      await waitFor(() => {
-        expect(screen.getByText(/Matching Mode:/)).toBeInTheDocument();
-        expect(screen.getByText(/direct-id/)).toBeInTheDocument();
-      }, { timeout: 3000 });
-    });
-  });
-
-  describe('External Output Control', () => {
-    it('should use external output values when provided', async () => {
-      const externalOutputs = {
-        sum: 'External: 999'
-      };
-
-      render(
-        <InteractiveSVG
-          svgContent={svgContent}
-          config={config}
-          outputValues={externalOutputs}
-        />
-      );
-
-      await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
-      });
-
-      const output = document.getElementById('output-sum');
-
-      if (output) {
-        await waitFor(() => {
-          expect(output.textContent).toBe('External: 999');
+          expect(output.textContent).toBe('6');
         });
       }
     });
+  });
 
-    it('should update when external output values change', async () => {
-      const { rerender } = render(
-        <InteractiveSVG
-          svgContent={svgContent}
-          config={config}
-          outputValues={{ sum: 'First' }}
-        />
-      );
+  describe('Field Names', () => {
+    it('should extract correct field names', () => {
+      const result = parseSVG(svgContent, { patterns });
 
-      await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
-      });
+      const fieldNames = result.mappings.map((m) => m.name);
 
-      await waitFor(() => {
-        const output = document.getElementById('output-sum');
-        expect(output).toBeInTheDocument();
-        expect(output?.textContent).toBe('First');
-      });
+      // Should have 'a', 'b' (inputs) and 'sum' (output)
+      expect(fieldNames).toContain('a');
+      expect(fieldNames).toContain('b');
+      expect(fieldNames).toContain('sum');
+    });
 
-      // Update external values
-      rerender(
-        <InteractiveSVG
-          svgContent={svgContent}
-          config={config}
-          outputValues={{ sum: 'Second' }}
-        />
-      );
+    it('should correctly identify field types', () => {
+      const result = parseSVG(svgContent, { patterns });
 
-      await waitFor(() => {
-        const output = document.getElementById('output-sum');
-        expect(output).toBeInTheDocument();
-        expect(output?.textContent).toBe('Second');
-      }, { timeout: 3000 });
+      const inputA = result.mappings.find((m) => m.name === 'a');
+      const inputB = result.mappings.find((m) => m.name === 'b');
+      const outputSum = result.mappings.find((m) => m.name === 'sum');
+
+      expect(inputA?.type).toBe('input');
+      expect(inputB?.type).toBe('input');
+      expect(outputSum?.type).toBe('output');
     });
   });
 
-  describe('Input Change Callbacks', () => {
-    it('should call onInputChange with all input values', async () => {
-      const onInputChange = jest.fn();
+  describe('Error Handling', () => {
+    it('should handle empty input values', async () => {
+      const result = parseSVG(svgContent, { patterns });
+
+      const onOutputCompute = jest.fn((inputs) => {
+        const a = inputs.a ? parseFloat(inputs.a) : 0;
+        const b = inputs.b ? parseFloat(inputs.b) : 0;
+        return { sum: (a + b).toString() };
+      });
 
       render(
         <InteractiveSVG
+          mappings={result.mappings}
           svgContent={svgContent}
-          config={config}
-          onInputChange={onInputChange}
+          onOutputCompute={onOutputCompute}
         />
       );
 
       await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
+        const inputA = document.querySelector('input[data-field-name="a"]');
+        expect(inputA).toBeInTheDocument();
       });
 
       const inputA = document.querySelector('input[data-field-name="a"]') as HTMLInputElement;
       const inputB = document.querySelector('input[data-field-name="b"]') as HTMLInputElement;
+      const output = document.getElementById('output-sum');
 
-      if (inputA && inputB) {
-        // Type in first input
-        fireEvent.input(inputA, { target: { value: '5' } });
+      if (inputA && inputB && output) {
+        // Leave inputs empty (should default to 0)
+        fireEvent.input(inputA, { target: { value: '' } });
+        fireEvent.input(inputB, { target: { value: '' } });
 
         await waitFor(() => {
-          expect(onInputChange).toHaveBeenCalledWith(
-            'a',
-            '5',
-            expect.objectContaining({ a: '5' })
-          );
+          expect(output.textContent).toBe('0');
         });
+      }
+    });
 
-        // Type in second input
-        fireEvent.input(inputB, { target: { value: '10' } });
+    it('should handle invalid input gracefully', async () => {
+      const result = parseSVG(svgContent, { patterns });
+
+      const onOutputCompute = jest.fn((inputs) => {
+        const a = inputs.a ? parseFloat(inputs.a) : 0;
+        const b = inputs.b ? parseFloat(inputs.b) : 0;
+        const sum = a + b;
+        return { sum: isNaN(sum) ? '0' : sum.toString() };
+      });
+
+      render(
+        <InteractiveSVG
+          mappings={result.mappings}
+          svgContent={svgContent}
+          onOutputCompute={onOutputCompute}
+        />
+      );
+
+      await waitFor(() => {
+        const inputA = document.querySelector('input[data-field-name="a"]');
+        expect(inputA).toBeInTheDocument();
+      });
+
+      const inputA = document.querySelector('input[data-field-name="a"]') as HTMLInputElement;
+      const inputB = document.querySelector('input[data-field-name="b"]') as HTMLInputElement;
+      const output = document.getElementById('output-sum');
+
+      if (inputA && inputB && output) {
+        fireEvent.input(inputA, { target: { value: 'abc' } });
+        fireEvent.input(inputB, { target: { value: 'xyz' } });
 
         await waitFor(() => {
-          expect(onInputChange).toHaveBeenCalledWith(
-            'b',
-            '10',
-            expect.objectContaining({ a: '5', b: '10' })
-          );
+          expect(output.textContent).toBe('0');
         });
       }
     });

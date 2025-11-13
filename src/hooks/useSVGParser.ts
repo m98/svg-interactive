@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FieldConfig, FieldMapping } from '../types';
-import { parseSVGContent } from '../utils/svgParser';
+import { parseSVG } from '../parsers/generic';
 
 export interface UseSVGParserOptions {
   svgUrl?: string;
@@ -18,6 +18,11 @@ export interface UseSVGParserResult {
 
 /**
  * Hook to load and parse SVG content
+ *
+ * Useful for loading SVG from URL and automatically parsing it.
+ * For direct parsing of SVG strings, use parser functions directly.
+ *
+ * @see parseDrawIoSVG, parseFigmaSVG, parseInkscapeSVG, parseSVG
  * @param options - SVG source and configuration
  * @returns Parsed field mappings and SVG text
  */
@@ -56,9 +61,10 @@ export function useSVGParser({
 
         setSvgText(content);
 
-        const result = parseSVGContent(content, config);
+        // Use new parser
+        const result = parseSVG(content, { patterns: config.patterns });
         setMappings(result.mappings);
-        setDetectedMode(result.detectedMode);
+        setDetectedMode(result.metadata.detectedMode);
 
         if (result.errors.length > 0) {
           setErrors(result.errors);

@@ -1,36 +1,37 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { InteractiveSVG } from './InteractiveSVG';
-import { FieldConfig } from '../types';
-
-// Mock fetch
-global.fetch = jest.fn();
+import { parseSVG } from '../parsers/generic';
+import { parseDrawIoSVG } from '../parsers/drawio';
+import { FieldPattern } from '../types';
 
 describe('InteractiveSVG', () => {
-  const config: FieldConfig = {
-    patterns: [
-      { prefix: 'input:', type: 'input' },
-      { prefix: 'output:', type: 'output' },
-    ],
-  };
+  const patterns: FieldPattern[] = [
+    { prefix: 'input:', type: 'input' },
+    { prefix: 'output:', type: 'output' },
+  ];
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    // Mock getBBox for consistent testing
+    SVGGraphicsElement.prototype.getBBox = jest.fn().mockReturnValue({
+      x: 10,
+      y: 10,
+      width: 100,
+      height: 30,
+    });
   });
 
   describe('rendering', () => {
-    it('should render SVG content after loading', async () => {
+    it('should render SVG content with mappings', async () => {
       const svgContent = `
         <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
           <rect id="input:username" x="10" y="10" width="100" height="30" />
         </svg>
       `;
 
-      render(<InteractiveSVG svgContent={svgContent} config={config} />);
+      const result = parseSVG(svgContent, { patterns });
 
-      await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
-      });
+      render(<InteractiveSVG svgContent={svgContent} mappings={result.mappings} />);
 
       const svgContainer = document.querySelector('.svg-container');
       expect(svgContainer).toBeInTheDocument();
@@ -39,19 +40,16 @@ describe('InteractiveSVG', () => {
 
     it('should apply custom className and style', async () => {
       const svgContent = '<svg><rect id="input:test" /></svg>';
+      const result = parseSVG(svgContent, { patterns });
 
       render(
         <InteractiveSVG
           svgContent={svgContent}
-          config={config}
+          mappings={result.mappings}
           className="custom-class"
           style={{ margin: '20px' }}
         />
       );
-
-      await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
-      });
 
       const wrapper = document.querySelector('.custom-class');
       expect(wrapper).toBeInTheDocument();
@@ -59,108 +57,57 @@ describe('InteractiveSVG', () => {
     });
   });
 
-  describe('SVG loading', () => {
-    it('should load SVG from URL', async () => {
-      const svgContent = '<svg><rect id="input:field" /></svg>';
-
-      (global.fetch as jest.Mock).mockResolvedValue({
-        ok: true,
-        text: async () => svgContent,
-      });
-
-      render(<InteractiveSVG svgUrl="https://example.com/diagram.svg" config={config} />);
-
-      await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
-      });
-
-      expect(global.fetch).toHaveBeenCalledWith('https://example.com/diagram.svg');
-    });
-
-    it('should prefer svgContent over svgUrl', async () => {
-      const svgContent = '<svg><rect id="input:field" /></svg>';
-
-      render(
-        <InteractiveSVG
-          svgContent={svgContent}
-          svgUrl="https://example.com/diagram.svg"
-          config={config}
-        />
-      );
-
-      await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
-      });
-
-      expect(global.fetch).not.toHaveBeenCalled();
-    });
-  });
-
   describe('error handling', () => {
-    it('should display configuration errors', async () => {
-      const invalidConfig: FieldConfig = {
-        patterns: [],
-      };
+    it('should display error when no mappings provided', () => {
+      const svgContent = '<svg />';
 
-      render(<InteractiveSVG svgContent="<svg />" config={invalidConfig} />);
+      render(<InteractiveSVG svgContent={svgContent} mappings={[]} />);
 
-      await waitFor(() => {
-        expect(screen.getByText('Error loading interactive SVG:')).toBeInTheDocument();
-      });
-
-      expect(screen.getByText(/At least one field pattern must be defined/)).toBeInTheDocument();
+      expect(screen.getByText('Error loading interactive SVG:')).toBeInTheDocument();
+      expect(screen.getByText(/No field mappings provided/)).toBeInTheDocument();
     });
 
-    it('should display parsing errors', async () => {
-      const svgContent = '<div>Not an SVG</div>';
+    it('should display error when mappings is undefined', () => {
+      const svgContent = '<svg />';
 
-      render(<InteractiveSVG svgContent={svgContent} config={config} />);
+      // @ts-expect-error - Testing runtime behavior with invalid props
+      render(<InteractiveSVG svgContent={svgContent} mappings={undefined} />);
 
-      await waitFor(() => {
-        expect(screen.getByText('Error loading interactive SVG:')).toBeInTheDocument();
-      });
+      expect(screen.getByText('Error loading interactive SVG:')).toBeInTheDocument();
     });
   });
 
   describe('debug mode', () => {
-    it('should not render debug panel by default', async () => {
+    it('should not render debug panel by default', () => {
       const svgContent = '<svg><rect id="input:test" /></svg>';
+      const result = parseSVG(svgContent, { patterns });
 
-      render(<InteractiveSVG svgContent={svgContent} config={config} />);
-
-      await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
-      });
+      render(<InteractiveSVG svgContent={svgContent} mappings={result.mappings} />);
 
       expect(screen.queryByText('Debug Information')).not.toBeInTheDocument();
     });
 
-    it('should render debug panel when debug=true', async () => {
+    it('should render debug panel when debug=true', () => {
       const svgContent = `
         <svg xmlns="http://www.w3.org/2000/svg">
           <rect id="input:test" x="10" y="10" width="100" height="30" />
         </svg>
       `;
+      const result = parseSVG(svgContent, { patterns });
 
-      render(<InteractiveSVG svgContent={svgContent} config={config} debug={true} />);
+      render(<InteractiveSVG svgContent={svgContent} mappings={result.mappings} debug={true} />);
 
-      await waitFor(() => {
-        expect(screen.getByText('Debug Information')).toBeInTheDocument();
-      });
-
+      expect(screen.getByText('Debug Information')).toBeInTheDocument();
       expect(screen.getByText(/Total Fields:/)).toBeInTheDocument();
     });
   });
 
   describe('theming', () => {
-    it('should apply default theme styles', async () => {
+    it('should apply default theme styles', () => {
       const svgContent = '<svg><rect id="input:test" /></svg>';
+      const result = parseSVG(svgContent, { patterns });
 
-      render(<InteractiveSVG svgContent={svgContent} config={config} />);
-
-      await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
-      });
+      render(<InteractiveSVG svgContent={svgContent} mappings={result.mappings} />);
 
       const style = document.querySelector('style');
       expect(style?.textContent).toContain('svg-field-default');
@@ -168,19 +115,18 @@ describe('InteractiveSVG', () => {
 
     it('should apply theme styles for all theme options', async () => {
       const svgContent = '<svg><rect id="input:test" /></svg>';
+      const result = parseSVG(svgContent, { patterns });
 
       const { rerender } = render(
-        <InteractiveSVG svgContent={svgContent} config={config} theme="minimal" />
+        <InteractiveSVG svgContent={svgContent} mappings={result.mappings} theme="minimal" />
       );
-
-      await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
-      });
 
       const style = document.querySelector('style');
       expect(style?.textContent).toContain('svg-field-minimal');
 
-      rerender(<InteractiveSVG svgContent={svgContent} config={config} theme="bordered" />);
+      rerender(
+        <InteractiveSVG svgContent={svgContent} mappings={result.mappings} theme="bordered" />
+      );
 
       await waitFor(() => {
         const updatedStyle = document.querySelector('style');
@@ -189,72 +135,120 @@ describe('InteractiveSVG', () => {
     });
   });
 
-  describe('matching modes', () => {
-    it('should handle direct-id mode', async () => {
+  describe('field types', () => {
+    it('should handle input fields', () => {
       const svgContent = `
         <svg xmlns="http://www.w3.org/2000/svg">
           <rect id="input:username" />
         </svg>
       `;
+      const result = parseSVG(svgContent, { patterns });
 
-      const onDebugInfo = jest.fn();
+      render(<InteractiveSVG svgContent={svgContent} mappings={result.mappings} />);
 
-      render(<InteractiveSVG svgContent={svgContent} config={config} onDebugInfo={onDebugInfo} />);
-
-      await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
-      });
-
-      // onDebugInfo should be called, but we don't rely on it for this test
-      // Just ensure rendering completes without error
+      expect(result.mappings).toHaveLength(1);
+      expect(result.mappings[0]?.type).toBe('input');
     });
 
-    it('should handle data-id mode for draw.io SVGs', async () => {
+    it('should handle output fields', () => {
       const svgContent = `
-        <svg xmlns="http://www.w3.org/2000/svg" content="&lt;mxfile&gt;&lt;diagram&gt;&lt;mxGraphModel&gt;&lt;root&gt;&lt;object data-id=&quot;input:test&quot; id=&quot;el1&quot;/&gt;&lt;/root&gt;&lt;/mxGraphModel&gt;&lt;/diagram&gt;&lt;/mxfile&gt;">
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <rect id="output:result" />
         </svg>
       `;
+      const result = parseSVG(svgContent, { patterns });
 
-      const onDebugInfo = jest.fn();
+      render(<InteractiveSVG svgContent={svgContent} mappings={result.mappings} />);
 
-      render(<InteractiveSVG svgContent={svgContent} config={config} onDebugInfo={onDebugInfo} />);
+      expect(result.mappings).toHaveLength(1);
+      expect(result.mappings[0]?.type).toBe('output');
+    });
 
-      await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
-      });
+    it('should handle mixed input and output fields', () => {
+      const svgContent = `
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <rect id="input:name" />
+          <rect id="output:greeting" />
+        </svg>
+      `;
+      const result = parseSVG(svgContent, { patterns });
 
-      // Just ensure rendering completes without error
+      render(<InteractiveSVG svgContent={svgContent} mappings={result.mappings} />);
+
+      expect(result.mappings).toHaveLength(2);
+      expect(result.mappings.filter((m) => m.type === 'input')).toHaveLength(1);
+      expect(result.mappings.filter((m) => m.type === 'output')).toHaveLength(1);
+    });
+  });
+
+  describe('draw.io SVGs', () => {
+    const createDrawIoSVG = (mxfileContent: string): string => {
+      const encoded = mxfileContent
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+
+      return `<svg xmlns="http://www.w3.org/2000/svg" content="${encoded}"></svg>`;
+    };
+
+    it('should work with draw.io SVGs using parseDrawIoSVG', () => {
+      const mxfile = `
+        <mxfile>
+          <diagram>
+            <mxGraphModel>
+              <root>
+                <object id="1" data-id="input:test" />
+              </root>
+            </mxGraphModel>
+          </diagram>
+        </mxfile>
+      `;
+      const svgContent = createDrawIoSVG(mxfile);
+
+      const drawioPatterns: FieldPattern[] = [
+        { attribute: 'data-id', prefix: 'input:', type: 'input' },
+      ];
+
+      const result = parseDrawIoSVG(svgContent, { patterns: drawioPatterns });
+
+      render(<InteractiveSVG svgContent={svgContent} mappings={result.mappings} />);
+
+      expect(result.mappings).toHaveLength(1);
+      expect(result.metadata.tool).toBe('drawio');
     });
   });
 
   describe('callbacks', () => {
-    it('should call onInputChange prop when provided', async () => {
+    it('should call onInputChange prop when provided', () => {
       const onInputChange = jest.fn();
       const svgContent = '<svg><rect id="input:test" /></svg>';
+      const result = parseSVG(svgContent, { patterns });
 
       render(
-        <InteractiveSVG svgContent={svgContent} config={config} onInputChange={onInputChange} />
+        <InteractiveSVG
+          svgContent={svgContent}
+          mappings={result.mappings}
+          onInputChange={onInputChange}
+        />
       );
-
-      await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
-      });
 
       // Callback should be set up correctly
       expect(onInputChange).not.toHaveBeenCalled();
     });
 
-    it('should call onOutputCompute prop when provided', async () => {
+    it('should call onOutputCompute prop when provided', () => {
       const onOutputCompute = jest.fn((_inputs) => ({ result: 'computed' }));
       const svgContent = '<svg><rect id="input:test" /><rect id="output:result" /></svg>';
+      const result = parseSVG(svgContent, { patterns });
 
       render(
-        <InteractiveSVG svgContent={svgContent} config={config} onOutputCompute={onOutputCompute} />
+        <InteractiveSVG
+          svgContent={svgContent}
+          mappings={result.mappings}
+          onOutputCompute={onOutputCompute}
+        />
       );
-
-      await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
-      });
 
       // Callback should be set up correctly
       expect(onOutputCompute).not.toHaveBeenCalled();
@@ -262,32 +256,67 @@ describe('InteractiveSVG', () => {
   });
 
   describe('external output values', () => {
-    it('should use external outputValues when provided', async () => {
+    it('should use external outputValues when provided', () => {
       const svgContent = '<svg><rect id="output:result" /></svg>';
+      const result = parseSVG(svgContent, { patterns });
 
       const { rerender } = render(
         <InteractiveSVG
           svgContent={svgContent}
-          config={config}
+          mappings={result.mappings}
           outputValues={{ result: 'External Value 1' }}
         />
       );
-
-      await waitFor(() => {
-        expect(screen.queryByText('Loading SVG...')).not.toBeInTheDocument();
-      });
 
       // Update external output values
       rerender(
         <InteractiveSVG
           svgContent={svgContent}
-          config={config}
+          mappings={result.mappings}
           outputValues={{ result: 'External Value 2' }}
         />
       );
 
       // Should not throw errors
       expect(true).toBe(true);
+    });
+  });
+
+  describe('custom renderers', () => {
+    it('should accept custom input renderer without errors', () => {
+      const svgContent = '<svg><rect id="input:test" /></svg>';
+      const result = parseSVG(svgContent, { patterns });
+
+      const renderInput = () => <div>Custom Input</div>;
+
+      render(
+        <InteractiveSVG
+          svgContent={svgContent}
+          mappings={result.mappings}
+          renderInput={renderInput}
+        />
+      );
+
+      // Should render without errors
+      expect(document.querySelector('.svg-container')).toBeInTheDocument();
+    });
+
+    it('should accept custom output renderer without errors', () => {
+      const svgContent = '<svg><rect id="output:test" /></svg>';
+      const result = parseSVG(svgContent, { patterns });
+
+      const renderOutput = () => <div>Custom Output</div>;
+
+      render(
+        <InteractiveSVG
+          svgContent={svgContent}
+          mappings={result.mappings}
+          renderOutput={renderOutput}
+        />
+      );
+
+      // Should render without errors
+      expect(document.querySelector('.svg-container')).toBeInTheDocument();
     });
   });
 });

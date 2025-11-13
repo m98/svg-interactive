@@ -9,17 +9,18 @@ export { InputField } from './components/InputField';
 export { OutputField } from './components/OutputField';
 export { DebugPanel } from './components/DebugPanel';
 
+// Parser functions - NEW IN v2.0
+export { parseDrawIoSVG } from './parsers/drawio';
+export { parseFigmaSVG } from './parsers/figma';
+export { parseInkscapeSVG } from './parsers/inkscape';
+export { parseSVG } from './parsers/generic';
+
 // Hooks
-export { useSVGParser } from './hooks/useSVGParser';
 export { useFieldOverlay } from './hooks/useFieldOverlay';
+export { useSVGParser } from './hooks/useSVGParser';
 
 // Utilities
-export {
-  parseSVGContent,
-  parseSVGWithDataId,
-  parseSVGWithDirectId,
-  getFieldBoundingBoxes,
-} from './utils/svgParser';
+export { getFieldBoundingBoxes } from './utils/svgParser';
 export { matchFieldPattern, validateFieldConfig } from './utils/fieldMatcher';
 export { decodeHTMLEntities } from './utils/decodeHTML';
 
@@ -37,3 +38,6 @@ export type {
   InteractiveSVGProps,
   SVGParserResult,
 } from './types';
+
+// Parser types
+export type { ParseOptions, ParseResult, SVGParser } from './parsers/types';
