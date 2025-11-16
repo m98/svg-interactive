@@ -11,6 +11,14 @@ export function matchFieldPattern(
   patterns: FieldPattern[]
 ): { type: 'input' | 'output'; name: string } | null {
   for (const pattern of patterns) {
+    // Check ids array first (exact match)
+    if (pattern.ids?.includes(dataId)) {
+      return {
+        type: pattern.type,
+        name: dataId, // Use full ID as name (no extraction)
+      };
+    }
+
     if (pattern.prefix && dataId.startsWith(pattern.prefix)) {
       return {
         type: pattern.type,
@@ -45,8 +53,28 @@ export function validateFieldConfig(patterns: FieldPattern[]): string[] {
   }
 
   patterns.forEach((pattern, index) => {
-    if (!pattern.prefix && !pattern.regex) {
-      errors.push(`Pattern ${index}: must have either prefix or regex`);
+    // Count how many matching strategies are defined
+    const strategies = [
+      pattern.ids !== undefined,
+      pattern.prefix !== undefined,
+      pattern.regex !== undefined,
+    ].filter(Boolean).length;
+
+    if (strategies === 0) {
+      errors.push(`Pattern ${index}: must have either ids, prefix, or regex`);
+    } else if (strategies > 1) {
+      errors.push(`Pattern ${index}: cannot use multiple matching strategies (ids, prefix, regex)`);
+    }
+
+    // Validate ids array if provided
+    if (pattern.ids !== undefined) {
+      if (!Array.isArray(pattern.ids)) {
+        errors.push(`Pattern ${index}: ids must be an array`);
+      } else if (pattern.ids.length === 0) {
+        errors.push(`Pattern ${index}: ids array cannot be empty`);
+      } else if (!pattern.ids.every((id) => typeof id === 'string')) {
+        errors.push(`Pattern ${index}: all ids must be strings`);
+      }
     }
 
     if (!pattern.type || !['input', 'output'].includes(pattern.type)) {

@@ -300,6 +300,90 @@ describe('parseSVG', () => {
       expect(result.mappings.some((m) => m.name === 'Test')).toBe(true);
       expect(result.mappings.some((m) => m.name === 'test')).toBe(true);
     });
+
+    it('should match ids array pattern', () => {
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <rect id="temperature" />
+          <rect id="pressure" />
+          <rect id="volume" />
+          <rect id="other-field" />
+        </svg>
+      `;
+
+      const patterns: FieldPattern[] = [
+        { ids: ['temperature', 'pressure', 'volume'], type: 'input' },
+      ];
+
+      const result = parseSVG(svg, { patterns });
+
+      expect(result.mappings).toHaveLength(3);
+      expect(result.mappings[0]?.name).toBe('temperature');
+      expect(result.mappings[1]?.name).toBe('pressure');
+      expect(result.mappings[2]?.name).toBe('volume');
+    });
+
+    it('should match exact IDs only (no partial matches)', () => {
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <rect id="temperature-input" />
+          <rect id="temperature" />
+          <rect id="temp" />
+        </svg>
+      `;
+
+      const patterns: FieldPattern[] = [{ ids: ['temperature'], type: 'input' }];
+
+      const result = parseSVG(svg, { patterns });
+
+      expect(result.mappings).toHaveLength(1);
+      expect(result.mappings[0]?.elementId).toBe('temperature');
+      expect(result.mappings[0]?.name).toBe('temperature');
+    });
+
+    it('should work with custom attribute and ids array', () => {
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <rect class="field-a" id="elem-a" />
+          <rect class="field-b" id="elem-b" />
+          <rect class="field-c" id="elem-c" />
+        </svg>
+      `;
+
+      const patterns: FieldPattern[] = [
+        { attribute: 'class', ids: ['field-a', 'field-b'], type: 'input' },
+      ];
+
+      const result = parseSVG(svg, { patterns });
+
+      expect(result.mappings).toHaveLength(2);
+      expect(result.mappings[0]?.dataId).toBe('field-a');
+      expect(result.mappings[0]?.name).toBe('field-a');
+      expect(result.mappings[0]?.elementId).toBe('elem-a');
+    });
+
+    it('should mix ids patterns with prefix/regex patterns', () => {
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <rect id="temp-sensor" />
+          <rect id="pressure-sensor" />
+          <rect id="output-result" />
+          <rect id="OUTPUT_status" />
+        </svg>
+      `;
+
+      const patterns: FieldPattern[] = [
+        { ids: ['temp-sensor', 'pressure-sensor'], type: 'input' },
+        { prefix: 'output-', type: 'output' },
+        { regex: /^OUTPUT_(.+)$/, type: 'output' },
+      ];
+
+      const result = parseSVG(svg, { patterns });
+
+      expect(result.mappings).toHaveLength(4);
+      expect(result.mappings.filter((m) => m.type === 'input')).toHaveLength(2);
+      expect(result.mappings.filter((m) => m.type === 'output')).toHaveLength(2);
+    });
   });
 
   describe('SVG Element Types', () => {

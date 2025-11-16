@@ -182,19 +182,24 @@ fill="#f5f5f5" stroke="#757575"
 
 ## React Usage
 
+### Using Prefix Patterns
+
 ```tsx
-import { InteractiveSVG } from 'svg-interactive';
+import { InteractiveSVG, parseSVG } from 'svg-interactive';
 
 function Calculator() {
+  const svgContent = await fetch('/calculator.svg').then(r => r.text());
+  const { mappings } = parseSVG(svgContent, {
+    patterns: [
+      { prefix: 'input-', type: 'input' },
+      { prefix: 'output-', type: 'output' }
+    ]
+  });
+
   return (
     <InteractiveSVG
-      svgUrl="/calculator.svg"
-      config={{
-        patterns: [
-          { prefix: 'input-', type: 'input' },
-          { prefix: 'output-', type: 'output' }
-        ]
-      }}
+      mappings={mappings}
+      svgContent={svgContent}
       onOutputCompute={(inputs) => ({
         sum: (
           parseFloat(inputs['number-a'] || '0') +
@@ -205,6 +210,88 @@ function Calculator() {
   );
 }
 ```
+
+### Matching Specific Elements with IDs Array
+
+When you have a fixed set of specific elements and want explicit control over which fields are interactive:
+
+```svg
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400">
+  <!-- Sensor inputs -->
+  <g id="temp-sensor-1">
+    <rect x="50" y="50" width="150" height="40" fill="#e3f2fd"/>
+    <text x="60" y="75">Temp Sensor 1</text>
+  </g>
+
+  <g id="temp-sensor-2">
+    <rect x="50" y="120" width="150" height="40" fill="#e3f2fd"/>
+    <text x="60" y="145">Temp Sensor 2</text>
+  </g>
+
+  <g id="pressure-gauge">
+    <rect x="50" y="190" width="150" height="40" fill="#e3f2fd"/>
+    <text x="60" y="215">Pressure Gauge</text>
+  </g>
+
+  <!-- Output -->
+  <g id="average-reading">
+    <rect x="350" y="120" width="150" height="40" fill="#e8f5e9"/>
+    <text x="360" y="145">Average</text>
+  </g>
+
+  <!-- Non-interactive element -->
+  <g id="background-decoration">
+    <circle cx="500" cy="300" r="50" fill="#f5f5f5"/>
+  </g>
+</svg>
+```
+
+```tsx
+import { InteractiveSVG, parseSVG } from 'svg-interactive';
+
+function SensorDashboard() {
+  const svgContent = await fetch('/sensors.svg').then(r => r.text());
+  const { mappings } = parseSVG(svgContent, {
+    patterns: [
+      // Match only these specific sensors
+      { ids: ['temp-sensor-1', 'temp-sensor-2', 'pressure-gauge'], type: 'input' },
+      { ids: ['average-reading'], type: 'output' }
+    ]
+  });
+
+  return (
+    <InteractiveSVG
+      mappings={mappings}
+      svgContent={svgContent}
+      onOutputCompute={(inputs) => {
+        const temps = [
+          parseFloat(inputs['temp-sensor-1'] || '0'),
+          parseFloat(inputs['temp-sensor-2'] || '0')
+        ];
+        const pressure = parseFloat(inputs['pressure-gauge'] || '0');
+        const average = (temps[0] + temps[1] + pressure) / 3;
+
+        return {
+          'average-reading': average.toFixed(2)
+        };
+      }}
+    />
+  );
+}
+```
+
+**When to use `ids` array:**
+- You have a specific set of elements to make interactive (e.g., 100+ specific sensors)
+- Element IDs don't follow a consistent naming pattern
+- You want maximum control over which elements are interactive
+- Working with legacy SVGs where you can't change IDs
+
+**Advantages over prefix matching:**
+- Explicit - you know exactly which elements will be interactive
+- Works with any naming convention
+- No accidental matches
+- Easy to add/remove specific elements
 
 ## Advanced Techniques
 

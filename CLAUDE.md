@@ -50,13 +50,26 @@ The library uses a flexible attribute-based matching system that can match on **
 - Pattern: `{ attribute: 'class', prefix: 'field-', type: 'input' }`
 - Per-pattern attribute specification enables mixing strategies
 
+**Match by Exact ID List** (explicit control):
+- Match specific element IDs from an array
+- Pattern: `{ ids: ['temperature', 'pressure', 'volume'], type: 'input' }`
+- Use for fixed sets of known elements or complex diagrams with 100+ specific sensors
+- Field name uses the full ID (no extraction like prefix/regex)
+- Can combine with `attribute` option: `{ attribute: 'data-id', ids: ['sensor-1', 'sensor-2'], type: 'input' }`
+
+**Matching Strategies** (choose ONE per pattern):
+- `prefix` - Match by string prefix
+- `regex` - Match by regular expression
+- `ids` - Match exact list of IDs
+- **Important**: Only ONE strategy (`prefix`, `regex`, or `ids`) can be used per pattern (mutually exclusive)
+
 **Auto-Detection**: `parseSVG()` automatically detects draw.io SVGs (checks for `content` attribute) and delegates to appropriate parser.
 
 ### Three-Layer Architecture
 
 **Utils Layer** (`src/utils/`) - Pure functions, no React:
 - `svgParser.ts` - Parses SVG, extracts field mappings, gets bounding boxes
-- `fieldMatcher.ts` - Pattern matching (prefix/regex), validation
+- `fieldMatcher.ts` - Pattern matching (prefix/regex/ids), validation
 - `decodeHTML.ts` - HTML entity decoding for draw.io content
 
 **Hooks Layer** (`src/hooks/`) - React integration:
@@ -187,7 +200,8 @@ Edit `config.patterns`:
 ```typescript
 patterns: [
   { prefix: 'myprefix:', type: 'input' },
-  { regex: /^CUSTOM_(.+)$/, type: 'output' }
+  { regex: /^CUSTOM_(.+)$/, type: 'output' },
+  { ids: ['sensor-1', 'sensor-2', 'sensor-3'], type: 'input' }
 ]
 ```
 
@@ -229,7 +243,7 @@ patterns: [
 
 **Custom Themes**: `theme` prop - applies CSS class to all fields
 
-**Custom Patterns**: `config.patterns` - prefix or regex matching with per-pattern `useDataId` flag
+**Custom Patterns**: `config.patterns` - prefix, regex, or ids matching with per-pattern attribute configuration
 
 ## Documentation
 

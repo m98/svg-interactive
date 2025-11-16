@@ -8,10 +8,28 @@ export interface FieldPattern {
    * - Can use ANY valid HTML/SVG attribute name
    */
   attribute?: string;
-  /** String prefix to match (e.g., "input-field-") */
+  /**
+   * String prefix to match (e.g., "input-field-")
+   * Mutually exclusive with regex and ids
+   */
   prefix?: string;
-  /** Regular expression to match */
+  /**
+   * Regular expression to match
+   * Mutually exclusive with prefix and ids
+   */
   regex?: RegExp;
+  /**
+   * Exact list of IDs to match
+   * Use when you have a fixed set of known element IDs
+   * Mutually exclusive with prefix and regex
+   *
+   * @example
+   * ```tsx
+   * { ids: ['temperature', 'pressure', 'volume'], type: 'input' }
+   * { attribute: 'data-id', ids: ['sensor-1', 'sensor-2'], type: 'input' }
+   * ```
+   */
+  ids?: string[];
   /** Field type */
   type: 'input' | 'output';
 }

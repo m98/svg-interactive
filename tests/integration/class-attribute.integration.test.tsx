@@ -179,5 +179,43 @@ describe('Class Attribute Integration Tests', () => {
         expect(input).toBeInTheDocument();
       });
     });
+
+    it('should render fields matched by ids array', async () => {
+      const svgContent = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="400" height="150">
+          <rect id="username-field" x="10" y="10" width="120" height="30" fill="#e3f2fd"/>
+          <rect id="email-field" x="10" y="50" width="120" height="30" fill="#e3f2fd"/>
+          <rect id="greeting-output" x="160" y="30" width="120" height="30" fill="#e8f5e9"/>
+          <rect id="other-element" x="10" y="90" width="120" height="30" fill="#ccc"/>
+        </svg>
+      `;
+
+      const patterns: FieldPattern[] = [
+        { ids: ['username-field', 'email-field'], type: 'input' },
+        { ids: ['greeting-output'], type: 'output' },
+      ];
+
+      const { mappings } = parseSVG(svgContent, { patterns });
+
+      expect(mappings).toHaveLength(3);
+      expect(mappings[0]?.name).toBe('username-field');
+      expect(mappings[1]?.name).toBe('email-field');
+      expect(mappings[2]?.name).toBe('greeting-output');
+
+      render(<InteractiveSVG mappings={mappings} svgContent={svgContent} />);
+
+      await waitFor(() => {
+        const usernameInput = document.querySelector('input[data-field-name="username-field"]');
+        const emailInput = document.querySelector('input[data-field-name="email-field"]');
+        const greetingOutput = document.getElementById('output-field-greeting-output');
+        expect(usernameInput).toBeInTheDocument();
+        expect(emailInput).toBeInTheDocument();
+        expect(greetingOutput).toBeInTheDocument();
+      });
+
+      // Verify other-element is not rendered as a field
+      const otherElement = document.querySelector('input[data-field-name="other-element"]');
+      expect(otherElement).not.toBeInTheDocument();
+    });
   });
 });

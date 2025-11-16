@@ -160,10 +160,18 @@ Defines how to match fields in SVG.
 interface FieldPattern {
   attribute?: string;        // Which attribute to match (default: 'id')
   prefix?: string;           // String prefix to match (e.g., "input-")
-  regex?: RegExp;            // Or regex pattern to match
+  regex?: RegExp;            // Regular expression pattern to match
+  ids?: string[];            // Exact list of IDs to match
   type: 'input' | 'output';  // Field type
 }
 ```
+
+**Matching Strategies** (choose ONE per pattern):
+- `prefix` - Match by string prefix (e.g., "input-")
+- `regex` - Match by regular expression pattern
+- `ids` - Match exact list of element IDs
+
+**Important**: Only ONE matching strategy can be used per pattern. You cannot combine `ids`, `prefix`, and `regex` in the same pattern.
 
 ### Examples
 
@@ -179,6 +187,44 @@ interface FieldPattern {
 
 // Regex: match PARAM_TEMP, PARAM_PRESSURE
 { regex: /^PARAM_(.+)$/, type: 'input' }
+
+// IDs array: match exact list of elements
+{ ids: ['temperature', 'pressure', 'volume'], type: 'input' }
+
+// IDs array with custom attribute
+{ attribute: 'data-id', ids: ['sensor-1', 'sensor-2'], type: 'input' }
+
+// Mix different strategies (in separate patterns)
+patterns: [
+  { ids: ['temp-sensor', 'pressure-sensor'], type: 'input' },
+  { prefix: 'output-', type: 'output' },
+  { regex: /^CALC_(.+)$/, type: 'output' }
+]
+```
+
+### When to use `ids` array
+
+Use the `ids` array when:
+- You have a fixed, known set of element IDs
+- Element IDs don't follow a consistent prefix pattern
+- You want explicit control over which elements are interactive
+- Working with legacy SVGs with inconsistent naming conventions
+- You have 100+ specific elements to make interactive
+
+**Example use case:**
+```tsx
+// Complex draw.io diagram with specific sensors
+const patterns: FieldPattern[] = [
+  {
+    attribute: 'data-id',
+    ids: [
+      'temp-sensor-1', 'temp-sensor-2', 'temp-sensor-3',
+      'pressure-gauge-a', 'pressure-gauge-b',
+      'flow-meter-inlet', 'flow-meter-outlet'
+    ],
+    type: 'input'
+  }
+];
 ```
 
 ---

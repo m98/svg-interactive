@@ -136,6 +136,30 @@ const { mappings } = parseSVG(svgContent, {
 });
 ```
 
+### Match by Exact ID List
+
+When you have a fixed set of elements with specific IDs:
+
+```svg
+<rect id="temperature" x="10" y="10" width="100" height="30"/>
+<rect id="pressure" x="10" y="50" width="100" height="30"/>
+<rect id="volume" x="10" y="90" width="100" height="30"/>
+```
+
+```tsx
+const { mappings } = parseSVG(svgContent, {
+  patterns: [
+    { ids: ['temperature', 'pressure', 'volume'], type: 'input' }
+  ]
+});
+```
+
+**Use cases for `ids` array:**
+- Fixed set of known elements
+- Legacy SVGs with inconsistent naming
+- When you don't control the ID naming convention
+- Maximum explicitness and control (e.g., 100+ specific sensors in a complex diagram)
+
 💡 **Auto-detection**: Use `parseSVG()` for automatic draw.io detection, or use specific parsers (`parseDrawIoSVG`, `parseFigmaSVG`, `parseInkscapeSVG`) for tool-optimized parsing.
 
 ## 💡 Features

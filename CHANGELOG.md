@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2025-11-16
+
+### Added
+- **IDs Array Matching** - Match specific elements by exact IDs for maximum control
+  - New `ids?: string[]` option in `FieldPattern` interface
+  - Enables explicit element selection: `{ ids: ['sensor-1', 'sensor-2', 'sensor-3'], type: 'input' }`
+  - Perfect for complex diagrams with 100+ specific sensors or irregular naming conventions
+  - Field names use the full ID (no extraction like prefix/regex)
+  - Works with any attribute: `{ attribute: 'data-id', ids: ['temp-north', 'temp-south'], type: 'input' }`
+  - Mutual exclusivity validation: only one matching strategy (ids, prefix, or regex) per pattern
+  - Comprehensive validation: array must not be empty, all elements must be strings
+  - IDs array checked first in matching order (before prefix/regex) for performance
+
+### Tests
+- Added 15 new tests for IDs array functionality (total: 237 tests passing)
+  - 8 unit tests for matching logic
+  - 7 validation tests for mutual exclusivity and array validation
+  - 4 generic parser tests
+  - 2 draw.io parser tests
+  - 1 integration test
+
+### Documentation
+- **README.md** - Added "Match by Exact ID List" section with use cases and examples
+- **docs/api.md** - Comprehensive FieldPattern documentation with IDs array examples
+- **docs/hand-coded.md** - Added sensor dashboard example showing IDs array usage
+- **CLAUDE.md** - Updated architecture documentation with IDs array information
+
+### Examples
+- **examples/02-advanced/ids-array-matching.tsx** - New working example demonstrating IDs array
+  - Sensor dashboard with 3 input sensors and 1 output (average calculation)
+  - Shows non-interactive elements being excluded from IDs array
+  - Integrated with site/playground via examples manifest
+  - Added new "Advanced" category to examples
+
 ## [0.1.2] - 2025-11-16
 
 ### Fixed
@@ -172,7 +206,8 @@ In case of vulnerabilities.
 
 ---
 
-[Unreleased]: https://github.com/m98/svg-interactive/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/m98/svg-interactive/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/m98/svg-interactive/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/m98/svg-interactive/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/m98/svg-interactive/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/m98/svg-interactive/releases/tag/v0.1.0

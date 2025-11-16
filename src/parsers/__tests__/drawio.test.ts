@@ -163,6 +163,64 @@ describe('parseDrawIoSVG', () => {
 
       expect(result.mappings).toHaveLength(2);
     });
+
+    it('should match ids array in draw.io XML', () => {
+      const mxfile = `
+        <mxfile>
+          <diagram>
+            <mxGraphModel>
+              <root>
+                <object id="1" data-id="temp-sensor" />
+                <object id="2" data-id="pressure-sensor" />
+                <object id="3" data-id="flow-sensor" />
+                <object id="4" data-id="other-element" />
+              </root>
+            </mxGraphModel>
+          </diagram>
+        </mxfile>
+      `;
+      const svg = createDrawIoSVG(mxfile);
+
+      const patterns: FieldPattern[] = [
+        { attribute: 'data-id', ids: ['temp-sensor', 'pressure-sensor'], type: 'input' },
+      ];
+
+      const result = parseDrawIoSVG(svg, { patterns });
+
+      expect(result.mappings).toHaveLength(2);
+      expect(result.mappings[0]?.name).toBe('temp-sensor');
+      expect(result.mappings[1]?.name).toBe('pressure-sensor');
+      expect(result.mappings[0]?.elementId).toBe('1');
+      expect(result.mappings[1]?.elementId).toBe('2');
+    });
+
+    it('should mix ids with other patterns in draw.io', () => {
+      const mxfile = `
+        <mxfile>
+          <diagram>
+            <mxGraphModel>
+              <root>
+                <object id="1" data-id="sensor-1" />
+                <object id="2" data-id="sensor-2" />
+                <object id="3" data-id="output-result" />
+              </root>
+            </mxGraphModel>
+          </diagram>
+        </mxfile>
+      `;
+      const svg = createDrawIoSVG(mxfile);
+
+      const patterns: FieldPattern[] = [
+        { ids: ['sensor-1', 'sensor-2'], type: 'input' },
+        { prefix: 'output-', type: 'output' },
+      ];
+
+      const result = parseDrawIoSVG(svg, { patterns });
+
+      expect(result.mappings).toHaveLength(3);
+      expect(result.mappings.filter((m) => m.type === 'input')).toHaveLength(2);
+      expect(result.mappings.filter((m) => m.type === 'output')).toHaveLength(1);
+    });
   });
 
   describe('Custom Attributes', () => {
