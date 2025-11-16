@@ -99,6 +99,7 @@ export function HelloWorld() {
       <InteractiveSVG
         mappings={mappings}
         svgContent={helloWorldPreset.svgContent}
+        defaultInputs={helloWorldPreset.defaultInputs}
         onOutputCompute={helloWorldPreset.onOutputCompute}
         theme={helloWorldPreset.theme}
       />

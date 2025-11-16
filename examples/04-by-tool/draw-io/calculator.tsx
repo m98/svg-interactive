@@ -8,7 +8,7 @@ export const calculatorPreset: ExamplePreset = {
   title: 'Calculator (draw.io)',
   description:
     'Basic addition calculator with two inputs and one output. Demonstrates simple arithmetic operations with Draw.io diagrams.',
-  category: 'Draw.io',
+  category: 'Integrations',
   tags: ['draw.io', 'calculator', 'arithmetic', 'flowchart'],
   accentColor: '#60a5fa',
   svgContent: calculatorSvg,

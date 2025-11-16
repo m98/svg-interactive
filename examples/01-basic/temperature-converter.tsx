@@ -113,6 +113,7 @@ export function TemperatureConverter() {
       <InteractiveSVG
         mappings={mappings}
         svgContent={temperaturePreset.svgContent}
+        defaultInputs={temperaturePreset.defaultInputs}
         onOutputCompute={temperaturePreset.onOutputCompute}
         theme={temperaturePreset.theme}
       />

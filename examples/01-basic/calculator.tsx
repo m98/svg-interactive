@@ -139,6 +139,7 @@ export function Calculator() {
       <InteractiveSVG
         mappings={mappings}
         svgContent={calculatorPreset.svgContent}
+        defaultInputs={calculatorPreset.defaultInputs}
         onOutputCompute={calculatorPreset.onOutputCompute}
         theme={calculatorPreset.theme}
       />

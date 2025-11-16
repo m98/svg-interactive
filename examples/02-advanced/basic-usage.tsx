@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { InteractiveSVG, parseSVG } from 'svg-interactive';
 import 'svg-interactive/styles';
 
