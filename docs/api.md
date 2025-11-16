@@ -243,6 +243,21 @@ const svgContent = await fetch('/diagram.svg').then(r => r.text());
 <InteractiveSVG mappings={mappings} svgContent={svgContent} />
 ```
 
+#### `defaultInputs`
+- **Type**: `Record<string, string>`
+- **Optional**: Yes
+- **Description**: Pre-populate input fields with initial values
+
+```tsx
+<InteractiveSVG
+  mappings={mappings}
+  svgContent={svgContent}
+  defaultInputs={{ temperature: '25', pressure: '101.3' }}
+/>
+```
+
+**Note**: Default values are applied when the component mounts. Existing values take precedence over defaults if inputs are already populated.
+
 ---
 
 ### Callbacks
@@ -663,6 +678,7 @@ function Calculator() {
     <InteractiveSVG
       mappings={mappings}
       svgContent={svgContent}
+      defaultInputs={{ a: '5', b: '3' }}
       onOutputCompute={(inputs) => ({
         sum: String(parseFloat(inputs.a || '0') + parseFloat(inputs.b || '0'))
       })}

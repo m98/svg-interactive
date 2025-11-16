@@ -85,7 +85,7 @@ describe('Simple SVG Integration Tests', () => {
       );
 
       // Verify output element exists
-      const output = document.getElementById('output-sum');
+      const output = document.getElementById('output-field-sum');
       expect(output).toBeInTheDocument();
     });
 
@@ -115,7 +115,7 @@ describe('Simple SVG Integration Tests', () => {
 
       const inputA = document.querySelector('input[data-field-name="a"]') as HTMLInputElement;
       const inputB = document.querySelector('input[data-field-name="b"]') as HTMLInputElement;
-      const output = document.getElementById('output-sum');
+      const output = document.getElementById('output-field-sum');
 
       if (inputA && inputB && output) {
         // Set first input
@@ -158,7 +158,7 @@ describe('Simple SVG Integration Tests', () => {
 
       const inputA = document.querySelector('input[data-field-name="a"]') as HTMLInputElement;
       const inputB = document.querySelector('input[data-field-name="b"]') as HTMLInputElement;
-      const output = document.getElementById('output-sum');
+      const output = document.getElementById('output-field-sum');
 
       if (inputA && inputB && output) {
         // First calculation: 10 + 5 = 15
@@ -208,7 +208,7 @@ describe('Simple SVG Integration Tests', () => {
 
       const inputA = document.querySelector('input[data-field-name="a"]') as HTMLInputElement;
       const inputB = document.querySelector('input[data-field-name="b"]') as HTMLInputElement;
-      const output = document.getElementById('output-sum');
+      const output = document.getElementById('output-field-sum');
 
       if (inputA && inputB && output) {
         fireEvent.input(inputA, { target: { value: '-10' } });
@@ -244,7 +244,7 @@ describe('Simple SVG Integration Tests', () => {
 
       const inputA = document.querySelector('input[data-field-name="a"]') as HTMLInputElement;
       const inputB = document.querySelector('input[data-field-name="b"]') as HTMLInputElement;
-      const output = document.getElementById('output-sum');
+      const output = document.getElementById('output-field-sum');
 
       if (inputA && inputB && output) {
         fireEvent.input(inputA, { target: { value: '3.14' } });
@@ -307,7 +307,7 @@ describe('Simple SVG Integration Tests', () => {
 
       const inputA = document.querySelector('input[data-field-name="a"]') as HTMLInputElement;
       const inputB = document.querySelector('input[data-field-name="b"]') as HTMLInputElement;
-      const output = document.getElementById('output-sum');
+      const output = document.getElementById('output-field-sum');
 
       if (inputA && inputB && output) {
         // Leave inputs empty (should default to 0)
@@ -345,7 +345,7 @@ describe('Simple SVG Integration Tests', () => {
 
       const inputA = document.querySelector('input[data-field-name="a"]') as HTMLInputElement;
       const inputB = document.querySelector('input[data-field-name="b"]') as HTMLInputElement;
-      const output = document.getElementById('output-sum');
+      const output = document.getElementById('output-field-sum');
 
       if (inputA && inputB && output) {
         fireEvent.input(inputA, { target: { value: 'abc' } });

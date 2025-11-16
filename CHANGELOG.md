@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2025-11-16
+
+### Fixed
+- **Critical: DOM ID Collision Bug** - Fixed duplicate IDs breaking output field updates
+  - Input fields now use `id="input-field-{name}"` pattern
+  - Output fields now use `id="output-field-{name}"` pattern
+  - Previously both used `id="field-{name}"`, causing `getElementById` to always return the first element
+  - This broke all SVGs where inputs and outputs share the same base name (e.g., `input-field-gas` and `output-field-gas`)
+  - Updated all 6 ID assignment locations in `useFieldOverlay.ts`
+  - Fixed 10+ test cases across 5 integration test files to use correct IDs
+
+### Added
+- **`defaultInputs` prop** - Pre-populate input fields with initial values
+  - New optional prop on `InteractiveSVG`: `defaultInputs?: Record<string, string>`
+  - Allows setting initial values when component mounts
+  - Existing values take precedence over defaults
+  - Useful for examples, demos, and preset configurations
+
+### Changed
+- **Examples** - Replaced heat exchanger with calculator example
+  - Added `Calculator (draw.io)` example demonstrating simple addition
+  - Removed outdated heat exchanger example
+  - New example better demonstrates draw.io integration with clear, simple use case
+  - Added comprehensive integration tests (10 test cases)
+
+### Documentation
+- **docs/api.md** - Added `defaultInputs` prop documentation with examples
+- **docs/draw-io.md** - Updated to reference new calculator example
+- **tests/integration/README.md** - Updated to document all 3 fixtures and their tests
+- **site/Playground** - Now passes `defaultInputs` to InteractiveSVG component
+
 ## [0.1.1] - 2025-11-13
 
 ### Fixed
@@ -141,6 +172,7 @@ In case of vulnerabilities.
 
 ---
 
-[Unreleased]: https://github.com/m98/svg-interactive/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/m98/svg-interactive/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/m98/svg-interactive/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/m98/svg-interactive/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/m98/svg-interactive/releases/tag/v0.1.0

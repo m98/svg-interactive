@@ -134,7 +134,7 @@ describe('Draw.io SVG Integration Tests', () => {
 
       await waitFor(
         () => {
-          const outputField = document.getElementById('output-gas');
+          const outputField = document.getElementById('output-field-gas');
           expect(outputField).toBeInTheDocument();
         },
         { timeout: 3000 }

@@ -237,6 +237,18 @@ Use this to verify the parser detected your SVG correctly and used the expected 
 
 ---
 
+## Real-World Example
+
+See the **[Calculator Example](../examples/04-by-tool/draw-io/calculator.tsx)** for a complete working example that demonstrates:
+
+- Draw.io SVG export workflow
+- Custom `data-id` properties for field mapping
+- Simple arithmetic operations (addition calculator)
+- Multiple inputs and outputs (2 inputs → 1 output)
+- Professional flowchart diagram
+
+The calculator example shows a basic addition calculator with two number inputs and one result output, demonstrating how draw.io flowcharts can be made interactive.
+
 ## Next Steps
 
 - **[Troubleshooting Guide](./troubleshooting.md)** - Fix common issues

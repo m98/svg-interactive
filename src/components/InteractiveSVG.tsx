@@ -30,6 +30,7 @@ export const InteractiveSVG: React.FC<InteractiveSVGProps> = ({
   mappings,
   svgContent,
   onInputChange,
+  defaultInputs,
   onOutputCompute,
   outputValues: externalOutputValues,
   onOutputUpdate,
@@ -47,12 +48,36 @@ export const InteractiveSVG: React.FC<InteractiveSVGProps> = ({
 }) => {
   const svgContainerRef = useRef<HTMLDivElement>(null);
   const [inputValues, setInputValues] = useState<Record<string, string>>({});
-  const [internalOutputValues, setInternalOutputValues] = useState<Record<string, string>>({});
   const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
   const prevFieldsRef = useRef<number>(0);
 
-  // Use external output values if provided, otherwise use internal state
-  const outputValues = externalOutputValues ?? internalOutputValues;
+  // Compute outputs synchronously whenever inputs change (runs during render, not after)
+  const computedOutputs = useMemo(() => {
+    // Only compute if not externally controlled
+    if (externalOutputValues) {
+      return externalOutputValues;
+    }
+
+    const computed: Record<string, string> = {};
+
+    // If global onOutputCompute provided, use it
+    if (onOutputCompute) {
+      const result = onOutputCompute(inputValues);
+      Object.assign(computed, result);
+    }
+
+    // Apply individual output callbacks
+    if (onOutputUpdate) {
+      Object.entries(onOutputUpdate).forEach(([outputName, callback]) => {
+        computed[outputName] = callback(inputValues);
+      });
+    }
+
+    return computed;
+  }, [inputValues, onOutputCompute, onOutputUpdate, externalOutputValues]);
+
+  // Use computed outputs
+  const outputValues = computedOutputs;
 
   // Memoize input field names to avoid recomputing on every render
   const inputFieldNames = useMemo(() => {
@@ -74,48 +99,30 @@ export const InteractiveSVG: React.FC<InteractiveSVGProps> = ({
     setInputValues((prevValues) => {
       const initialValues: Record<string, string> = {};
       inputFieldNames.forEach((name) => {
-        // Preserve existing values if they exist
-        initialValues[name] = prevValues[name] ?? '';
+        // Priority: existing value > default value > empty string
+        initialValues[name] = prevValues[name] ?? defaultInputs?.[name] ?? '';
       });
       return initialValues;
     });
-  }, [inputFieldNames]);
+  }, [inputFieldNames, defaultInputs]);
+
+  // Store the last changed field to pass to onInputChange callback
+  const lastChangedFieldRef = useRef<{ name: string; value: string } | null>(null);
 
   // Handle input changes
-  const handleInputChange = useCallback(
-    (name: string, value: string) => {
-      setInputValues((prev) => {
-        const newValues = { ...prev, [name]: value };
+  const handleInputChange = useCallback((name: string, value: string) => {
+    lastChangedFieldRef.current = { name, value };
+    setInputValues((prev) => ({ ...prev, [name]: value }));
+  }, []);
 
-        if (onInputChange) {
-          onInputChange(name, value, newValues);
-        }
-
-        // Only update outputs if not externally controlled
-        if (!externalOutputValues) {
-          // Compute output values using callbacks
-          const computed: Record<string, string> = {};
-
-          // If global onOutputCompute provided, use it
-          if (onOutputCompute) {
-            Object.assign(computed, onOutputCompute(newValues));
-          }
-
-          // Apply individual output callbacks
-          if (onOutputUpdate) {
-            Object.entries(onOutputUpdate).forEach(([outputName, callback]) => {
-              computed[outputName] = callback(newValues);
-            });
-          }
-
-          setInternalOutputValues(computed);
-        }
-
-        return newValues;
-      });
-    },
-    [onInputChange, externalOutputValues, onOutputCompute, onOutputUpdate]
-  );
+  // Call parent's onInputChange callback after state updates (not during render)
+  useEffect(() => {
+    if (lastChangedFieldRef.current && onInputChange) {
+      const { name, value } = lastChangedFieldRef.current;
+      onInputChange(name, value, inputValues);
+      lastChangedFieldRef.current = null;
+    }
+  }, [inputValues, onInputChange]);
 
   // Create field overlays - build options object conditionally for exactOptionalPropertyTypes
   // We don't use useMemo here because inputValues/outputValues change frequently

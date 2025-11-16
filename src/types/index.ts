@@ -106,6 +106,12 @@ export interface InteractiveSVGProps {
   onInputChange?: (name: string, value: string, allValues: Record<string, string>) => void;
 
   /**
+   * Optional: Default values for input fields
+   * Use this to pre-populate input fields with initial values
+   */
+  defaultInputs?: Record<string, string>;
+
+  /**
    * Optional: Function to compute output values from inputs
    * If not provided, outputs are independent placeholders
    */

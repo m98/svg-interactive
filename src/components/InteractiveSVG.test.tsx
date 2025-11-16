@@ -250,8 +250,10 @@ describe('InteractiveSVG', () => {
         />
       );
 
-      // Callback should be set up correctly
-      expect(onOutputCompute).not.toHaveBeenCalled();
+      // Should be called immediately during render (useMemo runs synchronously)
+      expect(onOutputCompute).toHaveBeenCalled();
+      // Called with initial empty input values
+      expect(onOutputCompute).toHaveBeenCalledWith(expect.objectContaining({ test: '' }));
     });
   });
 

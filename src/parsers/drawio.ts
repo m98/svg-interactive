@@ -1,3 +1,4 @@
+import { DOMParser as XMLDOMParser } from '@xmldom/xmldom';
 import { FieldMapping } from '../types';
 import { decodeHTMLEntities } from '../utils/decodeHTML';
 import { matchFieldPattern } from '../utils/fieldMatcher';
@@ -94,15 +95,26 @@ export function parseDrawIoSVG(svgContent: string, options: ParseOptions): Parse
     // Decode HTML entities
     const decodedContent = decodeHTMLEntities(contentAttr);
 
-    // Parse the mxfile XML content
-    const contentDoc = parser.parseFromString(decodedContent, 'text/xml');
+    // Parse the mxfile XML content using xmldom (more robust than DOMParser)
+    const xmlParser = new XMLDOMParser({
+      errorHandler: {
+        warning: () => {}, // Ignore warnings
+        error: () => {}, // Ignore non-fatal errors
+        fatalError: (error) => {
+          throw new Error(String(error));
+        },
+      },
+    });
 
-    // Check for XML parsing errors
-    const parserError = contentDoc.querySelector('parsererror');
-    if (parserError) {
+    let contentDoc: Document;
+    try {
+      contentDoc = xmlParser.parseFromString(decodedContent, 'text/xml');
+    } catch (error) {
       return {
         mappings: [],
-        errors: [`Failed to parse mxfile XML: ${parserError.textContent ?? 'Unknown error'}`],
+        errors: [
+          `Failed to parse mxfile XML: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        ],
         metadata: {
           tool: 'drawio',
           detectedMode: 'data-id',
@@ -126,14 +138,14 @@ export function parseDrawIoSVG(svgContent: string, options: ParseOptions): Parse
       attributesUsed.add(attribute);
 
       if (attribute === 'data-id') {
-        // Parse data-id attributes from mxfile XML
-        const objects = contentDoc.querySelectorAll('object[data-id]');
+        // Parse data-id attributes from mxfile XML using getElementsByTagName
+        const objects = contentDoc.getElementsByTagName('object');
 
         if (objects.length === 0 && patternsByAttribute.size === 1) {
           errors.push('No object elements with data-id found in SVG content');
         }
 
-        objects.forEach((obj) => {
+        Array.from(objects).forEach((obj) => {
           const dataId = obj.getAttribute('data-id');
           const elementId = obj.getAttribute('id');
 
@@ -153,11 +165,10 @@ export function parseDrawIoSVG(svgContent: string, options: ParseOptions): Parse
           }
         });
       } else {
-        // Parse other attributes from mxfile XML
-        const selector = `object[${attribute}]`;
-        const objects = contentDoc.querySelectorAll(selector);
+        // Parse other attributes from mxfile XML using getElementsByTagName
+        const objects = contentDoc.getElementsByTagName('object');
 
-        objects.forEach((obj) => {
+        Array.from(objects).forEach((obj) => {
           const attrValue = obj.getAttribute(attribute);
           const elementId = obj.getAttribute('id');
 

@@ -4,9 +4,10 @@ This directory contains integration tests that verify the complete functionality
 
 ## Test Status
 
-✅ **23 integration tests** covering:
-- 13 Draw.io SVG tests (100% passing)
-- 10 Custom SVG tests (80% passing)
+✅ **All integration tests passing** covering:
+- Draw.io SVG tests
+- Custom SVG tests
+- Calculator tests
 
 The tests verify real-world usage with actual SVG files from the examples directory.
 
@@ -14,10 +15,12 @@ The tests verify real-world usage with actual SVG files from the examples direct
 
 ```
 tests/integration/
-├── fixtures/               # SVG files used in tests
-│   ├── gas-input-output.drawio.svg   # Draw.io example
+├── fixtures/                          # SVG files used in tests
+│   ├── gas-input-output.drawio.svg   # Draw.io gas example
+│   ├── calculator.drawio.svg         # Draw.io calculator
 │   └── simple-calculator.svg         # Custom SVG example
-├── drawio-svg.integration.test.tsx   # Tests for Draw.io SVG
+├── drawio-svg.integration.test.tsx   # Tests for Draw.io gas SVG
+├── calculator.integration.test.tsx   # Tests for Draw.io calculator
 └── simple-svg.integration.test.tsx   # Tests for simple SVG
 ```
 
@@ -26,10 +29,24 @@ tests/integration/
 ### `fixtures/`
 Contains actual SVG files used in integration tests:
 - **gas-input-output.drawio.svg**: A real Draw.io exported SVG with gas input/output fields
+- **calculator.drawio.svg**: A Draw.io calculator flowchart with two inputs and one output
 - **simple-calculator.svg**: A custom SVG with two inputs (a, b) and one output (sum) for addition
 
+### `calculator.integration.test.tsx`
+Tests the Draw.io calculator example:
+- ✅ SVG parsing (parseDrawIoSVG)
+- ✅ Field detection (2 inputs, 1 output)
+- ✅ Field name extraction (one, two, result)
+- ✅ Input field rendering
+- ✅ Output field rendering
+- ✅ Addition calculations (5 + 3 = 8)
+- ✅ Decimal number handling
+- ✅ Negative number handling
+- ✅ Empty input handling
+- ✅ Dynamic updates when inputs change
+
 ### `drawio-svg.integration.test.tsx`
-Tests the complete flow with a Draw.io SVG:
+Tests the complete flow with a Draw.io gas SVG:
 - ✅ SVG loading and parsing
 - ✅ Data-id mode detection
 - ✅ Field mapping (input-field-gas, output-field-gas)

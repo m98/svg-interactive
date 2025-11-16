@@ -51,7 +51,7 @@ describe('Class Attribute Integration Tests', () => {
         { timeout: 3000 }
       );
 
-      const output = document.getElementById('output-greeting');
+      const output = document.getElementById('output-field-greeting');
       expect(output).toBeInTheDocument();
     });
 
@@ -88,7 +88,7 @@ describe('Class Attribute Integration Tests', () => {
       });
 
       const input = document.querySelector('input[data-field-name="name"]') as HTMLInputElement;
-      const output = document.getElementById('output-greeting');
+      const output = document.getElementById('output-field-greeting');
 
       fireEvent.input(input, { target: { value: 'World' } });
 

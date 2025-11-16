@@ -70,7 +70,7 @@ describe('Draw.io Mixed Mode Integration Tests', () => {
       });
 
       const input = document.querySelector('input[data-field-name="gas"]') as HTMLInputElement;
-      const output = document.getElementById('output-gas');
+      const output = document.getElementById('output-field-gas');
 
       if (input && output) {
         fireEvent.input(input, { target: { value: '50' } });

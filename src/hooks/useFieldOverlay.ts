@@ -40,6 +40,24 @@ export function useFieldOverlay({
   const foreignObjectsRef = useRef<SVGForeignObjectElement[]>([]);
   const reactRootsRef = useRef<Array<{ name: string; type: 'input' | 'output'; root: Root }>>([]);
 
+  // Store callbacks in refs to avoid recreating foreignObjects when callbacks change
+  const onInputChangeRef = useRef(onInputChange);
+  const renderInputRef = useRef(renderInput);
+  const renderOutputRef = useRef(renderOutput);
+
+  // Update refs when callbacks change
+  useEffect(() => {
+    onInputChangeRef.current = onInputChange;
+  }, [onInputChange]);
+
+  useEffect(() => {
+    renderInputRef.current = renderInput;
+  }, [renderInput]);
+
+  useEffect(() => {
+    renderOutputRef.current = renderOutput;
+  }, [renderOutput]);
+
   const hasFieldLayoutChanged = (prev: FieldData[], next: FieldData[]) => {
     if (prev.length !== next.length) {
       return true;
@@ -89,7 +107,8 @@ export function useFieldOverlay({
       return;
     }
 
-    // Clear existing foreignObjects and React roots
+    // Clear existing React roots
+
     reactRootsRef.current.forEach(({ root }) => {
       try {
         root.unmount();
@@ -99,11 +118,17 @@ export function useFieldOverlay({
     });
     reactRootsRef.current = [];
 
-    foreignObjectsRef.current.forEach((fo) => fo.remove());
+    // IMPORTANT: Query DOM directly for existing foreignObjects (don't rely on ref)
+    // This handles React StrictMode double-mount where ref is reset
+    const existingForeignObjects = svgElement.querySelectorAll('foreignObject[data-field-id]');
+    existingForeignObjects.forEach((fo) => {
+      fo.remove();
+    });
     foreignObjectsRef.current = [];
 
     // Get bounding boxes for all mappings (bbox may be null if the browser can't compute it)
     const fieldsWithBbox = getFieldBoundingBoxes(svgElement, mappings) as FieldData[];
+
     const shouldUpdateFields = hasFieldLayoutChanged(fieldsRef.current, fieldsWithBbox);
     fieldsRef.current = fieldsWithBbox;
     if (shouldUpdateFields) {
@@ -145,19 +170,19 @@ export function useFieldOverlay({
 
         foreignObject.appendChild(containerDiv);
 
-        if (renderInput) {
+        if (renderInputRef.current) {
           // Custom render function provided - mount React component
           try {
             const inputProps: InputFieldProps = {
               name: field.name,
               value: inputValues[field.name] ?? '',
-              onChange: (value) => onInputChange(field.name, value),
+              onChange: (value) => onInputChangeRef.current(field.name, value),
               className,
             };
             if (inputStyle) {
               inputProps.style = inputStyle;
             }
-            const customComponent = renderInput(inputProps);
+            const customComponent = renderInputRef.current(inputProps);
 
             // Create React root and render component
             const root = createRoot(containerDiv);
@@ -170,7 +195,7 @@ export function useFieldOverlay({
             containerDiv.innerHTML = `
               <input
                 type="text"
-                id="field-${field.name}"
+                id="input-field-${field.name}"
                 data-field-name="${field.name}"
                 placeholder="${field.name}"
                 class="${className}"
@@ -194,7 +219,7 @@ export function useFieldOverlay({
             if (input) {
               input.addEventListener('input', (e) => {
                 const target = e.target as HTMLInputElement;
-                onInputChange(field.name, target.value);
+                onInputChangeRef.current(field.name, target.value);
               });
             }
           }
@@ -203,7 +228,7 @@ export function useFieldOverlay({
           containerDiv.innerHTML = `
             <input
               type="text"
-              id="field-${field.name}"
+              id="input-field-${field.name}"
               data-field-name="${field.name}"
               placeholder="${field.name}"
               class="${className}"
@@ -228,7 +253,7 @@ export function useFieldOverlay({
           if (input) {
             input.addEventListener('input', (e) => {
               const target = e.target as HTMLInputElement;
-              onInputChange(field.name, target.value);
+              onInputChangeRef.current(field.name, target.value);
             });
           }
         }
@@ -251,7 +276,7 @@ export function useFieldOverlay({
 
         foreignObject.appendChild(containerDiv);
 
-        if (renderOutput) {
+        if (renderOutputRef.current) {
           // Custom render function provided - mount React component
           try {
             const outputProps: OutputFieldProps = {
@@ -262,7 +287,7 @@ export function useFieldOverlay({
             if (outputStyle) {
               outputProps.style = outputStyle;
             }
-            const customComponent = renderOutput(outputProps);
+            const customComponent = renderOutputRef.current(outputProps);
 
             // Create React root and render component
             const root = createRoot(containerDiv);
@@ -274,7 +299,7 @@ export function useFieldOverlay({
             // Fall back to default rendering
             containerDiv.innerHTML = `
               <div
-                id="output-${field.name}"
+                id="output-field-${field.name}"
                 data-field-name="${field.name}"
                 class="${className}"
                 style="
@@ -301,7 +326,7 @@ export function useFieldOverlay({
           // Default rendering - use static HTML
           containerDiv.innerHTML = `
             <div
-              id="output-${field.name}"
+              id="output-field-${field.name}"
               data-field-name="${field.name}"
               class="${className}"
               style="
@@ -330,41 +355,38 @@ export function useFieldOverlay({
       foreignObjectsRef.current.push(foreignObject);
     });
 
+    // Capture refs in closure for cleanup (critical for React StrictMode)
+    const foreignObjectsToCleanup = [...foreignObjectsRef.current];
+    const reactRootsToCleanup = [...reactRootsRef.current];
+
     return () => {
-      // Clean up React roots
-      reactRootsRef.current.forEach(({ root }) => {
+      // Clean up React roots (use captured array, not ref)
+      reactRootsToCleanup.forEach(({ root }) => {
         try {
           root.unmount();
         } catch (e) {
           console.warn('Error unmounting React root:', e);
         }
       });
-      reactRootsRef.current = [];
 
-      // Clean up foreignObjects
-      foreignObjectsRef.current.forEach((fo) => fo.remove());
-      foreignObjectsRef.current = [];
+      // Clean up foreignObjects (use captured array, not ref)
+      foreignObjectsToCleanup.forEach((fo) => {
+        fo.remove();
+      });
     };
     // inputValues and outputValues are intentionally excluded from deps to avoid
     // recreating all foreignObjects on every value change. Separate useEffects below
     // handle efficient value updates without DOM reconstruction.
+    // Callbacks (onInputChange, renderInput, renderOutput) are stored in refs and
+    // excluded from deps to prevent recreation when callback references change.
+    // inputStyle and outputStyle are also excluded - style changes don't require
+    // recreating foreignObjects since styles are inline in the innerHTML.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    svgContainerRef,
-    mappings,
-    onInputChange,
-    renderInput,
-    renderOutput,
-    theme,
-    inputClassName,
-    outputClassName,
-    inputStyle,
-    outputStyle,
-  ]);
+  }, [svgContainerRef, mappings, theme, inputClassName, outputClassName]);
 
   // Re-render custom React roots when values change
   useEffect(() => {
-    if (!renderInput && !renderOutput) {
+    if (!renderInputRef.current && !renderOutputRef.current) {
       return;
     }
 
@@ -377,21 +399,21 @@ export function useFieldOverlay({
       const themeClass = theme && theme !== 'none' ? `svg-field-${theme}` : '';
       const baseClass = `svg-field svg-field-${field.type}`;
 
-      if (type === 'input' && renderInput) {
+      if (type === 'input' && renderInputRef.current) {
         const className = [baseClass, themeClass, inputClassName].filter(Boolean).join(' ');
         const inputProps: InputFieldProps = {
           name: field.name,
           value: inputValues[field.name] ?? '',
-          onChange: (value) => onInputChange(field.name, value),
+          onChange: (value) => onInputChangeRef.current(field.name, value),
           className,
         };
         if (inputStyle) {
           inputProps.style = inputStyle;
         }
-        const node = renderInput(inputProps);
+        const node = renderInputRef.current(inputProps);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
         root.render(node as any);
-      } else if (type === 'output' && renderOutput) {
+      } else if (type === 'output' && renderOutputRef.current) {
         const className = [baseClass, themeClass, outputClassName].filter(Boolean).join(' ');
         const outputProps: OutputFieldProps = {
           name: field.name,
@@ -401,30 +423,19 @@ export function useFieldOverlay({
         if (outputStyle) {
           outputProps.style = outputStyle;
         }
-        const node = renderOutput(outputProps);
+        const node = renderOutputRef.current(outputProps);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
         root.render(node as any);
       }
     });
-  }, [
-    inputValues,
-    outputValues,
-    renderInput,
-    renderOutput,
-    inputClassName,
-    outputClassName,
-    inputStyle,
-    outputStyle,
-    theme,
-    onInputChange,
-  ]);
+  }, [inputValues, outputValues, inputClassName, outputClassName, inputStyle, outputStyle, theme]);
 
   // Update output values when they change
   useEffect(() => {
     fieldsRef.current
       .filter((f) => f.type === 'output')
       .forEach((field) => {
-        const outputDiv = document.getElementById(`output-${field.name}`);
+        const outputDiv = document.getElementById(`output-field-${field.name}`);
         if (outputDiv) {
           outputDiv.textContent = outputValues[field.name] ?? '...';
         }
@@ -436,7 +447,7 @@ export function useFieldOverlay({
     fieldsRef.current
       .filter((f) => f.type === 'input')
       .forEach((field) => {
-        const input = document.getElementById(`field-${field.name}`) as HTMLInputElement;
+        const input = document.getElementById(`input-field-${field.name}`) as HTMLInputElement;
         if (input && input.value !== inputValues[field.name]) {
           input.value = inputValues[field.name] ?? '';
         }

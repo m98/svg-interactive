@@ -271,6 +271,7 @@ export function Playground({ initialExampleId }: PlaygroundProps) {
                 <InteractiveSVG
                   mappings={parserResult.mappings}
                   svgContent={svgContent}
+                  defaultInputs={example.defaultInputs}
                   onInputChange={handleInputChange}
                   onOutputCompute={example.onOutputCompute}
                   theme={theme}
