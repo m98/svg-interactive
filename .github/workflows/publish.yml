@@ -6,6 +6,11 @@ on:
     tags:
       - 'v*'
 
+# Required for OIDC trusted publishing
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -19,14 +24,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           registry-url: 'https://registry.npmjs.org'
 
-      # 3. Install dependencies
+      # 3. Update npm to support trusted publishing (requires 11.5.1+)
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      # 4. Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      # 4. Run quality checks
+      # 5. Run quality checks
       - name: Run tests
         run: npm test
 
@@ -36,15 +45,13 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
-      # 5. Build package
+      # 6. Build package
       - name: Build
         run: npm run build
 
-      # 6. Publish to npm
+      # 7. Publish to npm using OIDC (no token needed!)
       - name: Publish to npm
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # 7. Create GitHub Release
       - name: Create GitHub Release
