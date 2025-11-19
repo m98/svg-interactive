@@ -1,4 +1,4 @@
-import { matchFieldPattern, validateFieldConfig } from './fieldMatcher';
+import { matchFieldPattern, isValidFieldPattern, validateFieldPatterns } from './fieldMatcher';
 import { FieldPattern } from '../types';
 
 describe('matchFieldPattern', () => {
@@ -175,115 +175,142 @@ describe('matchFieldPattern', () => {
   });
 });
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-describe('validateFieldConfig', () => {
-  it('should return no errors for valid configuration', () => {
-    const patterns: FieldPattern[] = [
-      { prefix: 'input:', type: 'input' },
+describe('isValidFieldPattern', () => {
+  it('should return true for valid prefix pattern', () => {
+    expect(isValidFieldPattern({ prefix: 'input-', type: 'input' })).toBe(true);
+  });
+
+  it('should return true for valid regex pattern', () => {
+    expect(isValidFieldPattern({ regex: /^OUT_/, type: 'output' })).toBe(true);
+  });
+
+  it('should return true for valid ids pattern', () => {
+    expect(isValidFieldPattern({ ids: ['elem1', 'elem2'], type: 'input' })).toBe(true);
+  });
+
+  it('should return true for pattern with attribute', () => {
+    expect(isValidFieldPattern({ prefix: 'input-', type: 'input', attribute: 'data-id' })).toBe(
+      true
+    );
+  });
+
+  it('should return false for null', () => {
+    expect(isValidFieldPattern(null)).toBe(false);
+  });
+
+  it('should return false for undefined', () => {
+    expect(isValidFieldPattern(undefined)).toBe(false);
+  });
+
+  it('should return false for non-object', () => {
+    expect(isValidFieldPattern('string')).toBe(false);
+    expect(isValidFieldPattern(123)).toBe(false);
+  });
+
+  it('should return false for invalid type', () => {
+    expect(isValidFieldPattern({ prefix: 'input-', type: 'invalid' })).toBe(false);
+  });
+
+  it('should return false for missing type', () => {
+    expect(isValidFieldPattern({ prefix: 'input-' })).toBe(false);
+  });
+
+  it('should return false for empty prefix', () => {
+    expect(isValidFieldPattern({ prefix: '', type: 'input' })).toBe(false);
+  });
+
+  it('should return false for empty ids array', () => {
+    expect(isValidFieldPattern({ ids: [], type: 'input' })).toBe(false);
+  });
+
+  it('should return false for ids with non-string elements', () => {
+    expect(isValidFieldPattern({ ids: ['valid', 123], type: 'input' })).toBe(false);
+  });
+
+  it('should return false for multiple strategies (prefix + regex)', () => {
+    expect(isValidFieldPattern({ prefix: 'input-', regex: /test/, type: 'input' })).toBe(false);
+  });
+
+  it('should return false for multiple strategies (prefix + ids)', () => {
+    expect(isValidFieldPattern({ prefix: 'input-', ids: ['elem1'], type: 'input' })).toBe(false);
+  });
+
+  it('should return false for multiple strategies (regex + ids)', () => {
+    expect(isValidFieldPattern({ regex: /test/, ids: ['elem1'], type: 'input' })).toBe(false);
+  });
+
+  it('should return false for no strategy', () => {
+    expect(isValidFieldPattern({ type: 'input' })).toBe(false);
+  });
+
+  it('should return false for invalid attribute type', () => {
+    expect(isValidFieldPattern({ prefix: 'input-', type: 'input', attribute: 123 })).toBe(false);
+  });
+});
+
+describe('validateFieldPatterns', () => {
+  it('should return empty array for valid patterns', () => {
+    const patterns = [
+      { prefix: 'input-', type: 'input' },
       { regex: /^OUT_/, type: 'output' },
     ];
-    const errors = validateFieldConfig(patterns);
-    expect(errors).toEqual([]);
+    expect(validateFieldPatterns(patterns)).toEqual([]);
+  });
+
+  it('should error if patterns is not an array', () => {
+    const errors = validateFieldPatterns('not an array');
+    expect(errors).toContain('Patterns must be an array');
   });
 
   it('should error if patterns array is empty', () => {
-    const errors = validateFieldConfig([]);
+    const errors = validateFieldPatterns([]);
     expect(errors).toContain('At least one field pattern must be defined');
   });
 
-  it('should error if patterns is undefined', () => {
-    // Skip this test since the function assumes patterns is always provided
-    // In TypeScript, this would be caught at compile time
-    expect(true).toBe(true);
+  it('should error if pattern is not an object', () => {
+    const errors = validateFieldPatterns(['string']);
+    expect(errors.some((e) => e.includes('must be an object'))).toBe(true);
   });
 
-  it('should error if pattern has neither prefix, regex, nor ids', () => {
-    const patterns: FieldPattern[] = [{ type: 'input' } as any];
-    const errors = validateFieldConfig(patterns);
-    expect(errors.some((e) => e.includes('must have either ids, prefix, or regex'))).toBe(true);
-  });
-
-  it('should error if pattern type is invalid', () => {
-    const patterns: FieldPattern[] = [{ prefix: 'test:', type: 'invalid' as any }];
-    const errors = validateFieldConfig(patterns);
+  it('should error if pattern has invalid type', () => {
+    const errors = validateFieldPatterns([{ prefix: 'test-', type: 'invalid' }]);
     expect(errors.some((e) => e.includes("type must be 'input' or 'output'"))).toBe(true);
   });
 
-  it('should error if pattern type is missing', () => {
-    const patterns: FieldPattern[] = [{ prefix: 'test:' } as any];
-    const errors = validateFieldConfig(patterns);
-    expect(errors.some((e) => e.includes("type must be 'input' or 'output'"))).toBe(true);
+  it('should error if pattern has no strategy', () => {
+    const errors = validateFieldPatterns([{ type: 'input' }]);
+    expect(errors.some((e) => e.includes('must have either prefix, regex, or ids'))).toBe(true);
   });
 
-  it('should report multiple errors for multiple invalid patterns', () => {
-    const patterns: FieldPattern[] = [
-      { type: 'invalid' as any },
-      { prefix: 'valid:', type: 'input' },
-      { regex: /test/, type: 'bad' as any },
-    ];
-    const errors = validateFieldConfig(patterns);
-    expect(errors.length).toBeGreaterThan(1);
+  it('should error if pattern has multiple strategies', () => {
+    const errors = validateFieldPatterns([{ prefix: 'in-', regex: /test/, type: 'input' }]);
+    expect(errors.some((e) => e.includes('can only use one matching strategy'))).toBe(true);
+  });
+
+  it('should error if ids array is empty', () => {
+    const errors = validateFieldPatterns([{ ids: [], type: 'input' }]);
+    expect(errors.some((e) => e.includes('must have either prefix, regex, or ids'))).toBe(true);
+  });
+
+  it('should error if ids contains non-strings', () => {
+    const errors = validateFieldPatterns([{ ids: ['valid', 123], type: 'input' }]);
+    expect(errors.some((e) => e.includes('all ids must be strings'))).toBe(true);
   });
 
   it('should include pattern index in error messages', () => {
-    const patterns: FieldPattern[] = [
-      { prefix: 'valid:', type: 'input' },
-      { type: 'invalid' as any },
-    ];
-    const errors = validateFieldConfig(patterns);
+    const errors = validateFieldPatterns([
+      { prefix: 'valid-', type: 'input' },
+      { type: 'invalid' },
+    ]);
     expect(errors.some((e) => e.includes('Pattern 1'))).toBe(true);
   });
 
-  describe('ids array validation', () => {
-    it('should accept pattern with ids array', () => {
-      const patterns: FieldPattern[] = [{ ids: ['elem1', 'elem2'], type: 'input' }];
-      const errors = validateFieldConfig(patterns);
-      expect(errors).toEqual([]);
-    });
-
-    it('should error if pattern has both ids and prefix', () => {
-      const patterns: FieldPattern[] = [{ ids: ['elem1'], prefix: 'input-', type: 'input' } as any];
-      const errors = validateFieldConfig(patterns);
-      expect(errors.some((e) => e.includes('cannot use multiple matching strategies'))).toBe(true);
-    });
-
-    it('should error if pattern has both ids and regex', () => {
-      const patterns: FieldPattern[] = [{ ids: ['elem1'], regex: /test/, type: 'input' } as any];
-      const errors = validateFieldConfig(patterns);
-      expect(errors.some((e) => e.includes('cannot use multiple matching strategies'))).toBe(true);
-    });
-
-    it('should error if pattern has all three (ids, prefix, regex)', () => {
-      const patterns: FieldPattern[] = [
-        { ids: ['elem1'], prefix: 'in-', regex: /test/, type: 'input' } as any,
-      ];
-      const errors = validateFieldConfig(patterns);
-      expect(errors.some((e) => e.includes('cannot use multiple matching strategies'))).toBe(true);
-    });
-
-    it('should error if ids array is empty', () => {
-      const patterns: FieldPattern[] = [{ ids: [], type: 'input' }];
-      const errors = validateFieldConfig(patterns);
-      expect(errors.some((e) => e.includes('ids array cannot be empty'))).toBe(true);
-    });
-
-    it('should error if ids contains non-strings', () => {
-      const patterns: FieldPattern[] = [{ ids: ['valid', 123, 'another'] as any, type: 'input' }];
-      const errors = validateFieldConfig(patterns);
-      expect(errors.some((e) => e.includes('all ids must be strings'))).toBe(true);
-    });
-
-    it('should error if ids is not an array', () => {
-      const patterns: FieldPattern[] = [{ ids: 'not-an-array' as any, type: 'input' }];
-      const errors = validateFieldConfig(patterns);
-      expect(errors.some((e) => e.includes('ids must be an array'))).toBe(true);
-    });
-  });
-
-  it('should error if pattern has both prefix and regex', () => {
-    const patterns: FieldPattern[] = [{ prefix: 'test:', regex: /test/, type: 'input' }];
-    const errors = validateFieldConfig(patterns);
-    expect(errors.some((e) => e.includes('cannot use multiple matching strategies'))).toBe(true);
+  it('should report multiple errors for multiple invalid patterns', () => {
+    const errors = validateFieldPatterns([
+      { type: 'invalid' },
+      { prefix: 'valid-', type: 'input' },
+      { regex: /test/, type: 'bad' },
+    ]);
+    expect(errors.length).toBeGreaterThan(1);
   });
 });
-/* eslint-enable @typescript-eslint/no-explicit-any */

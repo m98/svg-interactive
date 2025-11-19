@@ -160,7 +160,7 @@ const { mappings } = parseSVG(svgContent, {
 - When you don't control the ID naming convention
 - Maximum explicitness and control (e.g., 100+ specific sensors in a complex diagram)
 
-💡 **Auto-detection**: Use `parseSVG()` for automatic draw.io detection, or use specific parsers (`parseDrawIoSVG`, `parseFigmaSVG`, `parseInkscapeSVG`) for tool-optimized parsing.
+
 
 ## 💡 Features
 
@@ -272,21 +272,17 @@ Quick guides for each tool:
 
 ## 🔧 API Reference
 
-### Parser Functions
+### Parser Function
 
-First, parse your SVG to extract field mappings:
+First, parse your SVG to extract field mappings. `parseSVG` will auto-detect Draw.io SVGs.
 
 ```typescript
-// Auto-detecting parser (recommended)
+// Generic parser for all SVG types
 parseSVG(svgContent: string, options: ParseOptions): ParseResult
 
-// Tool-specific parsers (optimized for each tool)
+// Optimized parser for Draw.io SVGs
 parseDrawIoSVG(svgContent: string, options: ParseOptions): ParseResult
-parseFigmaSVG(svgContent: string, options: ParseOptions): ParseResult
-parseInkscapeSVG(svgContent: string, options: ParseOptions): ParseResult
 ```
-
-> **Note:** Tool-specific parsers (`parseDrawIoSVG`, `parseFigmaSVG`, `parseInkscapeSVG`) are convenience wrappers around `parseSVG()` that set appropriate defaults and metadata for each tool. You can use `parseSVG()` for all cases, but the tool-specific parsers provide better ergonomics and clearer intent.
 
 **ParseOptions:**
 ```typescript
@@ -295,22 +291,22 @@ interface ParseOptions {
   mode?: 'data-id' | 'direct-id';  // Optional: force specific mode
 }
 
-interface FieldPattern {
-  prefix?: string;                 // e.g., "input-"
-  regex?: RegExp;                  // e.g., /^param-(.*)/
-  type: 'input' | 'output';
-  attribute?: string;              // Optional: 'id', 'class', 'data-field', etc. (default: 'id')
-}
+// FieldPattern is a discriminated union - must have exactly ONE matching strategy
+type FieldPattern =
+  | { prefix: string; type: 'input' | 'output'; attribute?: string }      // Match by prefix
+  | { regex: RegExp; type: 'input' | 'output'; attribute?: string }       // Match by regex
+  | { ids: string[]; type: 'input' | 'output'; attribute?: string };      // Match by ID list
 ```
 
 **ParseResult:**
 ```typescript
 interface ParseResult {
   mappings: FieldMapping[];        // Use this for InteractiveSVG
+  errors: string[];                // Any parsing errors encountered
   metadata: {
-    tool: 'drawio' | 'figma' | 'inkscape' | 'generic';
-    mode: 'data-id' | 'direct-id';
-    totalFields: number;
+    tool: 'drawio' | 'generic';    // drawio or generic (Figma, Inkscape, etc.)
+    detectedMode: 'data-id' | 'direct-id';
+    attributesUsed: string[];      // Attributes queried during parsing
   };
 }
 ```

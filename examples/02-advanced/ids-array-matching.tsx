@@ -2,58 +2,124 @@ import { InteractiveSVG, parseSVG } from 'svg-interactive';
 import 'svg-interactive/styles';
 import type { ExamplePreset } from '../presets';
 
-const idsArraySVG = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
-    <!--
-      Sensor Inputs: Matched by exact IDs
-      - Uses ids: ['temp-sensor-1', 'temp-sensor-2', 'pressure-gauge']
-      - Field names are the full IDs (no extraction)
-      - Perfect for specific elements or irregular naming
-    -->
-    <g id="temp-sensor-1">
-      <rect x="50" y="50" width="150" height="40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="4"/>
-      <text x="60" y="75" font-size="14" fill="#1976d2">Temp Sensor 1</text>
+const restaurantBillSVG = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="700" height="600" viewBox="0 0 700 600">
+    <!-- Background -->
+    <rect width="700" height="600" fill="#fef7f0"/>
+
+    <!-- Title -->
+    <text x="350" y="40" text-anchor="middle" font-size="28" font-weight="bold" fill="#d97706">
+      🍽️ Restaurant Bill Calculator
+    </text>
+
+    <!-- Input Section Container -->
+    <rect x="50" y="80" width="300" height="290" fill="#fff" stroke="#d97706" stroke-width="3" rx="12"/>
+    <text x="200" y="110" text-anchor="middle" font-size="18" font-weight="bold" fill="#d97706">
+      💵 Your Order
+    </text>
+
+    <!-- Food Price Input -->
+    <g id="food-label">
+      <text x="70" y="150" font-size="14" font-weight="600" fill="#78716c">🍕 Food:</text>
+    </g>
+    <g id="food-price">
+      <rect x="70" y="160" width="240" height="45" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" rx="6"/>
+      <text x="80" y="188" font-size="12" fill="#92400e">$</text>
     </g>
 
-    <g id="temp-sensor-2">
-      <rect x="50" y="120" width="150" height="40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="4"/>
-      <text x="60" y="145" font-size="14" fill="#1976d2">Temp Sensor 2</text>
+    <!-- Drinks Price Input -->
+    <g id="drinks-label">
+      <text x="70" y="225" font-size="14" font-weight="600" fill="#78716c">🥤 Drinks:</text>
+    </g>
+    <g id="drinks-price">
+      <rect x="70" y="235" width="240" height="45" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" rx="6"/>
+      <text x="80" y="263" font-size="12" fill="#92400e">$</text>
     </g>
 
-    <g id="pressure-gauge">
-      <rect x="50" y="190" width="150" height="40" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="4"/>
-      <text x="60" y="215" font-size="14" fill="#1976d2">Pressure Gauge</text>
+    <!-- Number of People Input -->
+    <g id="people-label">
+      <text x="70" y="300" font-size="14" font-weight="600" fill="#78716c">👥 People:</text>
+    </g>
+    <g id="num-people">
+      <rect x="70" y="310" width="240" height="45" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" rx="6"/>
+      <text x="80" y="338" font-size="12" fill="#92400e">#</text>
     </g>
 
-    <!-- Arrows showing data flow -->
-    <path d="M 200 70 L 340 130" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
-    <path d="M 200 140 L 340 140" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
-    <path d="M 200 210 L 340 150" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
-
-    <!--
-      Output Field: Average Reading
-      - Also matched by IDs array: ids: ['average-reading']
-      - Computes average of all three sensors
-    -->
-    <g id="average-reading">
-      <rect x="350" y="120" width="150" height="40" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" rx="4"/>
-      <text x="360" y="145" font-size="14" fill="#388e3c">Average Reading</text>
+    <!-- Arrow Flow -->
+    <g id="arrow-decoration">
+      <path d="M 370 210 L 410 210" stroke="#d97706" stroke-width="4" marker-end="url(#arrowhead)"/>
+      <circle cx="390" cy="210" r="15" fill="#fbbf24" opacity="0.3"/>
     </g>
 
-    <!--
-      Non-interactive decoration
-      - id="background-decoration" is NOT in the IDs array
-      - Will remain static (not interactive)
-    -->
-    <g id="background-decoration">
-      <circle cx="500" cy="300" r="30" fill="#f5f5f5" stroke="#757575"/>
-      <text x="500" y="305" text-anchor="middle" font-size="10" fill="#757575">Decor</text>
+    <!-- Output Section Container -->
+    <rect x="430" y="80" width="240" height="460" fill="#fff" stroke="#059669" stroke-width="3" rx="12"/>
+    <text x="550" y="110" text-anchor="middle" font-size="18" font-weight="bold" fill="#059669">
+      📊 Bill Breakdown
+    </text>
+
+    <!-- Subtotal Output -->
+    <g id="subtotal-label">
+      <text x="450" y="150" font-size="13" font-weight="600" fill="#78716c">Subtotal:</text>
+    </g>
+    <g id="bill-subtotal">
+      <rect x="450" y="160" width="200" height="42" fill="#d1fae5" stroke="#10b981" stroke-width="2" rx="6"/>
+      <text x="460" y="186" font-size="12" fill="#065f46">$</text>
+    </g>
+
+    <!-- Tax Output -->
+    <g id="tax-label">
+      <text x="450" y="220" font-size="13" font-weight="600" fill="#78716c">Tax (8%):</text>
+    </g>
+    <g id="bill-tax">
+      <rect x="450" y="230" width="200" height="42" fill="#d1fae5" stroke="#10b981" stroke-width="2" rx="6"/>
+      <text x="460" y="256" font-size="12" fill="#065f46">$</text>
+    </g>
+
+    <!-- Tip Output -->
+    <g id="tip-label">
+      <text x="450" y="290" font-size="13" font-weight="600" fill="#78716c">Tip (15%):</text>
+    </g>
+    <g id="bill-tip">
+      <rect x="450" y="300" width="200" height="42" fill="#d1fae5" stroke="#10b981" stroke-width="2" rx="6"/>
+      <text x="460" y="326" font-size="12" fill="#065f46">$</text>
+    </g>
+
+    <!-- Divider Line -->
+    <line x1="450" y1="360" x2="650" y2="360" stroke="#6b7280" stroke-width="2" stroke-dasharray="5,5"/>
+
+    <!-- Total Output (Highlighted) -->
+    <g id="total-label">
+      <text x="450" y="385" font-size="15" font-weight="bold" fill="#059669">💰 TOTAL:</text>
+    </g>
+    <g id="bill-total">
+      <rect x="450" y="395" width="200" height="50" fill="#6ee7b7" stroke="#059669" stroke-width="3" rx="6"/>
+      <text x="460" y="426" font-size="14" font-weight="bold" fill="#065f46">$</text>
+    </g>
+
+    <!-- Per Person Output (Highlighted) -->
+    <g id="per-person-label">
+      <text x="550" y="465" text-anchor="middle" font-size="13" font-weight="600" fill="#78716c">Per Person:</text>
+    </g>
+    <g id="per-person">
+      <rect x="450" y="475" width="200" height="50" fill="#fbbf24" stroke="#d97706" stroke-width="3" rx="6"/>
+      <text x="550" y="505" text-anchor="middle" font-size="16" font-weight="bold" fill="#78350f">
+        $ each
+      </text>
+    </g>
+
+    <!-- Bottom decoration -->
+    <g id="bottom-decoration">
+      <circle cx="100" cy="550" r="8" fill="#fbbf24" opacity="0.4"/>
+      <circle cx="130" cy="555" r="6" fill="#f59e0b" opacity="0.4"/>
+      <circle cx="155" cy="550" r="7" fill="#fbbf24" opacity="0.4"/>
+      <text x="200" y="560" font-size="12" fill="#9ca3af" font-style="italic">
+        Tip helps support your server! 😊
+      </text>
     </g>
 
     <defs>
-      <marker id="arrow" markerWidth="10" markerHeight="10"
-              refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-        <path d="M0,0 L0,6 L9,3 z" fill="#666"/>
+      <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="#d97706"/>
       </marker>
     </defs>
   </svg>
@@ -62,59 +128,67 @@ const idsArraySVG = `
 export const idsArrayPreset: ExamplePreset = {
   id: 'ids-array',
   title: 'IDs Array Matching',
-  description: 'Match specific elements by exact IDs - perfect for 100+ sensors or irregular naming.',
+  description: 'Calculate restaurant bill with tax, tip, and per-person split using exact ID matching.',
   category: 'Advanced',
-  tags: ['ids', 'sensors', 'explicit-matching'],
-  accentColor: '#60a5fa',
-  svgContent: idsArraySVG,
+  tags: ['ids', 'calculator', 'explicit-matching'],
+  accentColor: '#d97706',
+  svgContent: restaurantBillSVG,
   patterns: [
-    { ids: ['temp-sensor-1', 'temp-sensor-2', 'pressure-gauge'], type: 'input' },
-    { ids: ['average-reading'], type: 'output' }
+    { ids: ['food-price', 'drinks-price', 'num-people'], type: 'input' },
+    { ids: ['bill-subtotal', 'bill-tax', 'bill-tip', 'bill-total', 'per-person'], type: 'output' }
   ],
   theme: 'default',
   defaultInputs: {
-    'temp-sensor-1': '72',
-    'temp-sensor-2': '68',
-    'pressure-gauge': '101.3'
+    'food-price': '85.00',
+    'drinks-price': '28.00',
+    'num-people': '4'
   },
   onOutputCompute: (inputs) => {
-    const temp1 = parseFloat(inputs['temp-sensor-1'] || '0');
-    const temp2 = parseFloat(inputs['temp-sensor-2'] || '0');
-    const pressure = parseFloat(inputs['pressure-gauge'] || '0');
+    const foodPrice = parseFloat(inputs['food-price'] || '0');
+    const drinksPrice = parseFloat(inputs['drinks-price'] || '0');
+    const numPeople = parseInt(inputs['num-people'] || '1');
 
-    const average = (temp1 + temp2 + pressure) / 3;
+    const subtotal = foodPrice + drinksPrice;
+    const tax = subtotal * 0.08; // 8% tax
+    const tip = subtotal * 0.15; // 15% tip
+    const total = subtotal + tax + tip;
+    const perPerson = numPeople > 0 ? total / numPeople : 0;
 
     return {
-      'average-reading': average.toFixed(2)
+      'bill-subtotal': subtotal.toFixed(2),
+      'bill-tax': tax.toFixed(2),
+      'bill-tip': tip.toFixed(2),
+      'bill-total': total.toFixed(2),
+      'per-person': perPerson.toFixed(2)
     };
   }
 };
 
 /**
- * IDs Array Matching - Explicit element selection
+ * IDs Array Matching - Restaurant Bill Calculator
  *
  * This example demonstrates:
  * - Matching specific elements by exact IDs (not prefix/regex)
- * - Using ids array: { ids: ['sensor-1', 'sensor-2'], type: 'input' }
+ * - Using ids array: { ids: ['food-price', 'drinks-price', 'num-people'], type: 'input' }
  * - Field names are the full IDs (no extraction)
- * - Non-listed elements remain non-interactive
- * - Perfect for complex diagrams with 100+ specific sensors
+ * - Multiple outputs calculated from inputs
+ * - Real-world calculation example everyone can relate to!
  *
  * Pattern Matching:
- * - Input pattern: { ids: ['temp-sensor-1', 'temp-sensor-2', 'pressure-gauge'], type: 'input' }
- * - Output pattern: { ids: ['average-reading'], type: 'output' }
+ * - Input pattern: { ids: ['food-price', 'drinks-price', 'num-people'], type: 'input' }
+ * - Output pattern: { ids: ['bill-subtotal', 'bill-tax', 'bill-tip', 'bill-total', 'per-person'], type: 'output' }
  *
  * When to use IDs array:
- * - Fixed set of known elements
+ * - Fixed set of known elements (like specific form fields)
+ * - Elements with descriptive names that don't follow a pattern
+ * - You want explicit control over which elements are interactive
  * - Legacy SVGs with inconsistent naming
- * - You don't control the ID naming convention
- * - Maximum explicitness (e.g., 100+ specific sensors)
  *
  * Key features:
- * 1. Explicit control over which elements are interactive
- * 2. Works with any naming convention
- * 3. No accidental matches
- * 4. Easy to add/remove specific elements
+ * 1. Explicit control - only specified IDs become interactive
+ * 2. No pattern needed - works with any naming convention
+ * 3. Labels and decorations remain static (not in IDs array)
+ * 4. Perfect for forms, calculators, and dashboards
  */
 export function IdsArrayExample() {
   const { mappings } = parseSVG(idsArrayPreset.svgContent, {
@@ -122,15 +196,16 @@ export function IdsArrayExample() {
   });
 
   return (
-    <div style={{ padding: '20px', maxWidth: '700px', margin: '0 auto' }}>
-      <h1>IDs Array Matching Example</h1>
+    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+      <h1>🍽️ Restaurant Bill Calculator</h1>
       <p>
-        This example matches only specific elements by their exact IDs.
-        The "background-decoration" element is NOT interactive because it's not in the IDs array.
+        This example uses <strong>IDs array matching</strong> to make specific elements interactive.
+        Try changing the food price, drinks, or number of people!
       </p>
-      <p style={{ marginTop: '10px', color: '#666' }}>
-        <strong>Use case:</strong> Perfect for complex diagrams where you need to specify exactly which
-        100+ sensors or elements should be interactive, regardless of their naming pattern.
+      <p style={{ marginTop: '10px', color: '#666', fontSize: '14px' }}>
+        <strong>💡 Why IDs array?</strong> Notice how labels (🍕 Food, 💰 TOTAL, etc.) and
+        decorations stay static - only the exact IDs in our array become interactive fields.
+        Perfect when you know exactly which elements should be inputs/outputs!
       </p>
 
       <InteractiveSVG
@@ -140,7 +215,15 @@ export function IdsArrayExample() {
         onOutputCompute={idsArrayPreset.onOutputCompute}
         theme={idsArrayPreset.theme}
       />
+
+      <div style={{ marginTop: '20px', padding: '15px', background: '#f3f4f6', borderRadius: '8px' }}>
+        <h3 style={{ marginTop: '0', fontSize: '16px', color: '#374151' }}>📝 How it works:</h3>
+        <ul style={{ fontSize: '14px', color: '#4b5563', lineHeight: '1.6' }}>
+          <li><strong>Inputs:</strong> food-price, drinks-price, num-people</li>
+          <li><strong>Outputs:</strong> bill-subtotal, bill-tax (8%), bill-tip (15%), bill-total, per-person</li>
+          <li><strong>Static elements:</strong> Labels, icons, decorations (not in IDs array)</li>
+        </ul>
+      </div>
     </div>
   );
 }
-

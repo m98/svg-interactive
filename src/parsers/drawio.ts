@@ -82,7 +82,7 @@ export function parseDrawIoSVG(svgContent: string, options: ParseOptions): Parse
         mappings: [],
         errors: [
           'Draw.io SVG missing content attribute. ' +
-            'This may not be a Draw.io SVG file. Try using parseFigmaSVG() or parseSVG() instead.',
+            'This may not be a Draw.io SVG file. Try using parseSVG() instead.',
         ],
         metadata: {
           tool: 'drawio',

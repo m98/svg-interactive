@@ -38,8 +38,10 @@ export interface ParseResult {
   metadata: {
     /**
      * Which tool was detected/used for parsing
+     * - 'drawio': Detected draw.io SVG (has mxfile content attribute)
+     * - 'generic': All other SVGs (Figma, Inkscape, hand-coded, etc.)
      */
-    tool: 'drawio' | 'figma' | 'inkscape' | 'generic';
+    tool: 'drawio' | 'generic';
 
     /**
      * Which mode was actually used for parsing

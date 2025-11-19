@@ -8,12 +8,12 @@ import { DebugPanel } from './DebugPanel';
  *
  * @example
  * ```tsx
- * import { parseDrawIoSVG, InteractiveSVG } from 'svg-interactive';
+ * import { parseSVG, InteractiveSVG } from 'svg-interactive';
  *
- * const mappings = parseDrawIoSVG(svgContent, {
+ * const { mappings } = parseSVG(svgContent, {
  *   patterns: [
- *     { attribute: 'data-id', prefix: 'input:', type: 'input' },
- *     { attribute: 'data-id', prefix: 'output:', type: 'output' }
+ *     { attribute: 'id', prefix: 'input:', type: 'input' },
+ *     { attribute: 'id', prefix: 'output:', type: 'output' }
  *   ]
  * });
  *
@@ -202,8 +202,7 @@ export const InteractiveSVG: React.FC<InteractiveSVGProps> = ({
         <ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
           <li>
             No field mappings provided. Make sure to parse your SVG using one of the parser
-            functions (parseDrawIoSVG, parseFigmaSVG, parseInkscapeSVG, or parseSVG) before passing
-            to this component.
+            functions (parseSVG, parseDrawIoSVG) before passing to this component.
           </li>
         </ul>
       </div>
@@ -213,23 +212,20 @@ export const InteractiveSVG: React.FC<InteractiveSVGProps> = ({
   return (
     <div className={className} style={style}>
       <style>{`
-        .svg-container * {
-          color: initial !important;
-        }
         .svg-container svg text {
-          fill: var(--svg-output-text, #000000) !important;
+          fill: var(--svg-output-text, #111827) !important;
         }
 
         /* Theme: default - uses CSS variables */
         .svg-field-default.svg-field-input input {
           border-color: var(--svg-input-border, #3B82F6);
           background: var(--svg-input-bg, #FFFFFF);
-          color: var(--svg-input-text, #000000);
+          color: var(--svg-input-text, #111827);
         }
         .svg-field-default.svg-field-output div {
           border-color: var(--svg-output-border, #10B981);
           background: var(--svg-output-bg, #F0FDF4);
-          color: var(--svg-output-text, #000000);
+          color: var(--svg-output-text, #065f46);
         }
 
         /* Theme: minimal - can be customized via CSS variables */
@@ -238,7 +234,7 @@ export const InteractiveSVG: React.FC<InteractiveSVGProps> = ({
           border: 1px solid #D1D5DB;
           border-radius: 2px;
           background: var(--svg-input-bg, white);
-          color: var(--svg-input-text, #000000);
+          color: var(--svg-input-text, #111827);
         }
 
         /* Theme: bordered - uses CSS variables */
@@ -247,7 +243,7 @@ export const InteractiveSVG: React.FC<InteractiveSVGProps> = ({
           border-radius: 8px;
           box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
           background: var(--svg-input-bg, white);
-          color: var(--svg-input-text, #000000);
+          color: var(--svg-input-text, #111827);
         }
         .svg-field-bordered input:focus {
           border-color: var(--svg-input-focus, #2563EB);
@@ -258,7 +254,7 @@ export const InteractiveSVG: React.FC<InteractiveSVGProps> = ({
           border-radius: 8px;
           box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
           background: var(--svg-output-bg, #F0FDF4);
-          color: var(--svg-output-text, #000000);
+          color: var(--svg-output-text, #065f46);
         }
       `}</style>
 

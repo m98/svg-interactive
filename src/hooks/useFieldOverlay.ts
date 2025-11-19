@@ -148,6 +148,7 @@ export function useFieldOverlay({
       foreignObject.setAttribute('width', field.bbox.width.toString());
       foreignObject.setAttribute('height', field.bbox.height.toString());
       foreignObject.setAttribute('data-field-id', field.dataId);
+      foreignObject.style.pointerEvents = 'auto'; // Ensure events are captured
 
       const themeClass = theme && theme !== 'none' ? `svg-field-${theme}` : '';
       const baseClass = `svg-field svg-field-${field.type}`;
@@ -241,7 +242,7 @@ export function useFieldOverlay({
                 font-size: var(--svg-field-font-size, 12px);
                 box-sizing: border-box;
                 background: var(--svg-input-bg, white);
-                color: var(--svg-input-text, #000000);
+                color: var(--svg-input-text, #111827);
                 ${style}
               "
               value="${inputValues[field.name] ?? ''}"
@@ -338,7 +339,7 @@ export function useFieldOverlay({
                 font-size: var(--svg-field-font-size, 12px);
                 box-sizing: border-box;
                 background: var(--svg-output-bg, #F0FDF4);
-                color: var(--svg-output-text, #000000);
+                color: var(--svg-output-text, #065f46);
                 display: flex;
                 align-items: center;
                 overflow: hidden;
@@ -379,10 +380,9 @@ export function useFieldOverlay({
     // handle efficient value updates without DOM reconstruction.
     // Callbacks (onInputChange, renderInput, renderOutput) are stored in refs and
     // excluded from deps to prevent recreation when callback references change.
-    // inputStyle and outputStyle are also excluded - style changes don't require
-    // recreating foreignObjects since styles are inline in the innerHTML.
+    // inputStyle and outputStyle ARE included so that style changes trigger re-render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [svgContainerRef, mappings, theme, inputClassName, outputClassName]);
+  }, [svgContainerRef, mappings, theme, inputClassName, outputClassName, inputStyle, outputStyle]);
 
   // Re-render custom React roots when values change
   useEffect(() => {

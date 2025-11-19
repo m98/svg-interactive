@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 2025-11-20
+
+### Removed
+- **BREAKING: `parseFigmaSVG` and `parseInkscapeSVG`** - These functions have been removed to simplify the API.
+
+### Changed
+- **BREAKING: API Consolidation** - The `parseSVG` function now handles all SVG types, including Figma and Inkscape. For Draw.io SVGs, `parseDrawIoSVG` remains available. This change simplifies the API and reduces redundancy.
+
+### Fixed
+- **Dark Mode Text Colors** - Fixed poor text contrast in dark mode
+  - Updated input text color: `#000000` → `#111827` (gray-900)
+  - Updated output text color: `#000000` → `#065f46` (emerald-800)
+  - Updated SVG text fill color: `#000000` → `#111827`
+  - Changes applied across themes.css, useFieldOverlay.ts, and InteractiveSVG.tsx
+- **Style Reactivity Bug** - Fixed `inputStyle` and `outputStyle` props not updating fields at runtime
+  - Added `inputStyle` and `outputStyle` to dependency array in `useFieldOverlay.ts:384`
+  - Fields now properly re-render when style props change
+
 ## [0.1.3] - 2025-11-16
 
 ### Added

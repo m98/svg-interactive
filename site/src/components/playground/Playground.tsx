@@ -29,6 +29,14 @@ export function Playground({ initialExampleId }: PlaygroundProps) {
   const [uploadedName, setUploadedName] = useState<string | null>(null);
   const [inputPrefix, setInputPrefix] = useState(() => extractPrefix(example.patterns, 'input'));
   const [outputPrefix, setOutputPrefix] = useState(() => extractPrefix(example.patterns, 'output'));
+  const [inputIds, setInputIds] = useState(() => extractIds(example.patterns, 'input'));
+  const [outputIds, setOutputIds] = useState(() => extractIds(example.patterns, 'output'));
+  const [inputMatchType, setInputMatchType] = useState<'prefix' | 'ids'>(() =>
+    detectMatchType(example.patterns, 'input')
+  );
+  const [outputMatchType, setOutputMatchType] = useState<'prefix' | 'ids'>(() =>
+    detectMatchType(example.patterns, 'output')
+  );
   const [theme, setTheme] = useState<ThemeType>(example.theme ?? 'default');
   const [debug, setDebug] = useState(example.debug ?? false);
   const [inputValues, setInputValues] = useState<Record<string, string>>({});
@@ -39,6 +47,10 @@ export function Playground({ initialExampleId }: PlaygroundProps) {
     setUploadedName(null);
     setInputPrefix(extractPrefix(example.patterns, 'input'));
     setOutputPrefix(extractPrefix(example.patterns, 'output'));
+    setInputIds(extractIds(example.patterns, 'input'));
+    setOutputIds(extractIds(example.patterns, 'output'));
+    setInputMatchType(detectMatchType(example.patterns, 'input'));
+    setOutputMatchType(detectMatchType(example.patterns, 'output'));
     setTheme(example.theme ?? 'default');
     setDebug(example.debug ?? false);
     setInputValues({});
@@ -49,15 +61,33 @@ export function Playground({ initialExampleId }: PlaygroundProps) {
 
   const derivedPatterns = useMemo<FieldPattern[]>(() => {
     return example.patterns.map((pattern) => {
-      if (pattern.type === 'input' && pattern.prefix && inputPrefix.trim()) {
-        return { ...pattern, prefix: inputPrefix.trim() };
+      // Handle input patterns
+      if (pattern.type === 'input') {
+        if (inputMatchType === 'ids') {
+          const idsArray = inputIds
+            .split(',')
+            .map((id) => id.trim())
+            .filter((id) => id.length > 0);
+          return { ...pattern, ids: idsArray, prefix: undefined, regex: undefined };
+        } else if (pattern.prefix && inputPrefix.trim()) {
+          return { ...pattern, prefix: inputPrefix.trim(), ids: undefined };
+        }
       }
-      if (pattern.type === 'output' && pattern.prefix && outputPrefix.trim()) {
-        return { ...pattern, prefix: outputPrefix.trim() };
+      // Handle output patterns
+      if (pattern.type === 'output') {
+        if (outputMatchType === 'ids') {
+          const idsArray = outputIds
+            .split(',')
+            .map((id) => id.trim())
+            .filter((id) => id.length > 0);
+          return { ...pattern, ids: idsArray, prefix: undefined, regex: undefined };
+        } else if (pattern.prefix && outputPrefix.trim()) {
+          return { ...pattern, prefix: outputPrefix.trim(), ids: undefined };
+        }
       }
       return pattern;
     });
-  }, [example.patterns, inputPrefix, outputPrefix]);
+  }, [example.patterns, inputPrefix, outputPrefix, inputIds, outputIds, inputMatchType, outputMatchType]);
 
   const parserResult = useMemo(
     () => parseSVG(svgContent, { patterns: derivedPatterns }),
@@ -149,69 +179,126 @@ export function Playground({ initialExampleId }: PlaygroundProps) {
             <CardTitle className="text-lg">Controls</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-              {/* Example Select */}
-              <div>
-                <label className="mb-2 block text-sm font-medium">Example</label>
-                <Select
-                  value={selectedExampleId}
-                  onChange={(e) => setSelectedExampleId(e.target.value)}
-                >
-                  {examples.map((ex) => (
-                    <option key={ex.id} value={ex.id}>
-                      {ex.title}
-                    </option>
-                  ))}
-                </Select>
+            <div className="space-y-4">
+              {/* Row 1: Example, Theme, Debug */}
+              <div className="grid gap-4 md:grid-cols-3">
+                {/* Example Select */}
+                <div>
+                  <label className="mb-2 block text-sm font-medium">Example</label>
+                  <Select
+                    value={selectedExampleId}
+                    onChange={(e) => setSelectedExampleId(e.target.value)}
+                  >
+                    {examples.map((ex) => (
+                      <option key={ex.id} value={ex.id}>
+                        {ex.title}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+
+                {/* Theme */}
+                <div>
+                  <label className="mb-2 block text-sm font-medium">Theme</label>
+                  <Select value={theme} onChange={(e) => setTheme(e.target.value as ThemeType)}>
+                    {themeOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+
+                {/* Debug Toggle */}
+                <div>
+                  <label className="mb-2 block text-sm font-medium">Debug Overlay</label>
+                  <Button
+                    type="button"
+                    variant={debug ? 'default' : 'outline'}
+                    className="w-full"
+                    onClick={() => setDebug((prev) => !prev)}
+                  >
+                    {debug ? 'Enabled' : 'Disabled'}
+                  </Button>
+                </div>
               </div>
 
-              {/* Input Prefix */}
-              <div>
-                <label className="mb-2 block text-sm font-medium">Input Prefix</label>
-                <input
-                  type="text"
-                  value={inputPrefix}
-                  onChange={(e) => setInputPrefix(e.target.value)}
-                  className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
-                  spellCheck={false}
-                />
+              {/* Row 2: Input Matching */}
+              <div className="grid gap-4 md:grid-cols-[auto_1fr]">
+                <div>
+                  <label className="mb-2 block text-sm font-medium">Input Match Type</label>
+                  <Select
+                    value={inputMatchType}
+                    onChange={(e) => setInputMatchType(e.target.value as 'prefix' | 'ids')}
+                  >
+                    <option value="prefix">Prefix</option>
+                    <option value="ids">IDs Array</option>
+                  </Select>
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium">
+                    {inputMatchType === 'prefix' ? 'Input Prefix' : 'Input IDs (comma-separated)'}
+                  </label>
+                  {inputMatchType === 'prefix' ? (
+                    <input
+                      type="text"
+                      value={inputPrefix}
+                      onChange={(e) => setInputPrefix(e.target.value)}
+                      placeholder="input-"
+                      className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                      spellCheck={false}
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      value={inputIds}
+                      onChange={(e) => setInputIds(e.target.value)}
+                      placeholder="temp, pressure, volume"
+                      className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                      spellCheck={false}
+                    />
+                  )}
+                </div>
               </div>
 
-              {/* Output Prefix */}
-              <div>
-                <label className="mb-2 block text-sm font-medium">Output Prefix</label>
-                <input
-                  type="text"
-                  value={outputPrefix}
-                  onChange={(e) => setOutputPrefix(e.target.value)}
-                  className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
-                  spellCheck={false}
-                />
-              </div>
-
-              {/* Theme */}
-              <div>
-                <label className="mb-2 block text-sm font-medium">Theme</label>
-                <Select value={theme} onChange={(e) => setTheme(e.target.value as ThemeType)}>
-                  {themeOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-
-              {/* Debug Toggle */}
-              <div>
-                <label className="mb-2 block text-sm font-medium">Debug Overlay</label>
-                <Button
-                  type="button"
-                  variant={debug ? 'default' : 'outline'}
-                  className="w-full"
-                  onClick={() => setDebug((prev) => !prev)}
-                >
-                  {debug ? 'Enabled' : 'Disabled'}
-                </Button>
+              {/* Row 3: Output Matching */}
+              <div className="grid gap-4 md:grid-cols-[auto_1fr]">
+                <div>
+                  <label className="mb-2 block text-sm font-medium">Output Match Type</label>
+                  <Select
+                    value={outputMatchType}
+                    onChange={(e) => setOutputMatchType(e.target.value as 'prefix' | 'ids')}
+                  >
+                    <option value="prefix">Prefix</option>
+                    <option value="ids">IDs Array</option>
+                  </Select>
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium">
+                    {outputMatchType === 'prefix'
+                      ? 'Output Prefix'
+                      : 'Output IDs (comma-separated)'}
+                  </label>
+                  {outputMatchType === 'prefix' ? (
+                    <input
+                      type="text"
+                      value={outputPrefix}
+                      onChange={(e) => setOutputPrefix(e.target.value)}
+                      placeholder="output-"
+                      className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                      spellCheck={false}
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      value={outputIds}
+                      onChange={(e) => setOutputIds(e.target.value)}
+                      placeholder="result, average, total"
+                      className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-2"
+                      spellCheck={false}
+                    />
+                  )}
+                </div>
               </div>
             </div>
 
@@ -379,4 +466,23 @@ function extractPrefix(patterns: FieldPattern[], type: FieldPattern['type']) {
     return pattern.prefix;
   }
   return type === 'input' ? 'input-' : 'output-';
+}
+
+function extractIds(patterns: FieldPattern[], type: FieldPattern['type']) {
+  const pattern = patterns.find((entry) => entry.type === type && Array.isArray(entry.ids));
+  if (pattern && pattern.ids) {
+    return pattern.ids.join(', ');
+  }
+  return '';
+}
+
+function detectMatchType(
+  patterns: FieldPattern[],
+  type: FieldPattern['type']
+): 'prefix' | 'ids' {
+  const pattern = patterns.find((entry) => entry.type === type);
+  if (pattern && Array.isArray(pattern.ids) && pattern.ids.length > 0) {
+    return 'ids';
+  }
+  return 'prefix';
 }

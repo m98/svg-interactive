@@ -28,6 +28,4 @@ export type { ParseOptions, ParseResult, SVGParser } from './types';
 
 // Export parser functions (will be implemented)
 export { parseDrawIoSVG } from './drawio';
-export { parseFigmaSVG } from './figma';
-export { parseInkscapeSVG } from './inkscape';
 export { parseSVG } from './generic';

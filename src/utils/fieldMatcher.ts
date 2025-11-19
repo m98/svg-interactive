@@ -1,6 +1,118 @@
 import { FieldPattern } from '../types';
 
 /**
+ * Validates that a value is a valid FieldPattern at runtime
+ * Useful for validating patterns loaded from JSON, APIs, or plugin systems
+ *
+ * @param value - Unknown value to validate
+ * @returns True if value is a valid FieldPattern
+ *
+ * @example
+ * ```typescript
+ * const pattern = JSON.parse(configString);
+ * if (isValidFieldPattern(pattern)) {
+ *   // TypeScript knows pattern is FieldPattern
+ *   patterns.push(pattern);
+ * }
+ * ```
+ */
+export function isValidFieldPattern(value: unknown): value is FieldPattern {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const obj = value as Record<string, unknown>;
+
+  // Must have valid type
+  if (obj['type'] !== 'input' && obj['type'] !== 'output') {
+    return false;
+  }
+
+  // Count matching strategies
+  const hasPrefix = typeof obj['prefix'] === 'string' && obj['prefix'].length > 0;
+  const hasRegex = obj['regex'] instanceof RegExp;
+  const hasIds =
+    Array.isArray(obj['ids']) &&
+    obj['ids'].length > 0 &&
+    obj['ids'].every((id) => typeof id === 'string');
+
+  const strategiesCount = [hasPrefix, hasRegex, hasIds].filter(Boolean).length;
+
+  // Must have exactly one strategy
+  if (strategiesCount !== 1) {
+    return false;
+  }
+
+  // Validate attribute if provided
+  if (obj['attribute'] !== undefined && typeof obj['attribute'] !== 'string') {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Validates an array of field patterns
+ * @param patterns - Patterns to validate
+ * @returns Array of validation error messages (empty if valid)
+ *
+ * @example
+ * ```typescript
+ * const errors = validateFieldPatterns(patternsFromAPI);
+ * if (errors.length > 0) {
+ *   console.error('Invalid patterns:', errors);
+ * }
+ * ```
+ */
+export function validateFieldPatterns(patterns: unknown): string[] {
+  const errors: string[] = [];
+
+  if (!Array.isArray(patterns)) {
+    errors.push('Patterns must be an array');
+    return errors;
+  }
+
+  if (patterns.length === 0) {
+    errors.push('At least one field pattern must be defined');
+    return errors;
+  }
+
+  patterns.forEach((pattern, index) => {
+    if (!isValidFieldPattern(pattern)) {
+      const obj = pattern as Record<string, unknown>;
+
+      // Provide specific error messages
+      if (!pattern || typeof pattern !== 'object') {
+        errors.push(`Pattern ${index}: must be an object`);
+      } else if (obj['type'] !== 'input' && obj['type'] !== 'output') {
+        errors.push(`Pattern ${index}: type must be 'input' or 'output'`);
+      } else {
+        const hasPrefix = typeof obj['prefix'] === 'string' && obj['prefix'].length > 0;
+        const hasRegex = obj['regex'] instanceof RegExp;
+        const hasIds = Array.isArray(obj['ids']) && obj['ids'].length > 0;
+        const strategiesCount = [hasPrefix, hasRegex, hasIds].filter(Boolean).length;
+
+        if (strategiesCount === 0) {
+          errors.push(`Pattern ${index}: must have either prefix, regex, or ids`);
+        } else if (strategiesCount > 1) {
+          errors.push(
+            `Pattern ${index}: can only use one matching strategy (prefix, regex, or ids)`
+          );
+        } else if (Array.isArray(obj['ids'])) {
+          if (obj['ids'].length === 0) {
+            errors.push(`Pattern ${index}: ids array cannot be empty`);
+          } else if (!obj['ids'].every((id) => typeof id === 'string')) {
+            errors.push(`Pattern ${index}: all ids must be strings`);
+          }
+        }
+      }
+    }
+  });
+
+  return errors;
+}
+
+/**
  * Matches a data-id string against field patterns
  * @param dataId - The data-id attribute value
  * @param patterns - Array of field patterns to match against
@@ -38,49 +150,4 @@ export function matchFieldPattern(
   }
 
   return null;
-}
-
-/**
- * Validates field configuration
- * @param patterns - Field patterns to validate
- * @returns Array of validation errors (empty if valid)
- */
-export function validateFieldConfig(patterns: FieldPattern[]): string[] {
-  const errors: string[] = [];
-
-  if (!patterns || patterns.length === 0) {
-    errors.push('At least one field pattern must be defined');
-  }
-
-  patterns.forEach((pattern, index) => {
-    // Count how many matching strategies are defined
-    const strategies = [
-      pattern.ids !== undefined,
-      pattern.prefix !== undefined,
-      pattern.regex !== undefined,
-    ].filter(Boolean).length;
-
-    if (strategies === 0) {
-      errors.push(`Pattern ${index}: must have either ids, prefix, or regex`);
-    } else if (strategies > 1) {
-      errors.push(`Pattern ${index}: cannot use multiple matching strategies (ids, prefix, regex)`);
-    }
-
-    // Validate ids array if provided
-    if (pattern.ids !== undefined) {
-      if (!Array.isArray(pattern.ids)) {
-        errors.push(`Pattern ${index}: ids must be an array`);
-      } else if (pattern.ids.length === 0) {
-        errors.push(`Pattern ${index}: ids array cannot be empty`);
-      } else if (!pattern.ids.every((id) => typeof id === 'string')) {
-        errors.push(`Pattern ${index}: all ids must be strings`);
-      }
-    }
-
-    if (!pattern.type || !['input', 'output'].includes(pattern.type)) {
-      errors.push(`Pattern ${index}: type must be 'input' or 'output'`);
-    }
-  });
-
-  return errors;
 }

@@ -81,35 +81,7 @@ const result = parseDrawIoSVG(svgContent, {
 });
 ```
 
-### `parseFigmaSVG(svgContent, options)`
 
-**Figma specific parser** - Optimized for Figma SVG exports.
-
-```tsx
-import { parseFigmaSVG } from 'svg-interactive';
-
-const result = parseFigmaSVG(svgContent, {
-  patterns: [
-    { prefix: 'input:', type: 'input' },  // Matches Figma layer names
-    { prefix: 'output:', type: 'output' }
-  ]
-});
-```
-
-### `parseInkscapeSVG(svgContent, options)`
-
-**Inkscape specific parser** - Optimized for Inkscape SVG exports.
-
-```tsx
-import { parseInkscapeSVG } from 'svg-interactive';
-
-const result = parseInkscapeSVG(svgContent, {
-  patterns: [
-    { prefix: 'input-', type: 'input' },
-    { prefix: 'output-', type: 'output' }
-  ]
-});
-```
 
 ---
 
@@ -154,24 +126,21 @@ patterns: [
 
 ## FieldPattern
 
-Defines how to match fields in SVG.
+Defines how to match fields in SVG. This is a **discriminated union** that enforces exactly one matching strategy per pattern at compile-time.
 
 ```typescript
-interface FieldPattern {
-  attribute?: string;        // Which attribute to match (default: 'id')
-  prefix?: string;           // String prefix to match (e.g., "input-")
-  regex?: RegExp;            // Regular expression pattern to match
-  ids?: string[];            // Exact list of IDs to match
-  type: 'input' | 'output';  // Field type
-}
+type FieldPattern =
+  | { prefix: string; type: 'input' | 'output'; attribute?: string }
+  | { regex: RegExp; type: 'input' | 'output'; attribute?: string }
+  | { ids: string[]; type: 'input' | 'output'; attribute?: string };
 ```
 
-**Matching Strategies** (choose ONE per pattern):
+**Matching Strategies** (exactly ONE required per pattern):
 - `prefix` - Match by string prefix (e.g., "input-")
 - `regex` - Match by regular expression pattern
 - `ids` - Match exact list of element IDs
 
-**Important**: Only ONE matching strategy can be used per pattern. You cannot combine `ids`, `prefix`, and `regex` in the same pattern.
+**Type Safety**: The discriminated union ensures you cannot accidentally combine multiple strategies. TypeScript will catch this at compile-time.
 
 ### Examples
 
@@ -238,7 +207,7 @@ interface ParseResult {
   mappings: FieldMapping[];
   errors: string[];
   metadata: {
-    tool: 'drawio' | 'figma' | 'inkscape' | 'generic';
+    tool: 'drawio' | 'generic';  // drawio for Draw.io SVGs, generic for all others
     detectedMode: 'data-id' | 'direct-id';
     attributesUsed: string[];
   };
@@ -258,6 +227,65 @@ console.log(`Found ${mappings.length} fields using ${metadata.tool} parser`);
 console.log(`Mode: ${metadata.detectedMode}`);
 console.log(`Attributes: ${metadata.attributesUsed.join(', ')}`);
 ```
+
+---
+
+## Validation Functions
+
+Runtime validation utilities for dynamic pattern configurations.
+
+### `isValidFieldPattern(value)`
+
+Type guard that validates if a value is a valid `FieldPattern` at runtime.
+
+**Use Cases:**
+- Validating patterns from JSON config files
+- Checking patterns from API responses
+- Plugin systems with dynamic pattern loading
+
+```typescript
+import { isValidFieldPattern } from 'svg-interactive';
+
+const pattern = JSON.parse(configString);
+if (isValidFieldPattern(pattern)) {
+  // TypeScript now knows pattern is FieldPattern
+  patterns.push(pattern);
+} else {
+  console.error('Invalid pattern configuration');
+}
+```
+
+**Returns:** `boolean` - `true` if valid, `false` otherwise
+
+### `validateFieldPatterns(patterns)`
+
+Validates an array of field patterns and returns detailed error messages.
+
+```typescript
+import { validateFieldPatterns } from 'svg-interactive';
+
+const patterns = loadPatternsFromAPI();
+const errors = validateFieldPatterns(patterns);
+
+if (errors.length > 0) {
+  console.error('Pattern validation errors:', errors);
+  // errors = ['Pattern 0: must have either prefix, regex, or ids', ...]
+} else {
+  // Safe to use patterns
+}
+```
+
+**Parameters:**
+- `patterns` - `unknown` - Value to validate as pattern array
+
+**Returns:** `string[]` - Array of error messages (empty if valid)
+
+**Validation Rules:**
+- Patterns must be an array
+- Each pattern must have exactly one strategy: `prefix`, `regex`, or `ids`
+- `type` must be `'input'` or `'output'`
+- `ids` array cannot be empty and must contain only strings
+- `attribute` (if provided) must be a string
 
 ---
 
@@ -640,13 +668,13 @@ Customize default styling with CSS variables.
   /* Input field styling */
   --svg-input-border: #3B82F6;
   --svg-input-bg: #FFFFFF;
-  --svg-input-text: #000000;
+  --svg-input-text: #111827;
   --svg-input-focus: #2563EB;
 
   /* Output field styling */
   --svg-output-border: #10B981;
   --svg-output-bg: #F0FDF4;
-  --svg-output-text: #000000;
+  --svg-output-text: #065f46;
 }
 ```
 

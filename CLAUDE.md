@@ -63,13 +63,13 @@ The library uses a flexible attribute-based matching system that can match on **
 - `ids` - Match exact list of IDs
 - **Important**: Only ONE strategy (`prefix`, `regex`, or `ids`) can be used per pattern (mutually exclusive)
 
-**Auto-Detection**: `parseSVG()` automatically detects draw.io SVGs (checks for `content` attribute) and delegates to appropriate parser.
+**Auto-Detection**: `parseSVG()` automatically detects draw.io SVGs (checks for `content` attribute) and delegates to `parseDrawIoSVG`.
 
 ### Three-Layer Architecture
 
 **Utils Layer** (`src/utils/`) - Pure functions, no React:
 - `svgParser.ts` - Parses SVG, extracts field mappings, gets bounding boxes
-- `fieldMatcher.ts` - Pattern matching (prefix/regex/ids), validation
+- `fieldMatcher.ts` - Pattern matching (prefix/regex/ids), runtime validation for dynamic configs
 - `decodeHTML.ts` - HTML entity decoding for draw.io content
 
 **Hooks Layer** (`src/hooks/`) - React integration:
@@ -85,7 +85,7 @@ The library uses a flexible attribute-based matching system that can match on **
 **Entry**: `src/index.ts` exports all public APIs
 
 **Main Component**: `InteractiveSVG` at `src/components/InteractiveSVG.tsx:11`
-- Accepts pre-parsed `mappings` (from parseSVG/parseDrawIoSVG/etc.) and `svgContent` props
+- Accepts pre-parsed `mappings` (from `parseSVG` or `parseDrawIoSVG`) and `svgContent` props
 - Orchestrates: useFieldOverlay → render SVG + foreignObject overlays + fields
 - Manages state: inputValues, outputValues (internal or controlled)
 - Three output patterns: computed (onOutputCompute), controlled (outputValues prop), individual (onOutputUpdate)
@@ -248,7 +248,7 @@ patterns: [
 ## Documentation
 
 - `README.md` - API reference, usage examples
-- `docs/draw-io.md`, `docs/figma.md`, `docs/inkscape.md` - Tool-specific SVG preparation
+- `docs/draw-io.md`, `docs/figma.md`, `docs/inkscape.md` - Tool-specific SVG preparation guides
 - `examples/` - Usage examples
 - Integration tests - Real-world usage patterns
 

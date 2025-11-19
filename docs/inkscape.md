@@ -49,16 +49,24 @@ Inkscape gives you complete control over element IDs through Object Properties o
 ### 5. Use in Your Application
 
 ```tsx
-import { InteractiveSVG } from 'svg-interactive';
+import { InteractiveSVG, parseSVG } from 'svg-interactive';
 
+// Step 1: Parse your SVG to extract field mappings
+const svgContent = await fetch('/diagram.svg').then(r => r.text());
+const { mappings } = parseSVG(svgContent, {
+  patterns: [
+    { prefix: 'input-', type: 'input' },
+    { prefix: 'output-', type: 'output' }
+  ]
+});
+
+// Step 2: Render the interactive SVG
 <InteractiveSVG
-  svgUrl="/diagram.svg"
-  config={{
-    patterns: [
-      { prefix: 'input-', type: 'input' },
-      { prefix: 'output-', type: 'output' }
-    ]
-  }}
+  mappings={mappings}
+  svgContent={svgContent}
+  onOutputCompute={(inputs) => ({
+    // Your computation logic here
+  })}
 />
 ```
 

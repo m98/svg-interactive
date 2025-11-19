@@ -14,8 +14,8 @@ export function ExampleDetail({ example, onClose }: ExampleDetailProps) {
   const ExampleComponent = example.Component;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-white/80 backdrop-blur-sm">
-      <div className="min-h-screen p-4 md:p-8">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-white/80 backdrop-blur-sm" onClick={onClose}>
+      <div className="min-h-screen p-4 md:p-8" onClick={(e) => e.stopPropagation()}>
         <div className="mx-auto max-w-6xl rounded-lg border border-gray-200 bg-white shadow-lg">
           {/* Header */}
           <div className="flex items-start justify-between border-b border-gray-200 p-6">

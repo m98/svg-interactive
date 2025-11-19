@@ -31,24 +31,26 @@ export function ExamplesPreview() {
           {previewExamples.map((example) => {
             const ExampleComponent = example.Component;
             return (
-              <Card key={example.id} className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <CardTitle className="text-lg">{example.title}</CardTitle>
-                  <CardDescription>{example.description}</CardDescription>
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {example.tags.slice(0, 2).map((tag) => (
-                      <Badge key={tag} variant="secondary">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-center rounded-md border border-gray-200 bg-gray-100 p-6">
-                    <ExampleComponent />
-                  </div>
-                </CardContent>
-              </Card>
+              <Link key={example.id} to={`/playground?example=${example.id}`}>
+                <Card className="hover:shadow-md transition-shadow h-full cursor-pointer">
+                  <CardHeader>
+                    <CardTitle className="text-lg">{example.title}</CardTitle>
+                    <CardDescription>{example.description}</CardDescription>
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {example.tags.slice(0, 2).map((tag) => (
+                        <Badge key={tag} variant="secondary">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-center rounded-md border border-gray-200 bg-gray-100 p-6 pointer-events-none">
+                      <ExampleComponent />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             );
           })}
         </div>

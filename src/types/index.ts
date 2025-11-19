@@ -1,6 +1,6 @@
 import { CSSProperties, ReactNode } from 'react';
 
-export interface FieldPattern {
+type BaseFieldPattern = {
   /**
    * Which attribute to match against (e.g., 'id', 'data-id', 'class', 'data-field-name')
    * - Defaults to 'id' if not specified
@@ -8,20 +8,32 @@ export interface FieldPattern {
    * - Can use ANY valid HTML/SVG attribute name
    */
   attribute?: string;
+  /** Field type */
+  type: 'input' | 'output';
+};
+
+type PrefixFieldPattern = BaseFieldPattern & {
   /**
    * String prefix to match (e.g., "input-field-")
-   * Mutually exclusive with regex and ids
    */
-  prefix?: string;
+  prefix: string;
+  regex?: never;
+  ids?: never;
+};
+
+type RegexFieldPattern = BaseFieldPattern & {
   /**
    * Regular expression to match
-   * Mutually exclusive with prefix and ids
    */
-  regex?: RegExp;
+  regex: RegExp;
+  prefix?: never;
+  ids?: never;
+};
+
+type IdsFieldPattern = BaseFieldPattern & {
   /**
    * Exact list of IDs to match
    * Use when you have a fixed set of known element IDs
-   * Mutually exclusive with prefix and regex
    *
    * @example
    * ```tsx
@@ -29,10 +41,12 @@ export interface FieldPattern {
    * { attribute: 'data-id', ids: ['sensor-1', 'sensor-2'], type: 'input' }
    * ```
    */
-  ids?: string[];
-  /** Field type */
-  type: 'input' | 'output';
-}
+  ids: string[];
+  prefix?: never;
+  regex?: never;
+};
+
+export type FieldPattern = PrefixFieldPattern | RegexFieldPattern | IdsFieldPattern;
 
 export interface FieldConfig {
   patterns: FieldPattern[];
@@ -99,14 +113,14 @@ export type ThemeType = 'default' | 'minimal' | 'bordered' | 'none';
 export interface InteractiveSVGProps {
   /**
    * Pre-parsed field mappings from a parser function
-   * Use parseDrawIoSVG, parseFigmaSVG, parseInkscapeSVG, or parseSVG
+   * Use parseSVG or parseDrawIoSVG
    *
    * @example
    * ```tsx
-   * import { parseDrawIoSVG, InteractiveSVG } from 'svg-interactive';
+   * import { parseSVG, InteractiveSVG } from 'svg-interactive';
    *
-   * const mappings = parseDrawIoSVG(svgContent, {
-   *   patterns: [{ attribute: 'data-id', prefix: 'input:', type: 'input' }]
+   * const { mappings } = parseSVG(svgContent, {
+   *   patterns: [{ attribute: 'id', prefix: 'input:', type: 'input' }]
    * });
    *
    * <InteractiveSVG mappings={mappings} svgContent={svgContent} />
@@ -179,10 +193,4 @@ export interface InteractiveSVGProps {
 
   /** Container style */
   style?: CSSProperties;
-}
-
-export interface SVGParserResult {
-  mappings: FieldMapping[];
-  errors: string[];
-  detectedMode?: 'data-id' | 'direct-id';
 }

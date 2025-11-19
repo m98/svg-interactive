@@ -4,12 +4,12 @@
   /* Color variables */
   --svg-input-border: #3B82F6;
   --svg-input-bg: #FFFFFF;
-  --svg-input-text: #000000;
+  --svg-input-text: #111827;
   --svg-input-focus: #2563EB;
 
   --svg-output-border: #10B981;
   --svg-output-bg: #F0FDF4;
-  --svg-output-text: #000000;
+  --svg-output-text: #065f46;
 
   /* Size variables */
   --svg-field-border-width: 2px;
@@ -63,7 +63,7 @@
   padding: var(--svg-field-padding);
   font-size: var(--svg-field-font-size);
   background: white;
-  color: #000000;
+  color: #111827;
 }
 
 .svg-field-minimal input:focus {
@@ -78,7 +78,7 @@
   padding: var(--svg-field-padding);
   font-size: var(--svg-field-font-size);
   background: white;
-  color: #000000;
+  color: #111827;
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
 }
 
@@ -94,7 +94,7 @@
   padding: var(--svg-field-padding);
   font-size: var(--svg-field-font-size);
   background: var(--svg-output-bg);
-  color: #000000;
+  color: #065f46;
   box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 }
 
@@ -104,10 +104,6 @@
   display: inline-block;
 }
 
-.svg-container * {
-  color: initial !important;
-}
-
 .svg-container svg text {
-  fill: #000000 !important;
+  fill: #111827 !important;
 }
