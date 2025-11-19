@@ -6,10 +6,10 @@ on:
     tags:
       - 'v*'
 
-# Required for OIDC trusted publishing
+# Required for OIDC trusted publishing and GitHub Releases
 permissions:
   id-token: write
-  contents: read
+  contents: write
 
 jobs:
   publish:
