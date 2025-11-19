@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.4] - 2025-11-20
+## [0.2.0] - 2025-11-20
 
 ### Removed
 - **BREAKING: `parseFigmaSVG` and `parseInkscapeSVG`** - These functions have been removed to simplify the API.
