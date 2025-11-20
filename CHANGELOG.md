@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-11-20
+
+### Changed
+- **BREAKING: Component renamed from `InteractiveSVG` to `SvgInteractive`** - Main component name now aligns with library name `svg-interactive`
+
 ## [0.2.0] - 2025-11-20
 
 ### Removed
@@ -20,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Updated input text color: `#000000` → `#111827` (gray-900)
   - Updated output text color: `#000000` → `#065f46` (emerald-800)
   - Updated SVG text fill color: `#000000` → `#111827`
-  - Changes applied across themes.css, useFieldOverlay.ts, and InteractiveSVG.tsx
+  - Changes applied across themes.css, useFieldOverlay.ts, and SvgInteractive.tsx
 - **Style Reactivity Bug** - Fixed `inputStyle` and `outputStyle` props not updating fields at runtime
   - Added `inputStyle` and `outputStyle` to dependency array in `useFieldOverlay.ts:384`
   - Fields now properly re-render when style props change
@@ -72,7 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **`defaultInputs` prop** - Pre-populate input fields with initial values
-  - New optional prop on `InteractiveSVG`: `defaultInputs?: Record<string, string>`
+  - New optional prop on `SvgInteractive`: `defaultInputs?: Record<string, string>`
   - Allows setting initial values when component mounts
   - Existing values take precedence over defaults
   - Useful for examples, demos, and preset configurations
@@ -88,7 +93,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **docs/api.md** - Added `defaultInputs` prop documentation with examples
 - **docs/draw-io.md** - Updated to reference new calculator example
 - **tests/integration/README.md** - Updated to document all 3 fixtures and their tests
-- **site/Playground** - Now passes `defaultInputs` to InteractiveSVG component
+- **site/Playground** - Now passes `defaultInputs` to SvgInteractive component
 
 ## [0.1.1] - 2025-11-13
 
@@ -111,7 +116,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **docs/draw-io.md** - Enhanced with technical details and updated API
   - Added note that draw.io and diagrams.net are the same tool
-  - Updated all code examples to use new two-step API (`parseDrawIoSVG` + `InteractiveSVG`)
+  - Updated all code examples to use new two-step API (`parseDrawIoSVG` + `SvgInteractive`)
   - Added comprehensive "How It Works" technical section explaining:
     - draw.io export structure (embedded mxfile XML)
     - Data-ID to element lookup process
@@ -126,7 +131,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Initial npm release** of `svg-interactive` - Transform any SVG into an interactive form with embedded input/output fields.
 
 ### Added
-- Core `InteractiveSVG` component for rendering interactive SVG diagrams
+- Core `SvgInteractive` component for rendering interactive SVG diagrams
 - Parser functions: `parseSVG`, `parseDrawIoSVG`, `parseFigmaSVG`, `parseInkscapeSVG`
 - Support for attribute-based field matching (id, class, data-*, custom attributes)
 - Flexible pattern matching (prefix or regex)
@@ -170,7 +175,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed early return in `useEffect` when `inputFieldNames.length === 0`
   - Input state now correctly clears to `{}` when switching to diagrams without inputs
   - Prevents stale input values from leaking into `onOutputCompute` callbacks
-- **Rendering Optimization** - Optimized `InteractiveSVG` component
+- **Rendering Optimization** - Optimized `SvgInteractive` component
   - Replaced `JSON.stringify` comparison with `useMemo` for inputFieldNames
   - More efficient dependency tracking in useEffect
 - **Theming System** - Complete overhaul of CSS variable support
@@ -224,7 +229,8 @@ In case of vulnerabilities.
 
 ---
 
-[Unreleased]: https://github.com/m98/svg-interactive/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/m98/svg-interactive/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/m98/svg-interactive/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/m98/svg-interactive/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/m98/svg-interactive/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/m98/svg-interactive/compare/v0.1.0...v0.1.1

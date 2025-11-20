@@ -6,7 +6,7 @@ Complete API documentation for `svg-interactive`.
 
 - [Quick Start](#quick-start)
 - [Parser Functions](#parser-functions)
-- [InteractiveSVG Component](#interactivesvg-component)
+- [SvgInteractive Component](#interactivesvg-component)
 - [TypeScript Types](#typescript-types)
 - [CSS Variables](#css-variables)
 - [Examples](#examples)
@@ -18,10 +18,10 @@ Complete API documentation for `svg-interactive`.
 **svg-interactive** uses a **two-step pattern**:
 
 1. **Parse** your SVG to extract field mappings
-2. **Render** with the InteractiveSVG component
+2. **Render** with the SvgInteractive component
 
 ```tsx
-import { parseSVG, InteractiveSVG } from 'svg-interactive';
+import { parseSVG, SvgInteractive } from 'svg-interactive';
 import 'svg-interactive/styles';
 
 // Step 1: Parse SVG
@@ -34,7 +34,7 @@ const { mappings } = parseSVG(svgContent, {
 });
 
 // Step 2: Render
-<InteractiveSVG
+<SvgInteractive
   mappings={mappings}
   svgContent={svgContent}
   onOutputCompute={(inputs) => ({
@@ -289,7 +289,7 @@ if (errors.length > 0) {
 
 ---
 
-## InteractiveSVG Component
+## SvgInteractive Component
 
 Main React component for rendering interactive SVG diagrams.
 
@@ -303,7 +303,7 @@ Main React component for rendering interactive SVG diagrams.
 ```tsx
 const { mappings } = parseSVG(svgContent, { patterns });
 
-<InteractiveSVG mappings={mappings} svgContent={svgContent} />
+<SvgInteractive mappings={mappings} svgContent={svgContent} />
 ```
 
 #### `svgContent`
@@ -314,7 +314,7 @@ const { mappings } = parseSVG(svgContent, { patterns });
 ```tsx
 const svgContent = await fetch('/diagram.svg').then(r => r.text());
 
-<InteractiveSVG mappings={mappings} svgContent={svgContent} />
+<SvgInteractive mappings={mappings} svgContent={svgContent} />
 ```
 
 #### `defaultInputs`
@@ -323,7 +323,7 @@ const svgContent = await fetch('/diagram.svg').then(r => r.text());
 - **Description**: Pre-populate input fields with initial values
 
 ```tsx
-<InteractiveSVG
+<SvgInteractive
   mappings={mappings}
   svgContent={svgContent}
   defaultInputs={{ temperature: '25', pressure: '101.3' }}
@@ -342,7 +342,7 @@ const svgContent = await fetch('/diagram.svg').then(r => r.text());
 - **Description**: Called when any input value changes
 
 ```tsx
-<InteractiveSVG
+<SvgInteractive
   onInputChange={(name, value, allInputs) => {
     console.log(`${name} changed to: ${value}`);
     console.log('All inputs:', allInputs);
@@ -356,7 +356,7 @@ const svgContent = await fetch('/diagram.svg').then(r => r.text());
 - **Description**: Computes all output values from current inputs
 
 ```tsx
-<InteractiveSVG
+<SvgInteractive
   onOutputCompute={(inputs) => ({
     sum: String(parseFloat(inputs.a || '0') + parseFloat(inputs.b || '0')),
     product: String(parseFloat(inputs.a || '0') * parseFloat(inputs.b || '0'))
@@ -370,7 +370,7 @@ const svgContent = await fetch('/diagram.svg').then(r => r.text());
 - **Description**: Per-field output computation functions
 
 ```tsx
-<InteractiveSVG
+<SvgInteractive
   onOutputUpdate={{
     total: (inputs) => String(parseFloat(inputs.a || '0') + parseFloat(inputs.b || '0')),
     average: (inputs) => {
@@ -393,7 +393,7 @@ const svgContent = await fetch('/diagram.svg').then(r => r.text());
 ```tsx
 const [outputs, setOutputs] = useState({});
 
-<InteractiveSVG
+<SvgInteractive
   outputValues={outputs}
   onOutputCompute={(inputs) => {
     const newOutputs = { result: compute(inputs) };
@@ -413,7 +413,7 @@ const [outputs, setOutputs] = useState({});
 - **Description**: Custom input component renderer
 
 ```tsx
-<InteractiveSVG
+<SvgInteractive
   renderInput={(props) => (
     <input
       type="number"
@@ -445,7 +445,7 @@ interface InputFieldProps {
 - **Description**: Custom output component renderer
 
 ```tsx
-<InteractiveSVG
+<SvgInteractive
   renderOutput={(props) => (
     <div className={props.className} style={props.style}>
       <strong>{props.name}:</strong> {props.value}
@@ -475,7 +475,7 @@ interface OutputFieldProps {
 - **Description**: Built-in theme preset
 
 ```tsx
-<InteractiveSVG theme="bordered" />
+<SvgInteractive theme="bordered" />
 ```
 
 **Available themes**:
@@ -490,7 +490,7 @@ interface OutputFieldProps {
 - **Description**: CSS class name(s) for input fields
 
 ```tsx
-<InteractiveSVG inputClassName="px-3 py-2 border-2 border-blue-500 rounded" />
+<SvgInteractive inputClassName="px-3 py-2 border-2 border-blue-500 rounded" />
 ```
 
 #### `outputClassName`
@@ -499,7 +499,7 @@ interface OutputFieldProps {
 - **Description**: CSS class name(s) for output fields
 
 ```tsx
-<InteractiveSVG outputClassName="px-3 py-2 bg-green-50 border-2 border-green-500" />
+<SvgInteractive outputClassName="px-3 py-2 bg-green-50 border-2 border-green-500" />
 ```
 
 #### `inputStyle`
@@ -508,7 +508,7 @@ interface OutputFieldProps {
 - **Description**: Inline styles for input fields
 
 ```tsx
-<InteractiveSVG
+<SvgInteractive
   inputStyle={{
     border: '2px solid #3B82F6',
     borderRadius: '8px',
@@ -523,7 +523,7 @@ interface OutputFieldProps {
 - **Description**: Inline styles for output fields
 
 ```tsx
-<InteractiveSVG
+<SvgInteractive
   outputStyle={{
     border: '2px solid #10B981',
     background: '#F0FDF4',
@@ -538,7 +538,7 @@ interface OutputFieldProps {
 - **Description**: CSS class for root container
 
 ```tsx
-<InteractiveSVG className="my-diagram-container" />
+<SvgInteractive className="my-diagram-container" />
 ```
 
 #### `style`
@@ -547,7 +547,7 @@ interface OutputFieldProps {
 - **Description**: Inline styles for root container
 
 ```tsx
-<InteractiveSVG style={{ maxWidth: '800px', margin: '0 auto' }} />
+<SvgInteractive style={{ maxWidth: '800px', margin: '0 auto' }} />
 ```
 
 ---
@@ -561,7 +561,7 @@ interface OutputFieldProps {
 - **Description**: Show debug panel with field information
 
 ```tsx
-<InteractiveSVG debug={true} />
+<SvgInteractive debug={true} />
 ```
 
 **Debug panel displays**:
@@ -578,7 +578,7 @@ interface OutputFieldProps {
 - **Description**: Callback with debug information
 
 ```tsx
-<InteractiveSVG
+<SvgInteractive
   onDebugInfo={(info) => {
     console.log('Total fields:', info.totalFields);
     console.log('Input fields:', info.inputFields);
@@ -615,7 +615,7 @@ import type {
   FieldPattern,
 
   // Component types
-  InteractiveSVGProps,
+  SvgInteractiveProps,
   InputFieldProps,
   OutputFieldProps,
 
@@ -729,7 +729,7 @@ Or in CSS:
 ### Basic Calculator
 
 ```tsx
-import { parseSVG, InteractiveSVG } from 'svg-interactive';
+import { parseSVG, SvgInteractive } from 'svg-interactive';
 import 'svg-interactive/styles';
 
 function Calculator() {
@@ -749,7 +749,7 @@ function Calculator() {
   });
 
   return (
-    <InteractiveSVG
+    <SvgInteractive
       mappings={mappings}
       svgContent={svgContent}
       defaultInputs={{ a: '5', b: '3' }}
@@ -765,7 +765,7 @@ function Calculator() {
 ### Draw.io Diagram
 
 ```tsx
-import { parseDrawIoSVG, InteractiveSVG } from 'svg-interactive';
+import { parseDrawIoSVG, SvgInteractive } from 'svg-interactive';
 
 async function WorkflowDiagram() {
   const svgContent = await fetch('/workflow.drawio.svg').then(r => r.text());
@@ -782,7 +782,7 @@ async function WorkflowDiagram() {
   }
 
   return (
-    <InteractiveSVG
+    <SvgInteractive
       mappings={mappings}
       svgContent={svgContent}
       onOutputCompute={(inputs) => ({
@@ -797,7 +797,7 @@ async function WorkflowDiagram() {
 ### Custom Renderers with Validation
 
 ```tsx
-<InteractiveSVG
+<SvgInteractive
   renderInput={(props) => (
     <input
       type="number"
@@ -837,7 +837,7 @@ function ControlledDiagram() {
   const [outputs, setOutputs] = useState({});
 
   return (
-    <InteractiveSVG
+    <SvgInteractive
       mappings={mappings}
       svgContent={svgContent}
       outputValues={outputs}

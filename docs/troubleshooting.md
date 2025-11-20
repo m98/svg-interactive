@@ -9,7 +9,7 @@ Common issues and solutions for `svg-interactive`.
 Always start with debug mode to understand what's happening:
 
 ```tsx
-<InteractiveSVG
+<SvgInteractive
   debug={true}
   onDebugInfo={(info) => {
     console.log('Matching Mode:', info.matchingMode);
@@ -58,7 +58,7 @@ patterns: [
 
 **Solution for draw.io**:
 ```tsx
-<InteractiveSVG
+<SvgInteractive
   config={{
     matchingMode: 'data-id',  // Force data-id mode
     patterns: [...]
@@ -68,7 +68,7 @@ patterns: [
 
 **Solution for other tools**:
 ```tsx
-<InteractiveSVG
+<SvgInteractive
   config={{
     matchingMode: 'direct-id',  // Force direct-id mode
     patterns: [...]
@@ -228,7 +228,7 @@ patterns: [
 
 2. **Reduce font size**:
    ```tsx
-   <InteractiveSVG
+   <SvgInteractive
      inputStyle={{ fontSize: '10px', padding: '2px' }}
    />
    ```
@@ -247,7 +247,7 @@ patterns: [
 
 **Solution**: Provide computation function:
 ```tsx
-<InteractiveSVG
+<SvgInteractive
   onOutputCompute={(inputs) => ({
     result: computeResult(inputs),
     status: getStatus(inputs)
@@ -274,7 +274,7 @@ onOutputCompute={(inputs) => ({
 ```tsx
 const [outputs, setOutputs] = useState({});
 
-<InteractiveSVG
+<SvgInteractive
   outputValues={outputs}  // Provide values
   onOutputCompute={(inputs) => {
     const newOutputs = { result: calculate(inputs) };
@@ -303,7 +303,7 @@ const [outputs, setOutputs] = useState({});
      300
    );
 
-   <InteractiveSVG
+   <SvgInteractive
      onOutputCompute={debouncedCompute}
    />
    ```
@@ -342,7 +342,7 @@ const [outputs, setOutputs] = useState({});
 
 3. **Use theme="none" for full control**:
    ```tsx
-   <InteractiveSVG
+   <SvgInteractive
      theme="none"
      inputClassName="my-custom-input"
    />

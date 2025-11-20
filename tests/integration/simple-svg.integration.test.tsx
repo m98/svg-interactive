@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { InteractiveSVG } from '../../src/components/InteractiveSVG';
+import { SvgInteractive } from '../../src/components/SvgInteractive';
 import { parseSVG } from '../../src/parsers/generic';
 import { FieldPattern } from '../../src/types';
 import * as fs from 'fs';
@@ -71,7 +71,7 @@ describe('Simple SVG Integration Tests', () => {
     it('should render calculator with two inputs and one output', async () => {
       const result = parseSVG(svgContent, { patterns });
 
-      render(<InteractiveSVG mappings={result.mappings} svgContent={svgContent} />);
+      render(<SvgInteractive mappings={result.mappings} svgContent={svgContent} />);
 
       // Wait for input elements to be created
       await waitFor(
@@ -101,7 +101,7 @@ describe('Simple SVG Integration Tests', () => {
       });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           mappings={result.mappings}
           svgContent={svgContent}
           onOutputCompute={onOutputCompute}
@@ -144,7 +144,7 @@ describe('Simple SVG Integration Tests', () => {
       });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           mappings={result.mappings}
           svgContent={svgContent}
           onOutputCompute={onOutputCompute}
@@ -194,7 +194,7 @@ describe('Simple SVG Integration Tests', () => {
       });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           mappings={result.mappings}
           svgContent={svgContent}
           onOutputCompute={onOutputCompute}
@@ -230,7 +230,7 @@ describe('Simple SVG Integration Tests', () => {
       });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           mappings={result.mappings}
           svgContent={svgContent}
           onOutputCompute={onOutputCompute}
@@ -293,7 +293,7 @@ describe('Simple SVG Integration Tests', () => {
       });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           mappings={result.mappings}
           svgContent={svgContent}
           onOutputCompute={onOutputCompute}
@@ -331,7 +331,7 @@ describe('Simple SVG Integration Tests', () => {
       });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           mappings={result.mappings}
           svgContent={svgContent}
           onOutputCompute={onOutputCompute}

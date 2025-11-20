@@ -30,7 +30,7 @@ const docsSections: DocsSection[] = [
     links: [
       { label: 'Complete API', href: 'https://github.com/m98/svg-interactive/blob/main/docs/api.md' },
       { label: 'parseSVG()', href: 'https://github.com/m98/svg-interactive/blob/main/docs/api.md#parsesvg' },
-      { label: 'InteractiveSVG', href: 'https://github.com/m98/svg-interactive/blob/main/docs/api.md#interactivesvg-component' },
+      { label: 'SvgInteractive', href: 'https://github.com/m98/svg-interactive/blob/main/docs/api.md#interactivesvg-component' },
       { label: 'TypeScript Types', href: 'https://github.com/m98/svg-interactive/blob/main/docs/api.md#typescript-types' },
     ],
   },

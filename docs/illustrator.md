@@ -59,9 +59,9 @@ Use the **Layers panel** to name objects:
 ### 6. Use in Your Application
 
 ```tsx
-import { InteractiveSVG } from 'svg-interactive';
+import { SvgInteractive } from 'svg-interactive';
 
-<InteractiveSVG
+<SvgInteractive
   svgUrl="/illustrator-export.svg"
   config={{
     patterns: [

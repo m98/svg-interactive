@@ -100,7 +100,7 @@ export function DocsContent() {
           <div>
             <h3 className="mb-2 font-semibold">3. Parse and render</h3>
             <pre className="overflow-x-auto rounded-md border border-gray-200 bg-white p-4 font-mono text-xs leading-relaxed">
-              {`import { InteractiveSVG, parseSVG } from 'svg-interactive';
+              {`import { SvgInteractive, parseSVG } from 'svg-interactive';
 
 const { mappings } = parseSVG(svgContent, {
   patterns: [
@@ -109,7 +109,7 @@ const { mappings } = parseSVG(svgContent, {
   ]
 });
 
-<InteractiveSVG mappings={mappings} svgContent={svgContent} />`}
+<SvgInteractive mappings={mappings} svgContent={svgContent} />`}
             </pre>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { InteractiveSVG } from '../../src/components/InteractiveSVG';
+import { SvgInteractive } from '../../src/components/SvgInteractive';
 import { parseDrawIoSVG } from '../../src/parsers/drawio';
 import { FieldPattern } from '../../src/types';
 import * as fs from 'fs';
@@ -57,7 +57,7 @@ describe('Draw.io Mixed Mode Integration Tests', () => {
       });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           mappings={result.mappings}
           svgContent={svgContent}
           onOutputCompute={onOutputCompute}

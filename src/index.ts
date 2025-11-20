@@ -2,7 +2,7 @@
 import './styles/themes.css';
 
 // Main component
-export { InteractiveSVG } from './components/InteractiveSVG';
+export { SvgInteractive } from './components/SvgInteractive';
 
 // Field components
 export { InputField } from './components/InputField';

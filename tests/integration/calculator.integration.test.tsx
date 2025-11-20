@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect } from '@jest/globals';
-import { InteractiveSVG, parseDrawIoSVG } from '../../src';
+import { SvgInteractive, parseDrawIoSVG } from '../../src';
 import type { FieldPattern } from '../../src/types';
 import fs from 'fs';
 import path from 'path';
@@ -60,7 +60,7 @@ describe('Calculator Integration Tests', () => {
       const result = parseDrawIoSVG(svgContent, { patterns });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           svgContent={svgContent}
           mappings={result.mappings}
           defaultInputs={{ one: '5', two: '3' }}
@@ -83,7 +83,7 @@ describe('Calculator Integration Tests', () => {
       const result = parseDrawIoSVG(svgContent, { patterns });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           svgContent={svgContent}
           mappings={result.mappings}
           defaultInputs={{ one: '5', two: '3' }}
@@ -105,7 +105,7 @@ describe('Calculator Integration Tests', () => {
       const result = parseDrawIoSVG(svgContent, { patterns });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           svgContent={svgContent}
           mappings={result.mappings}
           defaultInputs={{ one: '10', two: '15' }}
@@ -125,7 +125,7 @@ describe('Calculator Integration Tests', () => {
       const result = parseDrawIoSVG(svgContent, { patterns });
 
       const { container } = render(
-        <InteractiveSVG
+        <SvgInteractive
           svgContent={svgContent}
           mappings={result.mappings}
           defaultInputs={{ one: '0', two: '0' }}
@@ -160,7 +160,7 @@ describe('Calculator Integration Tests', () => {
       const result = parseDrawIoSVG(svgContent, { patterns });
 
       const { container } = render(
-        <InteractiveSVG
+        <SvgInteractive
           svgContent={svgContent}
           mappings={result.mappings}
           defaultInputs={{ one: '-5', two: '3' }}
@@ -180,7 +180,7 @@ describe('Calculator Integration Tests', () => {
       const result = parseDrawIoSVG(svgContent, { patterns });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           svgContent={svgContent}
           mappings={result.mappings}
           defaultInputs={{ one: '', two: '' }}
@@ -200,7 +200,7 @@ describe('Calculator Integration Tests', () => {
       const result = parseDrawIoSVG(svgContent, { patterns });
 
       const { container } = render(
-        <InteractiveSVG
+        <SvgInteractive
           svgContent={svgContent}
           mappings={result.mappings}
           defaultInputs={{ one: '1', two: '1' }}

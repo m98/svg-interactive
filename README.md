@@ -53,7 +53,7 @@ yarn add svg-interactive
 
 2. **Use in React**:
    ```tsx
-   import { InteractiveSVG, parseSVG } from 'svg-interactive';
+   import { SvgInteractive, parseSVG } from 'svg-interactive';
 
    // Step 1: Parse your SVG to extract field mappings
    const svgContent = await fetch('/diagram.svg').then(r => r.text());
@@ -65,7 +65,7 @@ yarn add svg-interactive
    });
 
    // Step 2: Render the interactive SVG
-   <InteractiveSVG
+   <SvgInteractive
      mappings={mappings}
      svgContent={svgContent}
      onOutputCompute={(inputs) => ({
@@ -188,7 +188,7 @@ The site imports the real components and presets from [`/examples`](./examples) 
 ### Calculator with Custom Styling
 
 ```tsx
-import { InteractiveSVG, parseSVG } from 'svg-interactive';
+import { SvgInteractive, parseSVG } from 'svg-interactive';
 
 const svgContent = await fetch('/calculator.svg').then(r => r.text());
 const { mappings } = parseSVG(svgContent, {
@@ -198,7 +198,7 @@ const { mappings } = parseSVG(svgContent, {
   ]
 });
 
-<InteractiveSVG
+<SvgInteractive
   mappings={mappings}
   svgContent={svgContent}
   onOutputCompute={(inputs) => ({
@@ -213,7 +213,7 @@ const { mappings } = parseSVG(svgContent, {
 ### Custom React Components
 
 ```tsx
-import { InteractiveSVG, parseDrawIoSVG } from 'svg-interactive';
+import { SvgInteractive, parseDrawIoSVG } from 'svg-interactive';
 
 const svgContent = await fetch('/diagram.svg').then(r => r.text());
 const { mappings } = parseDrawIoSVG(svgContent, {
@@ -223,7 +223,7 @@ const { mappings } = parseDrawIoSVG(svgContent, {
   ]
 });
 
-<InteractiveSVG
+<SvgInteractive
   mappings={mappings}
   svgContent={svgContent}
   renderInput={(props) => (
@@ -247,7 +247,7 @@ const { mappings } = parseDrawIoSVG(svgContent, {
 ### Tailwind Styling
 
 ```tsx
-<InteractiveSVG
+<SvgInteractive
   mappings={mappings}
   svgContent={svgContent}
   theme="none"
@@ -301,7 +301,7 @@ type FieldPattern =
 **ParseResult:**
 ```typescript
 interface ParseResult {
-  mappings: FieldMapping[];        // Use this for InteractiveSVG
+  mappings: FieldMapping[];        // Use this for SvgInteractive
   errors: string[];                // Any parsing errors encountered
   metadata: {
     tool: 'drawio' | 'generic';    // drawio or generic (Figma, Inkscape, etc.)
@@ -311,7 +311,7 @@ interface ParseResult {
 }
 ```
 
-### `<InteractiveSVG>` Props
+### `<SvgInteractive>` Props
 
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
@@ -338,10 +338,10 @@ interface ParseResult {
 ### Built-in Themes
 
 ```tsx
-<InteractiveSVG theme="default" />  // Blue inputs, green outputs
-<InteractiveSVG theme="minimal" />  // Simple borders
-<InteractiveSVG theme="bordered" /> // Bold borders with shadows
-<InteractiveSVG theme="none" />     // No default styling
+<SvgInteractive theme="default" />  // Blue inputs, green outputs
+<SvgInteractive theme="minimal" />  // Simple borders
+<SvgInteractive theme="bordered" /> // Bold borders with shadows
+<SvgInteractive theme="none" />     // No default styling
 ```
 
 ### CSS Variables
@@ -365,7 +365,7 @@ import 'svg-interactive/styles';
 ## 🐛 Debug Mode
 
 ```tsx
-<InteractiveSVG
+<SvgInteractive
   debug={true}
   onDebugInfo={(info) => {
     console.log('Mode:', info.matchingMode);    // 'data-id' or 'direct-id'

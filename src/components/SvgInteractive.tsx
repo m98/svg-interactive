@@ -8,7 +8,7 @@ import { DebugPanel } from './DebugPanel';
  *
  * @example
  * ```tsx
- * import { parseSVG, InteractiveSVG } from 'svg-interactive';
+ * import { parseSVG, SvgInteractive } from 'svg-interactive';
  *
  * const { mappings } = parseSVG(svgContent, {
  *   patterns: [
@@ -17,7 +17,7 @@ import { DebugPanel } from './DebugPanel';
  *   ]
  * });
  *
- * <InteractiveSVG
+ * <SvgInteractive
  *   mappings={mappings}
  *   svgContent={svgContent}
  *   onOutputCompute={(inputs) => ({
@@ -26,7 +26,7 @@ import { DebugPanel } from './DebugPanel';
  * />
  * ```
  */
-export const InteractiveSVG: React.FC<InteractiveSVGProps> = ({
+export const SvgInteractive: React.FC<InteractiveSVGProps> = ({
   mappings,
   svgContent,
   onInputChange,

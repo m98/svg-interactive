@@ -76,7 +76,7 @@ The library uses a flexible attribute-based matching system that can match on **
 - `useFieldOverlay.ts` - Creates foreignObjects, embeds HTML, manages lifecycle
 
 **Components Layer** (`src/components/`):
-- `InteractiveSVG.tsx` - Main orchestrator, wires everything together
+- `SvgInteractive.tsx` - Main orchestrator, wires everything together
 - `InputField.tsx` / `OutputField.tsx` - Default field renderers (customizable)
 - `DebugPanel.tsx` - Shows field detection for debugging
 
@@ -84,7 +84,7 @@ The library uses a flexible attribute-based matching system that can match on **
 
 **Entry**: `src/index.ts` exports all public APIs
 
-**Main Component**: `InteractiveSVG` at `src/components/InteractiveSVG.tsx:11`
+**Main Component**: `SvgInteractive` at `src/components/SvgInteractive.tsx:11`
 - Accepts pre-parsed `mappings` (from `parseSVG` or `parseDrawIoSVG`) and `svgContent` props
 - Orchestrates: useFieldOverlay → render SVG + foreignObject overlays + fields
 - Manages state: inputValues, outputValues (internal or controlled)
@@ -191,7 +191,7 @@ If ANY step fails, publishing is blocked.
 
 ### Debugging Field Detection
 ```typescript
-<InteractiveSVG svgContent={svg} config={config} debug={true} />
+<SvgInteractive svgContent={svg} config={config} debug={true} />
 // Shows DebugPanel with all detected fields and mode
 ```
 
@@ -207,7 +207,7 @@ patterns: [
 
 ### Custom Rendering
 ```typescript
-<InteractiveSVG
+<SvgInteractive
   renderInput={(props) => <MyInput {...props} />}
   renderOutput={(props) => <MyOutput {...props} />}
 />
@@ -230,7 +230,7 @@ patterns: [
 - Functional setState for updates based on previous state
 - Refs for values that don't trigger re-renders (fieldsRef, reactRootsRef)
 - Guards to prevent setState in effects (prevMappingsRef prevents infinite loops)
-- See `InteractiveSVG.tsx:67-82` for guarded setState pattern
+- See `SvgInteractive.tsx:67-82` for guarded setState pattern
 
 ### Build System
 - Rollup outputs: CJS (`dist/index.js`), ESM (`dist/index.esm.js`), types (`dist/index.d.ts`)

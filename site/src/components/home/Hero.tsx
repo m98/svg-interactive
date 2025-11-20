@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Container } from '../layout/Container';
 import { useState } from 'react';
-import { InteractiveSVG, parseSVG } from 'svg-interactive';
+import { SvgInteractive, parseSVG } from 'svg-interactive';
 import { calculatorPreset } from '@examples/01-basic/calculator';
 
 export function Hero() {
@@ -66,7 +66,7 @@ export function Hero() {
               Live demo: Try the calculator
             </p>
             <div className="flex justify-center">
-              <InteractiveSVG
+              <SvgInteractive
                 mappings={mappings}
                 svgContent={calculatorPreset.svgContent}
                 onInputChange={(_name, _value, values) => setInputValues(values)}

@@ -1,4 +1,4 @@
-import { InteractiveSVG, parseSVG } from 'svg-interactive';
+import { SvgInteractive, parseSVG } from 'svg-interactive';
 import 'svg-interactive/styles';
 import type { ExamplePreset } from '../presets';
 
@@ -208,7 +208,7 @@ export function IdsArrayExample() {
         Perfect when you know exactly which elements should be inputs/outputs!
       </p>
 
-      <InteractiveSVG
+      <SvgInteractive
         mappings={mappings}
         svgContent={idsArrayPreset.svgContent}
         defaultInputs={idsArrayPreset.defaultInputs}

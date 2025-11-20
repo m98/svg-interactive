@@ -43,7 +43,7 @@ Repeat for all interactive shapes and make sure they are not duplicated.
 ### 4. Use in Your Application
 
 ```tsx
-import { parseDrawIoSVG, InteractiveSVG } from 'svg-interactive';
+import { parseDrawIoSVG, SvgInteractive } from 'svg-interactive';
 import 'svg-interactive/styles';
 
 // Load SVG content
@@ -58,7 +58,7 @@ const { mappings } = parseDrawIoSVG(svgContent, {
 });
 
 // Render interactive diagram
-<InteractiveSVG
+<SvgInteractive
   mappings={mappings}
   svgContent={svgContent}
   onOutputCompute={(inputs) => ({

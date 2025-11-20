@@ -1,7 +1,7 @@
 import { Container } from '../layout/Container';
 import { CopyButton } from '../ui/CopyButton';
 
-const code = `import { InteractiveSVG, parseSVG } from 'svg-interactive';
+const code = `import { SvgInteractive, parseSVG } from 'svg-interactive';
 import 'svg-interactive/styles';
 
 function Calculator() {
@@ -13,7 +13,7 @@ function Calculator() {
   });
 
   return (
-    <InteractiveSVG
+    <SvgInteractive
       mappings={mappings}
       svgContent={svgContent}
       onOutputCompute={(inputs) => ({

@@ -185,7 +185,7 @@ fill="#f5f5f5" stroke="#757575"
 ### Using Prefix Patterns
 
 ```tsx
-import { InteractiveSVG, parseSVG } from 'svg-interactive';
+import { SvgInteractive, parseSVG } from 'svg-interactive';
 
 function Calculator() {
   const svgContent = await fetch('/calculator.svg').then(r => r.text());
@@ -197,7 +197,7 @@ function Calculator() {
   });
 
   return (
-    <InteractiveSVG
+    <SvgInteractive
       mappings={mappings}
       svgContent={svgContent}
       onOutputCompute={(inputs) => ({
@@ -248,7 +248,7 @@ When you have a fixed set of specific elements and want explicit control over wh
 ```
 
 ```tsx
-import { InteractiveSVG, parseSVG } from 'svg-interactive';
+import { SvgInteractive, parseSVG } from 'svg-interactive';
 
 function SensorDashboard() {
   const svgContent = await fetch('/sensors.svg').then(r => r.text());
@@ -261,7 +261,7 @@ function SensorDashboard() {
   });
 
   return (
-    <InteractiveSVG
+    <SvgInteractive
       mappings={mappings}
       svgContent={svgContent}
       onOutputCompute={(inputs) => {

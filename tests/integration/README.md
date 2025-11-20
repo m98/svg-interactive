@@ -162,7 +162,7 @@ it('should calculate correctly', async () => {
   }));
 
   render(
-    <InteractiveSVG
+    <SvgInteractive
       svgContent={svgContent}
       config={config}
       onOutputCompute={onOutputCompute}
@@ -186,7 +186,7 @@ it('should find all fields', async () => {
   const onDebugInfo = jest.fn();
 
   render(
-    <InteractiveSVG
+    <SvgInteractive
       svgContent={svgContent}
       config={config}
       onDebugInfo={onDebugInfo}

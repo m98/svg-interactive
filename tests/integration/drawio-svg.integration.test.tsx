@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { InteractiveSVG } from '../../src/components/InteractiveSVG';
+import { SvgInteractive } from '../../src/components/SvgInteractive';
 import { parseDrawIoSVG } from '../../src/parsers/drawio';
 import { FieldPattern } from '../../src/types';
 import * as fs from 'fs';
@@ -61,7 +61,7 @@ describe('Draw.io SVG Integration Tests', () => {
     it('should render SVG with parsed mappings', async () => {
       const result = parseDrawIoSVG(svgContent, { patterns });
 
-      render(<InteractiveSVG mappings={result.mappings} svgContent={svgContent} />);
+      render(<SvgInteractive mappings={result.mappings} svgContent={svgContent} />);
 
       const svgContainer = document.querySelector('.svg-container');
       expect(svgContainer).toBeInTheDocument();
@@ -73,7 +73,7 @@ describe('Draw.io SVG Integration Tests', () => {
     it('should preserve SVG attributes', async () => {
       const result = parseDrawIoSVG(svgContent, { patterns });
 
-      render(<InteractiveSVG mappings={result.mappings} svgContent={svgContent} />);
+      render(<SvgInteractive mappings={result.mappings} svgContent={svgContent} />);
 
       const svg = document.querySelector('svg');
       expect(svg).toBeInTheDocument();
@@ -88,7 +88,7 @@ describe('Draw.io SVG Integration Tests', () => {
     it('should have correct SVG dimensions', async () => {
       const result = parseDrawIoSVG(svgContent, { patterns });
 
-      render(<InteractiveSVG mappings={result.mappings} svgContent={svgContent} />);
+      render(<SvgInteractive mappings={result.mappings} svgContent={svgContent} />);
 
       const svg = document.querySelector('svg');
       expect(svg).toBeInTheDocument();
@@ -116,7 +116,7 @@ describe('Draw.io SVG Integration Tests', () => {
     it('should render input field in DOM', async () => {
       const result = parseDrawIoSVG(svgContent, { patterns });
 
-      render(<InteractiveSVG mappings={result.mappings} svgContent={svgContent} />);
+      render(<SvgInteractive mappings={result.mappings} svgContent={svgContent} />);
 
       await waitFor(
         () => {
@@ -130,7 +130,7 @@ describe('Draw.io SVG Integration Tests', () => {
     it('should render output field in DOM', async () => {
       const result = parseDrawIoSVG(svgContent, { patterns });
 
-      render(<InteractiveSVG mappings={result.mappings} svgContent={svgContent} />);
+      render(<SvgInteractive mappings={result.mappings} svgContent={svgContent} />);
 
       await waitFor(
         () => {
@@ -148,7 +148,7 @@ describe('Draw.io SVG Integration Tests', () => {
       const onInputChange = jest.fn();
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           mappings={result.mappings}
           svgContent={svgContent}
           onInputChange={onInputChange}
@@ -183,7 +183,7 @@ describe('Draw.io SVG Integration Tests', () => {
       const onInputChange = jest.fn();
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           mappings={result.mappings}
           svgContent={svgContent}
           onInputChange={onInputChange}
@@ -218,7 +218,7 @@ describe('Draw.io SVG Integration Tests', () => {
       });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           mappings={result.mappings}
           svgContent={svgContent}
           onOutputCompute={onOutputCompute}
@@ -254,7 +254,7 @@ describe('Draw.io SVG Integration Tests', () => {
       });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           mappings={result.mappings}
           svgContent={svgContent}
           onOutputCompute={onOutputCompute}
@@ -286,7 +286,7 @@ describe('Draw.io SVG Integration Tests', () => {
       });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           mappings={result.mappings}
           svgContent={svgContent}
           onOutputCompute={onOutputCompute}
@@ -329,7 +329,7 @@ describe('Draw.io SVG Integration Tests', () => {
       });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           mappings={result.mappings}
           svgContent={svgContent}
           onOutputCompute={onOutputCompute}
@@ -361,7 +361,7 @@ describe('Draw.io SVG Integration Tests', () => {
       });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           mappings={result.mappings}
           svgContent={svgContent}
           onOutputCompute={onOutputCompute}

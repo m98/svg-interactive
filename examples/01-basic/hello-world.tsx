@@ -1,4 +1,4 @@
-import { InteractiveSVG, parseSVG } from 'svg-interactive';
+import { SvgInteractive, parseSVG } from 'svg-interactive';
 import 'svg-interactive/styles';
 import type { ExamplePreset } from '../presets';
 
@@ -83,7 +83,7 @@ export const helloWorldPreset: ExamplePreset = {
  * 1. Define SVG elements with id attributes
  * 2. Configure patterns to match those ids
  * 3. Parse SVG to extract field mappings
- * 4. Render with InteractiveSVG component
+ * 4. Render with SvgInteractive component
  * 5. Define computation logic in onOutputCompute
  */
 export function HelloWorld() {
@@ -96,7 +96,7 @@ export function HelloWorld() {
       <h1>Hello World Example</h1>
       <p>Type your name in the input field.</p>
 
-      <InteractiveSVG
+      <SvgInteractive
         mappings={mappings}
         svgContent={helloWorldPreset.svgContent}
         defaultInputs={helloWorldPreset.defaultInputs}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { InteractiveSVG, parseSVG } from 'svg-interactive';
+import { SvgInteractive, parseSVG } from 'svg-interactive';
 import 'svg-interactive/styles';
 
 /**
@@ -38,7 +38,7 @@ export function BasicExample() {
   };
 
   return (
-    <InteractiveSVG
+    <SvgInteractive
       mappings={mappings}
       svgContent={svgContent}
       onOutputCompute={handleOutputCompute}
@@ -96,7 +96,7 @@ export function AdvancedExample() {
   };
 
   return (
-    <InteractiveSVG
+    <SvgInteractive
       mappings={mappings}
       svgContent={svgContent}
       onInputChange={handleInputChange}
@@ -140,7 +140,7 @@ export function CustomRenderExample() {
   });
 
   return (
-    <InteractiveSVG
+    <SvgInteractive
       mappings={mappings}
       svgContent={svgContent}
       onOutputCompute={(inputs) => ({ gas: inputs.gas || '' })}

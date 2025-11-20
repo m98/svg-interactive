@@ -1,4 +1,4 @@
-import { InteractiveSVG, parseSVG } from 'svg-interactive';
+import { SvgInteractive, parseSVG } from 'svg-interactive';
 import 'svg-interactive/styles';
 import type { ExamplePreset } from '../presets';
 
@@ -110,7 +110,7 @@ export function TemperatureConverter() {
       <h1>Temperature Converter</h1>
       <p>Enter a temperature in either Celsius or Fahrenheit.</p>
 
-      <InteractiveSVG
+      <SvgInteractive
         mappings={mappings}
         svgContent={temperaturePreset.svgContent}
         defaultInputs={temperaturePreset.defaultInputs}

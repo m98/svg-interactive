@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, waitFor, fireEvent } from '@testing-library/react';
-import { InteractiveSVG } from '../../src/components/InteractiveSVG';
+import { SvgInteractive } from '../../src/components/SvgInteractive';
 import { parseSVG } from '../../src/parsers/generic';
 import { FieldPattern } from '../../src/types';
 
@@ -41,7 +41,7 @@ describe('Class Attribute Integration Tests', () => {
       expect(mappings[0]?.matchedAttribute).toBe('class');
       expect(mappings[1]?.matchedAttribute).toBe('class');
 
-      render(<InteractiveSVG mappings={mappings} svgContent={svgContent} />);
+      render(<SvgInteractive mappings={mappings} svgContent={svgContent} />);
 
       await waitFor(
         () => {
@@ -75,7 +75,7 @@ describe('Class Attribute Integration Tests', () => {
       }));
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           mappings={mappings}
           svgContent={svgContent}
           onOutputCompute={onOutputCompute}
@@ -120,7 +120,7 @@ describe('Class Attribute Integration Tests', () => {
       expect(mappings[0]?.matchedAttribute).toBe('data-field');
       expect(mappings[0]?.name).toBe('temperature');
 
-      render(<InteractiveSVG mappings={mappings} svgContent={svgContent} />);
+      render(<SvgInteractive mappings={mappings} svgContent={svgContent} />);
 
       await waitFor(() => {
         const input = document.querySelector('input[data-field-name="temperature"]');
@@ -145,7 +145,7 @@ describe('Class Attribute Integration Tests', () => {
       expect(mappings[0]?.elementId).toBe('my-input'); // Should use id
       expect(mappings[0]?.matchedAttribute).toBe('class');
 
-      render(<InteractiveSVG mappings={mappings} svgContent={svgContent} />);
+      render(<SvgInteractive mappings={mappings} svgContent={svgContent} />);
 
       await waitFor(() => {
         const input = document.querySelector('input[data-field-name="name"]');
@@ -172,7 +172,7 @@ describe('Class Attribute Integration Tests', () => {
       expect(mappings[0]?.name).toBe('value');
       expect(mappings[1]?.name).toBe('result');
 
-      render(<InteractiveSVG mappings={mappings} svgContent={svgContent} />);
+      render(<SvgInteractive mappings={mappings} svgContent={svgContent} />);
 
       await waitFor(() => {
         const input = document.querySelector('input[data-field-name="value"]');
@@ -202,7 +202,7 @@ describe('Class Attribute Integration Tests', () => {
       expect(mappings[1]?.name).toBe('email-field');
       expect(mappings[2]?.name).toBe('greeting-output');
 
-      render(<InteractiveSVG mappings={mappings} svgContent={svgContent} />);
+      render(<SvgInteractive mappings={mappings} svgContent={svgContent} />);
 
       await waitFor(() => {
         const usernameInput = document.querySelector('input[data-field-name="username-field"]');

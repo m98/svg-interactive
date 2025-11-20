@@ -51,7 +51,7 @@ Always verify the export worked correctly:
 ### 5. Use in Your Application
 
 ```tsx
-import { InteractiveSVG, parseSVG } from 'svg-interactive';
+import { SvgInteractive, parseSVG } from 'svg-interactive';
 
 // Step 1: Parse your SVG to extract field mappings
 const svgContent = await fetch('/figma-export.svg').then(r => r.text());
@@ -63,7 +63,7 @@ const { mappings } = parseSVG(svgContent, {
 });
 
 // Step 2: Render the interactive SVG
-<InteractiveSVG
+<SvgInteractive
   mappings={mappings}
   svgContent={svgContent}
   onOutputCompute={(inputs) => ({

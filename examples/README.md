@@ -47,9 +47,9 @@ Complete real-world applications.
 
 2. **Try the basic example**:
    ```tsx
-   import { InteractiveSVG } from 'svg-interactive';
+   import { SvgInteractive } from 'svg-interactive';
 
-   <InteractiveSVG
+   <SvgInteractive
      svgUrl="/diagram.svg"
      config={{
        patterns: [

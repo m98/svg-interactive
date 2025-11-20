@@ -1,6 +1,6 @@
 import React, { StrictMode } from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { InteractiveSVG } from '../../src/components/InteractiveSVG';
+import { SvgInteractive } from '../../src/components/SvgInteractive';
 import { parseSVG } from '../../src/parsers/generic';
 
 describe('Output Update Integration Tests', () => {
@@ -57,7 +57,7 @@ describe('Output Update Integration Tests', () => {
     });
 
     render(
-      <InteractiveSVG
+      <SvgInteractive
         mappings={mappings}
         svgContent={temperatureSvg}
         onOutputCompute={onOutputCompute}
@@ -96,7 +96,7 @@ describe('Output Update Integration Tests', () => {
     });
 
     render(
-      <InteractiveSVG
+      <SvgInteractive
         mappings={mappings}
         svgContent={temperatureSvg}
         onOutputCompute={onOutputCompute}
@@ -145,7 +145,7 @@ describe('Output Update Integration Tests', () => {
     };
 
     render(
-      <InteractiveSVG
+      <SvgInteractive
         mappings={mappings}
         svgContent={temperatureSvg}
         onOutputCompute={onOutputCompute}

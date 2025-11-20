@@ -1,4 +1,4 @@
-import { InteractiveSVG, parseSVG } from 'svg-interactive';
+import { SvgInteractive, parseSVG } from 'svg-interactive';
 import 'svg-interactive/styles';
 import type { ExamplePreset } from '../presets';
 
@@ -136,7 +136,7 @@ export function Calculator() {
       <h1>Simple Calculator</h1>
       <p>Enter two numbers to see their sum and product.</p>
 
-      <InteractiveSVG
+      <SvgInteractive
         mappings={mappings}
         svgContent={calculatorPreset.svgContent}
         defaultInputs={calculatorPreset.defaultInputs}

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { Upload, RotateCcw, Info } from 'lucide-react';
-import { InteractiveSVG, parseSVG, type DebugInfo, type FieldPattern, type ThemeType } from 'svg-interactive';
+import { SvgInteractive, parseSVG, type DebugInfo, type FieldPattern, type ThemeType } from 'svg-interactive';
 import 'svg-interactive/styles';
 import { examples } from '@examples/manifest';
 import { Container } from '../layout/Container';
@@ -355,7 +355,7 @@ export function Playground({ initialExampleId }: PlaygroundProps) {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-center rounded-md border border-gray-200 bg-white p-8 min-h-[400px]">
-                <InteractiveSVG
+                <SvgInteractive
                   mappings={parserResult.mappings}
                   svgContent={svgContent}
                   defaultInputs={example.defaultInputs}

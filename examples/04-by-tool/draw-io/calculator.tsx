@@ -1,4 +1,4 @@
-import { InteractiveSVG, parseDrawIoSVG } from 'svg-interactive';
+import { SvgInteractive, parseDrawIoSVG } from 'svg-interactive';
 import 'svg-interactive/styles';
 import type { ExamplePreset } from '../../presets';
 import calculatorSvg from './calculator.drawio.svg?raw';
@@ -35,7 +35,7 @@ export function Calculator() {
   });
 
   return (
-    <InteractiveSVG
+    <SvgInteractive
       svgContent={calculatorSvg}
       mappings={result.mappings}
       theme={calculatorPreset.theme}

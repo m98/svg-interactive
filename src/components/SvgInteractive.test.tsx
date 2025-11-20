@@ -1,11 +1,11 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { InteractiveSVG } from './InteractiveSVG';
+import { SvgInteractive } from './SvgInteractive';
 import { parseSVG } from '../parsers/generic';
 import { parseDrawIoSVG } from '../parsers/drawio';
 import { FieldPattern } from '../types';
 
-describe('InteractiveSVG', () => {
+describe('SvgInteractive', () => {
   const patterns: FieldPattern[] = [
     { prefix: 'input:', type: 'input' },
     { prefix: 'output:', type: 'output' },
@@ -31,7 +31,7 @@ describe('InteractiveSVG', () => {
 
       const result = parseSVG(svgContent, { patterns });
 
-      render(<InteractiveSVG svgContent={svgContent} mappings={result.mappings} />);
+      render(<SvgInteractive svgContent={svgContent} mappings={result.mappings} />);
 
       const svgContainer = document.querySelector('.svg-container');
       expect(svgContainer).toBeInTheDocument();
@@ -43,7 +43,7 @@ describe('InteractiveSVG', () => {
       const result = parseSVG(svgContent, { patterns });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           svgContent={svgContent}
           mappings={result.mappings}
           className="custom-class"
@@ -61,7 +61,7 @@ describe('InteractiveSVG', () => {
     it('should display error when no mappings provided', () => {
       const svgContent = '<svg />';
 
-      render(<InteractiveSVG svgContent={svgContent} mappings={[]} />);
+      render(<SvgInteractive svgContent={svgContent} mappings={[]} />);
 
       expect(screen.getByText('Error loading interactive SVG:')).toBeInTheDocument();
       expect(screen.getByText(/No field mappings provided/)).toBeInTheDocument();
@@ -71,7 +71,7 @@ describe('InteractiveSVG', () => {
       const svgContent = '<svg />';
 
       // @ts-expect-error - Testing runtime behavior with invalid props
-      render(<InteractiveSVG svgContent={svgContent} mappings={undefined} />);
+      render(<SvgInteractive svgContent={svgContent} mappings={undefined} />);
 
       expect(screen.getByText('Error loading interactive SVG:')).toBeInTheDocument();
     });
@@ -82,7 +82,7 @@ describe('InteractiveSVG', () => {
       const svgContent = '<svg><rect id="input:test" /></svg>';
       const result = parseSVG(svgContent, { patterns });
 
-      render(<InteractiveSVG svgContent={svgContent} mappings={result.mappings} />);
+      render(<SvgInteractive svgContent={svgContent} mappings={result.mappings} />);
 
       expect(screen.queryByText('Debug Information')).not.toBeInTheDocument();
     });
@@ -95,7 +95,7 @@ describe('InteractiveSVG', () => {
       `;
       const result = parseSVG(svgContent, { patterns });
 
-      render(<InteractiveSVG svgContent={svgContent} mappings={result.mappings} debug={true} />);
+      render(<SvgInteractive svgContent={svgContent} mappings={result.mappings} debug={true} />);
 
       expect(screen.getByText('Debug Information')).toBeInTheDocument();
       expect(screen.getByText(/Total Fields:/)).toBeInTheDocument();
@@ -107,7 +107,7 @@ describe('InteractiveSVG', () => {
       const svgContent = '<svg><rect id="input:test" /></svg>';
       const result = parseSVG(svgContent, { patterns });
 
-      render(<InteractiveSVG svgContent={svgContent} mappings={result.mappings} />);
+      render(<SvgInteractive svgContent={svgContent} mappings={result.mappings} />);
 
       const style = document.querySelector('style');
       expect(style?.textContent).toContain('svg-field-default');
@@ -118,14 +118,14 @@ describe('InteractiveSVG', () => {
       const result = parseSVG(svgContent, { patterns });
 
       const { rerender } = render(
-        <InteractiveSVG svgContent={svgContent} mappings={result.mappings} theme="minimal" />
+        <SvgInteractive svgContent={svgContent} mappings={result.mappings} theme="minimal" />
       );
 
       const style = document.querySelector('style');
       expect(style?.textContent).toContain('svg-field-minimal');
 
       rerender(
-        <InteractiveSVG svgContent={svgContent} mappings={result.mappings} theme="bordered" />
+        <SvgInteractive svgContent={svgContent} mappings={result.mappings} theme="bordered" />
       );
 
       await waitFor(() => {
@@ -144,7 +144,7 @@ describe('InteractiveSVG', () => {
       `;
       const result = parseSVG(svgContent, { patterns });
 
-      render(<InteractiveSVG svgContent={svgContent} mappings={result.mappings} />);
+      render(<SvgInteractive svgContent={svgContent} mappings={result.mappings} />);
 
       expect(result.mappings).toHaveLength(1);
       expect(result.mappings[0]?.type).toBe('input');
@@ -158,7 +158,7 @@ describe('InteractiveSVG', () => {
       `;
       const result = parseSVG(svgContent, { patterns });
 
-      render(<InteractiveSVG svgContent={svgContent} mappings={result.mappings} />);
+      render(<SvgInteractive svgContent={svgContent} mappings={result.mappings} />);
 
       expect(result.mappings).toHaveLength(1);
       expect(result.mappings[0]?.type).toBe('output');
@@ -173,7 +173,7 @@ describe('InteractiveSVG', () => {
       `;
       const result = parseSVG(svgContent, { patterns });
 
-      render(<InteractiveSVG svgContent={svgContent} mappings={result.mappings} />);
+      render(<SvgInteractive svgContent={svgContent} mappings={result.mappings} />);
 
       expect(result.mappings).toHaveLength(2);
       expect(result.mappings.filter((m) => m.type === 'input')).toHaveLength(1);
@@ -212,7 +212,7 @@ describe('InteractiveSVG', () => {
 
       const result = parseDrawIoSVG(svgContent, { patterns: drawioPatterns });
 
-      render(<InteractiveSVG svgContent={svgContent} mappings={result.mappings} />);
+      render(<SvgInteractive svgContent={svgContent} mappings={result.mappings} />);
 
       expect(result.mappings).toHaveLength(1);
       expect(result.metadata.tool).toBe('drawio');
@@ -226,7 +226,7 @@ describe('InteractiveSVG', () => {
       const result = parseSVG(svgContent, { patterns });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           svgContent={svgContent}
           mappings={result.mappings}
           onInputChange={onInputChange}
@@ -243,7 +243,7 @@ describe('InteractiveSVG', () => {
       const result = parseSVG(svgContent, { patterns });
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           svgContent={svgContent}
           mappings={result.mappings}
           onOutputCompute={onOutputCompute}
@@ -263,7 +263,7 @@ describe('InteractiveSVG', () => {
       const result = parseSVG(svgContent, { patterns });
 
       const { rerender } = render(
-        <InteractiveSVG
+        <SvgInteractive
           svgContent={svgContent}
           mappings={result.mappings}
           outputValues={{ result: 'External Value 1' }}
@@ -272,7 +272,7 @@ describe('InteractiveSVG', () => {
 
       // Update external output values
       rerender(
-        <InteractiveSVG
+        <SvgInteractive
           svgContent={svgContent}
           mappings={result.mappings}
           outputValues={{ result: 'External Value 2' }}
@@ -292,7 +292,7 @@ describe('InteractiveSVG', () => {
       const renderInput = () => <div>Custom Input</div>;
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           svgContent={svgContent}
           mappings={result.mappings}
           renderInput={renderInput}
@@ -310,7 +310,7 @@ describe('InteractiveSVG', () => {
       const renderOutput = () => <div>Custom Output</div>;
 
       render(
-        <InteractiveSVG
+        <SvgInteractive
           svgContent={svgContent}
           mappings={result.mappings}
           renderOutput={renderOutput}
@@ -339,7 +339,7 @@ describe('InteractiveSVG', () => {
       }));
 
       const { rerender } = render(
-        <InteractiveSVG
+        <SvgInteractive
           svgContent={svgWithInputs}
           mappings={resultWithInputs.mappings}
           onOutputCompute={onOutputCompute}
@@ -361,7 +361,7 @@ describe('InteractiveSVG', () => {
       onOutputCompute.mockClear();
 
       rerender(
-        <InteractiveSVG
+        <SvgInteractive
           svgContent={svgWithoutInputs}
           mappings={resultWithoutInputs.mappings}
           onOutputCompute={onOutputCompute}
@@ -382,11 +382,11 @@ describe('InteractiveSVG', () => {
       const result = parseSVG(svgContent, { patterns });
 
       const { rerender } = render(
-        <InteractiveSVG svgContent={svgContent} mappings={result.mappings} />
+        <SvgInteractive svgContent={svgContent} mappings={result.mappings} />
       );
 
       // Rerender with same mappings (simulates prop update without changing fields)
-      rerender(<InteractiveSVG svgContent={svgContent} mappings={result.mappings} />);
+      rerender(<SvgInteractive svgContent={svgContent} mappings={result.mappings} />);
 
       // Should not throw errors and container should still exist
       expect(document.querySelector('.svg-container')).toBeInTheDocument();
@@ -401,7 +401,7 @@ describe('InteractiveSVG', () => {
       const result1 = parseSVG(svgContent1, { patterns });
 
       const { rerender } = render(
-        <InteractiveSVG svgContent={svgContent1} mappings={result1.mappings} />
+        <SvgInteractive svgContent={svgContent1} mappings={result1.mappings} />
       );
 
       // Switch to different fields
@@ -413,7 +413,7 @@ describe('InteractiveSVG', () => {
       `;
       const result2 = parseSVG(svgContent2, { patterns });
 
-      rerender(<InteractiveSVG svgContent={svgContent2} mappings={result2.mappings} />);
+      rerender(<SvgInteractive svgContent={svgContent2} mappings={result2.mappings} />);
 
       // Should handle field changes without errors
       expect(document.querySelector('.svg-container')).toBeInTheDocument();
