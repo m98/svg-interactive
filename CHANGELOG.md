@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2025-11-28
+
+### Fixed
+- **Critical: Input Focus Loss During Typing** - Inputs now maintain focus while typing, even when parent components re-render. Previously, users experienced frustrating focus loss requiring repeated clicking to continue typing. This affected applications that don't memoize props (a common React pattern). The library now handles unmemoized props gracefully without requiring consumers to change their code.
+
 ## [0.3.0] - 2025-11-20
 
 ### Changed

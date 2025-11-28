@@ -58,6 +58,40 @@ export function useFieldOverlay({
     renderOutputRef.current = renderOutput;
   }, [renderOutput]);
 
+  // Create stable reference for mappings that only changes when content changes
+  // This prevents effect from re-running on reference changes
+  const mappingsRef = useRef<FieldMapping[]>(mappings);
+
+  const areMappingsEqual = (a: FieldMapping[], b: FieldMapping[]): boolean => {
+    if (!a || !b) {
+      return a === b;
+    }
+    if (a.length !== b.length) {
+      return false;
+    }
+    for (let i = 0; i < a.length; i++) {
+      const aMap = a[i];
+      const bMap = b[i];
+      if (
+        !aMap ||
+        !bMap ||
+        aMap.elementId !== bMap.elementId ||
+        aMap.dataId !== bMap.dataId ||
+        aMap.name !== bMap.name ||
+        aMap.type !== bMap.type
+      ) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  // Only update ref when content actually changes
+  if (!areMappingsEqual(mappingsRef.current, mappings)) {
+    mappingsRef.current = mappings;
+  }
+  const stableMappings = mappingsRef.current;
+
   const hasFieldLayoutChanged = (prev: FieldData[], next: FieldData[]) => {
     if (prev.length !== next.length) {
       return true;
@@ -96,7 +130,7 @@ export function useFieldOverlay({
     return false;
   };
 
-  // Create foreignObjects when SVG loads
+  // Create foreignObjects when SVG loads or layout changes
   useEffect(() => {
     if (!svgContainerRef.current) {
       return;
@@ -107,27 +141,12 @@ export function useFieldOverlay({
       return;
     }
 
-    // Clear existing React roots
-
-    reactRootsRef.current.forEach(({ root }) => {
-      try {
-        root.unmount();
-      } catch (e) {
-        console.warn('Error unmounting React root:', e);
-      }
-    });
+    // Clear refs before building (cleanup will handle actual unmounting/removal)
+    foreignObjectsRef.current = [];
     reactRootsRef.current = [];
 
-    // IMPORTANT: Query DOM directly for existing foreignObjects (don't rely on ref)
-    // This handles React StrictMode double-mount where ref is reset
-    const existingForeignObjects = svgElement.querySelectorAll('foreignObject[data-field-id]');
-    existingForeignObjects.forEach((fo) => {
-      fo.remove();
-    });
-    foreignObjectsRef.current = [];
-
     // Get bounding boxes for all mappings (bbox may be null if the browser can't compute it)
-    const fieldsWithBbox = getFieldBoundingBoxes(svgElement, mappings) as FieldData[];
+    const fieldsWithBbox = getFieldBoundingBoxes(svgElement, stableMappings) as FieldData[];
 
     const shouldUpdateFields = hasFieldLayoutChanged(fieldsRef.current, fieldsWithBbox);
     fieldsRef.current = fieldsWithBbox;
@@ -380,9 +399,14 @@ export function useFieldOverlay({
     // handle efficient value updates without DOM reconstruction.
     // Callbacks (onInputChange, renderInput, renderOutput) are stored in refs and
     // excluded from deps to prevent recreation when callback references change.
-    // inputStyle and outputStyle ARE included so that style changes trigger re-render.
+    // inputStyle, outputStyle, inputClassName, outputClassName, and theme are intentionally
+    // EXCLUDED to prevent focus loss: when consumers pass inline objects/strings, every render
+    // creates new references, which would cause this effect to re-run and destroy/recreate all inputs.
+    // Style/className/theme updates are handled by the re-render effect below.
+    // stableMappings is a ref that only changes when mapping content changes (not reference),
+    // preventing unnecessary rebuilds when consumers don't memoize mappings.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [svgContainerRef, mappings, theme, inputClassName, outputClassName, inputStyle, outputStyle]);
+  }, [svgContainerRef, stableMappings]);
 
   // Re-render custom React roots when values change
   useEffect(() => {
@@ -428,7 +452,10 @@ export function useFieldOverlay({
         root.render(node as any);
       }
     });
-  }, [inputValues, outputValues, inputClassName, outputClassName, inputStyle, outputStyle, theme]);
+    // Note: inputStyle and outputStyle are intentionally excluded to prevent focus loss when
+    // consumers pass inline style objects. Consumers should memoize styles if needed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputValues, outputValues, inputClassName, outputClassName, theme]);
 
   // Update output values when they change
   useEffect(() => {
